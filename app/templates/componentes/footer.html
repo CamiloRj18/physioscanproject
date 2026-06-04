@@ -1,30 +1,83 @@
-<footer class="footer" role="contentinfo">
+<footer class="footer" role="contentinfo" aria-label="Pie de página institucional">
   <div class="footer__container">
+
     <div class="footer__brand">
-      <span class="footer__brand-text">PhysioScan</span>
-      <p class="footer__tagline">Monitoreo del rendimiento deportivo</p>
+      <!-- Icono ECG / brand -->
+      <a href="{{ url_for('publico.home') }}" class="footer__brand-link" aria-label="PhysioScan — Inicio">
+        <svg width="24" height="24" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" color="var(--cyan-core)">
+          <circle cx="14" cy="14" r="12"/>
+          <path d="M5 14h3l2-6 4 12 3-8 1.5 2H23" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="footer__brand-text">PhysioScan</span>
+      </a>
+      <p class="footer__tagline">Monitoreo inteligente del rendimiento deportivo</p>
+      <p class="footer__institution">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 21h18M5 21V9l7-6 7 6v12M9 21V15h6v6"/>
+        </svg>
+        Institución Universitaria de El Espinal — UniEspinal
+      </p>
     </div>
 
     <div class="footer__col">
       <h4>Plataforma</h4>
-      <ul>
-        <li><a href="{{ url_for('publico.home') }}">Inicio</a></li>
-        <li><a href="{{ url_for('auth.registro') }}">Registrarse</a></li>
-        <li><a href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
+      <ul role="list">
+        <li>
+          <a href="{{ url_for('publico.home') }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Inicio
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('auth.registro') }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            Registrarse
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('auth.login') }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Iniciar sesión
+          </a>
+        </li>
       </ul>
     </div>
 
     <div class="footer__col">
-      <h4>Institución</h4>
-      <ul>
-        <li><span>UniEspinal</span></li>
-        <li><span>Institución Universitaria de El Espinal</span></li>
+      <h4>Tecnología</h4>
+      <ul role="list">
+        <li><span>Flask 3.1 + Python 3</span></li>
+        <li><span>MySQL · Three.js r128</span></li>
+        <li><span>ESP32 · ECG · GPS · IMU</span></li>
       </ul>
     </div>
+
+    <div class="footer__col">
+      <h4>Autor</h4>
+      <ul role="list">
+        <li>
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Camilo Ramírez Jiménez
+          </span>
+        </li>
+        <li><span>Investigación aplicada</span></li>
+        <li><span>UniEspinal · 2026</span></li>
+      </ul>
+    </div>
+
   </div>
 
   <div class="footer__bottom">
-    <span>© {{ now.year if now else 2026 }} PhysioScan — UniEspinal</span>
-    <span class="footer__law">Tratamiento de datos conforme a la Ley 1581 de 2012</span>
+    <span class="footer__copy">
+      &copy; {{ now.year if now else 2026 }} PhysioScan — Institución Universitaria de El Espinal
+    </span>
+    <span class="footer__law">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Tratamiento de datos personales conforme a la
+      <abbr title="Ley 1581 de 2012 — Protección de datos personales en Colombia">Ley 1581 de 2012</abbr>.
+      Finalidad: monitoreo deportivo institucional. Sus derechos de acceso, rectificación,
+      cancelación y oposición (ARCO) pueden ejercerse ante el responsable del tratamiento.
+    </span>
   </div>
 </footer>

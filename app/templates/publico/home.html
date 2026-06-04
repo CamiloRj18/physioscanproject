@@ -1,0 +1,544 @@
+{% extends "base.html" %}
+
+{% block title %}PhysioScan — Monitoreo del Rendimiento Deportivo | UniEspinal{% endblock %}
+
+{% block extra_css %}
+<!-- No extra CSS: base.html ya incluye tokens, base, componentes, holograma, responsive -->
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECCIÓN 1 — HERO + HOLOGRAMA 3D
+══════════════════════════════════════════════════════════════════════════ -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__container">
+
+    <!-- Texto -->
+    <div class="hero__content fade-up" data-delay="0">
+      <span class="hero__badge">
+        <span class="hero__badge-dot" aria-hidden="true"></span>
+        Sistema activo — UniEspinal 2026
+      </span>
+
+      <h1 class="hero__title" id="hero-title">
+        Monitoreo<br>
+        <span>Deportivo</span><br>
+        Inteligente
+      </h1>
+
+      <p class="hero__subtitle">
+        PhysioScan captura frecuencia cardíaca, posición GPS e inclinación corporal en tiempo real
+        a través de un chaleco con sensores biométricos, centralizando los datos para decisiones
+        de entrenamiento basadas en evidencia.
+      </p>
+
+      <div class="hero__cta-group">
+        <a href="{{ url_for('auth.login') }}"
+           class="btn btn-primary"
+           aria-label="Inicia sesión en PhysioScan">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+            <polyline points="10,17 15,12 10,7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          Inicia sesión
+        </a>
+        <a href="{{ url_for('auth.registro') }}"
+           class="btn btn-secondary"
+           aria-label="Créate una cuenta en PhysioScan">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/>
+            <line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          Registrarse
+        </a>
+      </div>
+
+      <div class="hero__metrics" aria-label="Métricas del sistema">
+        <div class="hero__metric-item">
+          <span class="hero__metric-value">3</span>
+          <span class="hero__metric-label">Sensores</span>
+        </div>
+        <div class="hero__metric-item">
+          <span class="hero__metric-value">RT</span>
+          <span class="hero__metric-label">Tiempo real</span>
+        </div>
+        <div class="hero__metric-item">
+          <span class="hero__metric-value">OA</span>
+          <span class="hero__metric-label">Código abierto</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Holograma 3D -->
+    <div class="hero__visual fade-up" data-delay="200" aria-hidden="true">
+      <div class="holograma-wrap" role="img" aria-label="Visualización 3D de monitoreo biométrico corporal">
+        <canvas id="holograma-canvas"></canvas>
+
+        <!-- Fallback sin WebGL -->
+        <div id="holograma-fallback" role="img" aria-label="Ilustración de chaleco con sensores">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1" aria-hidden="true">
+            <path d="M12 2C9 2 7 4 7 4L3 6v6c0 6 9 10 9 10s9-4 9-10V6l-4-2s-2-2-5-2z"/>
+            <path d="M8 11h2l1-3 2 7 2-5 .5 1H16" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span>Tu navegador no soporta WebGL</span>
+          <span>Actualiza el navegador para ver el holograma 3D</span>
+        </div>
+
+        <!-- Marcos HUD decorativos -->
+        <div class="hud-frame" aria-hidden="true">
+          <span class="hud-corner hud-corner--tl"></span>
+          <span class="hud-corner hud-corner--tr"></span>
+          <span class="hud-corner hud-corner--bl"></span>
+          <span class="hud-corner hud-corner--br"></span>
+        </div>
+
+        <!-- Etiquetas de sensores -->
+        <span class="hud-label hud-label--ecg" aria-hidden="true">ECG · AD8232</span>
+        <span class="hud-label hud-label--imu" aria-hidden="true">IMU · MPU-6050</span>
+        <span class="hud-label hud-label--gps" aria-hidden="true">GPS · NEO-7M</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider-glow" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECCIÓN 2 — VISIÓN Y MISIÓN
+══════════════════════════════════════════════════════════════════════════ -->
+<section class="section section--alt" aria-labelledby="vm-title">
+  <div class="section__container">
+    <p class="section__label" aria-hidden="true">Identidad institucional</p>
+    <h2 class="section__title" id="vm-title">Visión y Misión</h2>
+
+    <div class="vm-grid">
+
+      <!-- Visión -->
+      <article class="vm-card fade-up" data-delay="0">
+        <div class="vm-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <p class="vm-card__label">Visión</p>
+        <h3 class="vm-card__title">Referente en monitoreo deportivo abierto</h3>
+        <p class="vm-card__text">
+          Ser la herramienta de referencia, abierta y replicable, para el monitoreo del
+          rendimiento deportivo en instituciones de formación técnica de Colombia,
+          demostrando que el hardware de bajo costo y el software libre pueden igualar
+          funciones de plataformas comerciales.
+        </p>
+      </article>
+
+      <!-- Misión -->
+      <article class="vm-card fade-up" data-delay="100">
+        <div class="vm-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </div>
+        <p class="vm-card__label">Misión</p>
+        <h3 class="vm-card__title">Datos biométricos para el entrenamiento basado en evidencia</h3>
+        <p class="vm-card__text">
+          Brindar a entrenadores y deportistas de la UniEspinal un servicio web propio que
+          centralice la captura, el almacenamiento y la interpretación de datos biométricos
+          (frecuencia cardíaca, GPS e inclinación corporal) capturados por un chaleco
+          inteligente, apoyando decisiones de entrenamiento basadas en evidencia.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECCIÓN 3 — OBJETIVOS
+══════════════════════════════════════════════════════════════════════════ -->
+<section class="section" aria-labelledby="obj-title">
+  <div class="section__container">
+    <p class="section__label" aria-hidden="true">Alcance del proyecto</p>
+    <h2 class="section__title" id="obj-title">Objetivos</h2>
+
+    <!-- Objetivo general -->
+    <div class="objetivo-general fade-up" data-delay="0">
+      <p class="objetivo-general__label">Objetivo general</p>
+      <p class="objetivo-general__text">
+        Desarrollar un servicio web complementado con un chaleco inteligente con sensores
+        biométricos que apoye el monitoreo del rendimiento deportivo en contextos de formación
+        técnica, mediante un modelo en capas y tecnologías de código abierto.
+      </p>
+    </div>
+
+    <!-- Objetivos específicos -->
+    <div class="objetivos-especificos" aria-label="Objetivos específicos">
+
+      <article class="objetivo-item fade-up" data-delay="0">
+        <span class="objetivo-item__num" aria-hidden="true">1</span>
+        <p class="objetivo-item__text">
+          Analizar los requerimientos funcionales y no funcionales del sistema de monitoreo,
+          identificando necesidades de entrenadores y deportistas en el contexto de la UniEspinal.
+        </p>
+      </article>
+
+      <article class="objetivo-item fade-up" data-delay="100">
+        <span class="objetivo-item__num" aria-hidden="true">2</span>
+        <p class="objetivo-item__text">
+          Diseñar un modelo en capas con Flask como backend y MySQL como capa de persistencia,
+          separando presentación, lógica de negocio y acceso a datos con responsabilidades claras.
+        </p>
+      </article>
+
+      <article class="objetivo-item fade-up" data-delay="200">
+        <span class="objetivo-item__num" aria-hidden="true">3</span>
+        <p class="objetivo-item__text">
+          Integrar los datos de frecuencia cardíaca, GPS y giroscopio del chaleco al servicio web,
+          con almacenamiento estructurado y visualización interactiva mediante Three.js r128.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECCIÓN 4 — PALETA DE COLORES
+══════════════════════════════════════════════════════════════════════════ -->
+<section class="section section--alt" aria-labelledby="palette-title">
+  <div class="section__container">
+    <p class="section__label" aria-hidden="true">Design system</p>
+    <h2 class="section__title" id="palette-title">Paleta de Colores</h2>
+    <p class="section__desc">
+      Tokens de color del sistema de diseño PhysioScan — dark space con acento cian institucional.
+      Todos los valores cumplen contraste WCAG AA (≥ 4.5:1) sobre fondos oscuros.
+    </p>
+
+    <div class="palette-grid" role="list" aria-label="Colores del sistema de diseño">
+
+      <!-- Fondos -->
+      <div class="swatch" role="listitem" aria-label="Deep Space">
+        <div class="swatch__color" style="background:#020813;border:1px solid rgba(117,218,255,.15)"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Deep Space</span>
+          <span class="swatch__hex">#020813</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Midnight Navy">
+        <div class="swatch__color" style="background:#041425"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Midnight Navy</span>
+          <span class="swatch__hex">#041425</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Dark Ocean">
+        <div class="swatch__color" style="background:#071C34"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Dark Ocean</span>
+          <span class="swatch__hex">#071C34</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Panel Frost">
+        <div class="swatch__color" style="background:rgba(10,34,66,.52);backdrop-filter:blur(8px)"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Panel Frost</span>
+          <span class="swatch__hex">rgba(10,34,66,.52)</span>
+        </div>
+      </div>
+
+      <!-- Acentos -->
+      <div class="swatch" role="listitem" aria-label="Cyan Core">
+        <div class="swatch__color" style="background:#79DBFF"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Cyan Core</span>
+          <span class="swatch__hex">#79DBFF</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Cyan Strong">
+        <div class="swatch__color" style="background:#B4F8FF"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Cyan Strong</span>
+          <span class="swatch__hex">#B4F8FF</span>
+        </div>
+      </div>
+
+      <!-- Texto -->
+      <div class="swatch" role="listitem" aria-label="Ice White">
+        <div class="swatch__color" style="background:#ECFBFF"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Ice White</span>
+          <span class="swatch__hex">#ECFBFF</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Slate Blue">
+        <div class="swatch__color" style="background:#9784C8"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Slate Blue</span>
+          <span class="swatch__hex">#9784C8</span>
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="swatch" role="listitem" aria-label="Success Mint">
+        <div class="swatch__color" style="background:#2FD69E"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Success Mint</span>
+          <span class="swatch__hex">#2FD69E</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Alert Rose">
+        <div class="swatch__color" style="background:#FF7285"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Alert Rose</span>
+          <span class="swatch__hex">#FF7285</span>
+        </div>
+      </div>
+
+      <!-- Sensores / glow -->
+      <div class="swatch" role="listitem" aria-label="Sensor Glow">
+        <div class="swatch__color" style="background:#9EF7FF"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Sensor Glow</span>
+          <span class="swatch__hex">#9EF7FF</span>
+        </div>
+      </div>
+
+      <div class="swatch" role="listitem" aria-label="Bullet Glow">
+        <div class="swatch__color" style="background:#7AF4FF"></div>
+        <div class="swatch__info">
+          <span class="swatch__name">Bullet Glow</span>
+          <span class="swatch__hex">#7AF4FF</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECCIÓN 5 — TIPOGRAFÍAS
+══════════════════════════════════════════════════════════════════════════ -->
+<section class="section" aria-labelledby="typo-title">
+  <div class="section__container">
+    <p class="section__label" aria-hidden="true">Design system</p>
+    <h2 class="section__title" id="typo-title">Tipografías</h2>
+    <p class="section__desc">
+      Tres stacks tipográficos del sistema: todos son fuentes del sistema operativo
+      (sin CDN externo) garantizando compatibilidad con la Política de Seguridad de Contenido.
+    </p>
+
+    <div class="typo-grid">
+
+      <!-- Bahnschrift — títulos -->
+      <div class="typo-card">
+        <div class="typo-card__meta">
+          <span class="typo-card__badge">Títulos</span>
+          <span class="typo-card__role">Encabezados · UI · Navbar</span>
+        </div>
+        <div class="typo-card__specimen">
+          <p class="typo-card__large" style="font-family:Bahnschrift,'Segoe UI',sans-serif">
+            Bahnschrift
+          </p>
+          <p class="typo-card__sample" style="font-family:Bahnschrift,'Segoe UI',sans-serif">
+            Monitoreo del rendimiento deportivo inteligente con sensores biométricos
+            de alta precisión integrados en un chaleco wearable.
+          </p>
+          <div class="typo-card__scale">
+            <span class="typo-card__scale-item" style="font-family:Bahnschrift,'Segoe UI',sans-serif">
+              var(--fuente-titulo)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trebuchet MS — cuerpo -->
+      <div class="typo-card">
+        <div class="typo-card__meta">
+          <span class="typo-card__badge">Cuerpo</span>
+          <span class="typo-card__role">Párrafos · Descripciones · UI</span>
+        </div>
+        <div class="typo-card__specimen">
+          <p class="typo-card__large" style="font-family:'Trebuchet MS',system-ui,sans-serif">
+            Trebuchet
+          </p>
+          <p class="typo-card__sample" style="font-family:'Trebuchet MS',system-ui,sans-serif">
+            Sistema de monitoreo biométrico en tiempo real: frecuencia cardíaca, posicionamiento
+            GPS e inclinación corporal para el seguimiento del rendimiento deportivo.
+          </p>
+          <div class="typo-card__scale">
+            <span class="typo-card__scale-item" style="font-family:'Trebuchet MS',system-ui,sans-serif">
+              var(--fuente-cuerpo)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cascadia Code / Consolas — datos -->
+      <div class="typo-card">
+        <div class="typo-card__meta">
+          <span class="typo-card__badge">Datos</span>
+          <span class="typo-card__role">Métricas · Código · HUD · API</span>
+        </div>
+        <div class="typo-card__specimen">
+          <p class="typo-card__large" style="font-family:'Cascadia Code',Consolas,'Courier New',monospace">
+            Monospace
+          </p>
+          <p class="typo-card__sample" style="font-family:'Cascadia Code',Consolas,'Courier New',monospace">
+            BPM: 142 · GPS: 4.1490°N -74.8838°W<br>
+            IMU: pitch=11.3° roll=2.1° · ECG: 2480 ADC
+          </p>
+          <div class="typo-card__scale">
+            <span class="typo-card__scale-item" style="font-family:'Cascadia Code',Consolas,monospace">
+              var(--fuente-datos)
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider-glow" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SECCIÓN 6 — STACK TECNOLÓGICO
+══════════════════════════════════════════════════════════════════════════ -->
+<section class="section section--alt" aria-labelledby="stack-title">
+  <div class="section__container">
+    <p class="section__label" aria-hidden="true">Arquitectura</p>
+    <h2 class="section__title" id="stack-title">Stack Tecnológico</h2>
+    <p class="section__desc">
+      Tecnologías de código abierto seleccionadas para el proyecto, sin dependencias propietarias.
+    </p>
+
+    <div class="stack-grid" role="list" aria-label="Stack tecnológico del proyecto">
+
+      <!-- HTML5 -->
+      <div class="stack-card" role="listitem" aria-label="HTML5 — Estructura">
+        <div class="stack-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <path d="M4 3l1.5 16.5L12 21l6.5-1.5L20 3H4z"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.5 8.5h7M9 12.5h5.5l-.4 3.5L12 17l-2.1-.5L9.5 15"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="stack-card__name">HTML5</span>
+        <span class="stack-card__role">Estructura semántica</span>
+      </div>
+
+      <!-- CSS3 -->
+      <div class="stack-card" role="listitem" aria-label="CSS3 — Presentación">
+        <div class="stack-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <path d="M4 3l1.5 16.5L12 21l6.5-1.5L20 3H4z"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.5 8.5h7M8.5 12.5h6l-.3 3L12 17l-2.2-.5-.2-2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.5 8.5l-.4-2h6l-.3 2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="stack-card__name">CSS3</span>
+        <span class="stack-card__role">Estilos · Design system</span>
+      </div>
+
+      <!-- JavaScript -->
+      <div class="stack-card" role="listitem" aria-label="JavaScript — Interactividad">
+        <div class="stack-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 17v-6M12 17c0 0 0-3 2.5-3s2.5 2 2.5 2-0 1.5-1.5 2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="stack-card__name">JavaScript</span>
+        <span class="stack-card__role">Three.js · Canvas · Polling</span>
+      </div>
+
+      <!-- MySQL -->
+      <div class="stack-card" role="listitem" aria-label="MySQL — Base de datos">
+        <div class="stack-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <ellipse cx="12" cy="6"  rx="8" ry="3"/>
+            <path d="M4 6v4c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
+            <path d="M4 10v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
+            <path d="M4 14v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
+          </svg>
+        </div>
+        <span class="stack-card__name">MySQL</span>
+        <span class="stack-card__role">Persistencia · Triggers · InnoDB</span>
+      </div>
+
+      <!-- Flask / Python -->
+      <div class="stack-card" role="listitem" aria-label="Flask — Backend web">
+        <div class="stack-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <path d="M9 3h6l-1 6h2l-4 12-4-12h2L9 3z"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 18c-1 1-2 2-2 3h14c0-1-1-2-2-3"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="stack-card__name">Flask</span>
+        <span class="stack-card__role">Backend · API · Blueprints</span>
+      </div>
+
+      <!-- Python -->
+      <div class="stack-card" role="listitem" aria-label="Python — Lenguaje base">
+        <div class="stack-card__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2C9 2 7 3 7 5v3h5v1H5C3 9 2 11 2 13s1 4 3 4h2v-2c0-2 2-3 5-3s5 1 5 3v2h2c2 0 3-2 3-4s-1-4-3-4h-6V8h5V5c0-2-2-3-5-3z"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9.5" cy="5" r="0.8" fill="currentColor"/>
+            <circle cx="14.5" cy="19" r="0.8" fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="stack-card__name">Python 3</span>
+        <span class="stack-card__role">Lógica · Argon2id · TOTP</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Three.js r128 autohospedado: carga sin CDN externo (CSP self) -->
+<script src="{{ url_for('static', filename='js/vendor/three.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/GLTFLoader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/holograma3d.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+{% endblock %}

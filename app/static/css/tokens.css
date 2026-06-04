@@ -26,6 +26,7 @@
   --line-soft:    rgba(117, 218, 255, .22);
   --line-strong:  rgba(117, 218, 255, .40);
   --sensor-glow:  #9EF7FF;
+  --bullet-glow:  #7AF4FF;
 
   /* ── Fuentes del sistema (sin CDN externo) ───────────────── */
   --fuente-titulo: "Bahnschrift", "Segoe UI", system-ui, sans-serif;

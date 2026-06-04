@@ -3,11 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="PhysioScan — Monitoreo del rendimiento deportivo">
+  <meta name="description" content="{{ self.meta_description() if self.meta_description is defined else 'PhysioScan — Monitoreo del rendimiento deportivo mediante chaleco inteligente con sensores biométricos. UniEspinal.' }}">
   <title>{% block title %}PhysioScan{% endblock %}</title>
 
+  <!-- Tokens primero (variables CSS disponibles para todos los sheets) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/componentes.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/holograma.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
   {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">

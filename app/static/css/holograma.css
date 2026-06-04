@@ -1,0 +1,143 @@
+/* PhysioScan — Holograma 3D canvas: estilos y efectos */
+
+/* ── Contenedor del holograma ──────────────────────────────────────────────── */
+.holograma-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  aspect-ratio: 4 / 5;
+}
+
+/* Gradiente ambiental alrededor del canvas */
+.holograma-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  background: radial-gradient(ellipse at center,
+    rgba(121,219,255,.12) 0%,
+    rgba(121,219,255,.04) 50%,
+    transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Anillo de glow exterior */
+.holograma-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    0 0 60px rgba(121,219,255,.15),
+    0 0 120px rgba(121,219,255,.06);
+  pointer-events: none;
+  z-index: 0;
+  animation: holo-pulse 3s ease-in-out infinite;
+}
+
+@keyframes holo-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .5; }
+}
+
+/* ── Canvas ─────────────────────────────────────────────────────────────────── */
+#holograma-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radius-lg);
+}
+
+/* ── Fallback estático (sin WebGL) ─────────────────────────────────────────── */
+#holograma-fallback {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radius-lg);
+  background: var(--panel-frost);
+  border: 1px solid var(--line-soft);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-md);
+  text-align: center;
+  color: var(--slate-blue);
+  font-family: var(--fuente-datos);
+  font-size: 0.75rem;
+}
+
+#holograma-fallback svg {
+  color: var(--cyan-core);
+  opacity: .5;
+}
+
+/* ── HUD decorativo alrededor del canvas ───────────────────────────────────── */
+.hud-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--cyan-core);
+  border-style: solid;
+  opacity: .6;
+}
+
+.hud-corner--tl { top: 0; left: 0;  border-width: 2px 0 0 2px; }
+.hud-corner--tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.hud-corner--bl { bottom: 0; left: 0;  border-width: 0 0 2px 2px; }
+.hud-corner--br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+/* ── Etiquetas HUD flotantes ───────────────────────────────────────────────── */
+.hud-label {
+  position: absolute;
+  background: rgba(4,20,37,.8);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+  font-family: var(--fuente-datos);
+  font-size: 0.625rem;
+  color: var(--cyan-core);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.hud-label--ecg  { top: 12%; right: -5%; }
+.hud-label--imu  { top: 55%; right: -8%; }
+.hud-label--gps  { bottom: 18%; left: -5%; }
+
+@media (max-width: 767px) {
+  .hud-label { display: none; }
+
+  .holograma-wrap {
+    max-width: 300px;
+    aspect-ratio: 3 / 4;
+  }
+}
+
+/* ── variante dashboard (panel del deportista) ─────────────────────────────── */
+.holograma-wrap--dashboard {
+  max-width: 320px;
+  aspect-ratio: 3 / 5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holograma-wrap::after,
+  .hud-corner {
+    animation: none !important;
+  }
+
+  @keyframes holo-pulse { 0%, 100% { opacity: .7; } }
+}

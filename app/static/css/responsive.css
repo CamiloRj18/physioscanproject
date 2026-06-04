@@ -1,0 +1,205 @@
+/* PhysioScan — Responsive: mobile-first
+   Breakpoints: 375 (base) · 768 · 1024 · 1440
+   Strategy: grid/flex, fluid typography (clamp), imágenes fluidas
+*/
+
+/* ────────────────────────────────────────────────────────────────────────────
+   BASE — 375px+ (pantallas muy pequeñas primero)
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Hero: columna única en móvil, canvas debajo del texto */
+.hero__container {
+  grid-template-columns: 1fr;
+  text-align: center;
+}
+
+.hero__content {
+  align-items: center;
+}
+
+.hero__subtitle {
+  max-width: 100%;
+}
+
+.hero__metrics {
+  justify-content: center;
+}
+
+/* Vision/Misión en columna única */
+.vm-grid {
+  grid-template-columns: 1fr;
+}
+
+/* Objetivos específicos en columna única */
+.objetivos-especificos {
+  grid-template-columns: 1fr;
+}
+
+/* Paleta: 2 columnas en muy pequeño */
+.palette-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Tipografía: columna única */
+.typo-grid {
+  grid-template-columns: 1fr;
+}
+
+/* Stack: 2 columnas en muy pequeño */
+.stack-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Evitar desbordamiento horizontal */
+img, canvas, video, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Texto no desborda */
+* {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   SM — 480px+
+──────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 480px) {
+  .palette-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stack-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   MD — 768px+ (tableta)
+──────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  /* Hero: dos columnas, texto izquierda / holograma derecha */
+  .hero__container {
+    grid-template-columns: 1fr 1fr;
+    text-align: left;
+  }
+
+  .hero__content {
+    align-items: flex-start;
+  }
+
+  .hero__metrics {
+    justify-content: flex-start;
+  }
+
+  /* Vision/Misión: 2 columnas */
+  .vm-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Objetivos: 1 columna sigue bien aquí */
+  .objetivos-especificos {
+    grid-template-columns: 1fr;
+  }
+
+  /* Paleta: 4 columnas */
+  .palette-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Tipografía: 1 columna (cards anchas) */
+  .typo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stack: 3 columnas */
+  .stack-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   LG — 1024px+ (escritorio)
+──────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  /* Hero: 55/45 para más espacio al texto */
+  .hero__container {
+    grid-template-columns: 55fr 45fr;
+  }
+
+  /* Objetivos: 3 columnas para los específicos */
+  .objetivos-especificos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Paleta: 5-6 columnas */
+  .palette-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  /* Tipografía: 3 columnas (una por fuente) */
+  .typo-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Stack: 3 columnas (6 items = 2 filas × 3) */
+  .stack-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Admin sidebar layout (ya en admin.css, pero refuerzo aquí) */
+  .admin-layout {
+    grid-template-columns: 240px 1fr;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   XL — 1280px+
+──────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1280px) {
+  /* Paleta: 6 columnas */
+  .palette-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* Stack: 6 columnas (fila única) */
+  .stack-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   2XL — 1440px+ (pantallas grandes)
+──────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1440px) {
+  /* Hero más separado */
+  .hero__container {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+  }
+
+  .section {
+    padding: calc(var(--space-3xl) * 1.25) var(--space-lg);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Preferencias del sistema
+──────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Utilidades de contenido ────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .hide-mobile  { display: none !important; }
+}
+@media (min-width: 768px) {
+  .hide-desktop { display: none !important; }
+}

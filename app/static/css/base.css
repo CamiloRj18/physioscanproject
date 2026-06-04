@@ -334,3 +334,38 @@ code, kbd, samp, pre {
   font-size: .8125rem;
 }
 .footer__law { color: var(--slate-blue); }
+
+.footer__brand-link {
+  display: flex; align-items: center; gap: var(--space-sm);
+  text-decoration: none; width: fit-content;
+  transition: opacity var(--transition-fast);
+}
+.footer__brand-link:hover { opacity: .8; }
+.footer__brand-link:focus-visible { outline: 2px solid var(--cyan-core); outline-offset: 4px; border-radius: var(--radius-sm); }
+
+.footer__institution {
+  display: flex; align-items: center; gap: var(--space-xs);
+  font-size: .8125rem; color: var(--slate-blue); margin-top: var(--space-xs);
+}
+
+.footer__col a {
+  display: flex; align-items: center; gap: var(--space-xs);
+  cursor: pointer;
+}
+
+.footer__col span {
+  display: flex; align-items: center; gap: var(--space-xs);
+}
+
+.footer__copy { color: var(--slate-blue); }
+
+.footer__law {
+  display: flex; align-items: flex-start; gap: var(--space-xs);
+  flex-wrap: wrap; max-width: 520px; line-height: 1.5;
+}
+
+.footer__law abbr {
+  text-decoration: underline dotted;
+  cursor: help;
+  color: var(--cyan-core);
+}
