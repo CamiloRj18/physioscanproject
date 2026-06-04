@@ -8,7 +8,8 @@ USE physioscan;
 INSERT INTO rol (nombre, descripcion) VALUES
   ('administrador', 'Gestión total del sistema y reemisión de archivos de recuperación'),
   ('entrenador',    'Consulta de deportistas asignados y sus métricas'),
-  ('deportista',    'Acceso a sus propias sesiones y métricas');
+  ('deportista',    'Acceso a sus propias sesiones y métricas'),
+  ('usuario',       'Cuenta básica. Puede completar perfil deportivo desde su panel.');
 
 -- ─── Tipos de sensor ─────────────────────────────────────────────────────────
 INSERT INTO tipo_sensor (codigo, nombre, unidad, descripcion) VALUES

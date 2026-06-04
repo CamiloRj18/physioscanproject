@@ -28,6 +28,7 @@
             </svg>
             {{ current_user.primer_nombre }}
           </span>
+          <a href="{{ url_for('usuario.perfil') }}" class="btn btn-ghost btn--sm">Mi perfil</a>
           <form action="{{ url_for('auth.logout') }}" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-ghost btn--sm">Cerrar sesión</button>

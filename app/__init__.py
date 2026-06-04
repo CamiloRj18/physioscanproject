@@ -108,6 +108,7 @@ def _registrar_blueprints(app: Flask) -> None:
     from app.presentacion.publico_controlador      import bp_publico
     from app.presentacion.auth_controlador         import bp_auth
     from app.presentacion.recuperacion_controlador import bp_recuperacion
+    from app.presentacion.usuario_controlador      import bp_usuario
     from app.presentacion.deportista_controlador   import bp_deportista
     from app.presentacion.entrenador_controlador   import bp_entrenador
     from app.presentacion.admin_controlador        import bp_admin
@@ -118,6 +119,7 @@ def _registrar_blueprints(app: Flask) -> None:
     app.register_blueprint(bp_publico)
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_recuperacion)
+    app.register_blueprint(bp_usuario)
     app.register_blueprint(bp_deportista)
     app.register_blueprint(bp_entrenador)
     app.register_blueprint(bp_admin)

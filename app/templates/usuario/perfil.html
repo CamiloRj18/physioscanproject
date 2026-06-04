@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Mi perfil — PhysioScan{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard" aria-label="Mi perfil">
+
+  <header class="dashboard__header">
+    <div>
+      <h1 class="dashboard__title">Mi perfil</h1>
+      <p class="dashboard__subtitle">
+        {{ current_user.primer_nombre }} {{ current_user.primer_apellido }}
+        &nbsp;·&nbsp;
+        <span class="badge badge--{{ current_user.nombre_rol }}">{{ current_user.nombre_rol | capitalize }}</span>
+      </p>
+    </div>
+    {% if current_user.nombre_rol == 'deportista' %}
+    <div style="margin-left:auto">
+      <a href="{{ url_for('deportista.sesiones') }}" class="btn btn-primary btn--sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px;margin-right:4px">
+          <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z"/><path d="M12 8v4l3 3"/>
+        </svg>
+        Mis sesiones
+      </a>
+    </div>
+    {% endif %}
+  </header>
+
+  {# ── Datos personales ────────────────────────────────────────────────── #}
+  <div class="profile-section" style="background:var(--midnight-navy);border:1px solid var(--line-soft);
+       border-radius:var(--radius-lg);padding:var(--space-xl);margin-bottom:var(--space-xl)">
+
+    <h2 style="font-family:var(--fuente-titulo);font-size:1rem;color:var(--ice-white);
+               margin:0 0 var(--space-lg);display:flex;align-items:center;gap:var(--space-sm)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="2" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      Datos personales
+    </h2>
+
+    <form method="post" action="{{ url_for('usuario.perfil') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="accion" value="basico">
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--space-md)">
+        <div class="form-group">
+          <label class="form-label" for="primer_nombre">Primer nombre <span style="color:var(--alert-rose)" aria-hidden="true">*</span></label>
+          <input class="form-input" type="text" id="primer_nombre" name="primer_nombre"
+                 value="{{ current_user.primer_nombre }}" required maxlength="60">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="segundo_nombre">Segundo nombre</label>
+          <input class="form-input" type="text" id="segundo_nombre" name="segundo_nombre"
+                 value="{{ current_user.segundo_nombre or '' }}" maxlength="60">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="primer_apellido">Primer apellido <span style="color:var(--alert-rose)" aria-hidden="true">*</span></label>
+          <input class="form-input" type="text" id="primer_apellido" name="primer_apellido"
+                 value="{{ current_user.primer_apellido }}" required maxlength="60">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="segundo_apellido">Segundo apellido</label>
+          <input class="form-input" type="text" id="segundo_apellido" name="segundo_apellido"
+                 value="{{ current_user.segundo_apellido or '' }}" maxlength="60">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="telefono">Teléfono</label>
+          <input class="form-input" type="tel" id="telefono" name="telefono"
+                 value="{{ current_user.telefono or '' }}" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input class="form-input" type="email" value="{{ current_user.email }}" disabled
+                 aria-label="Correo electrónico (no editable)">
+          <span class="form-hint">El correo no es editable.</span>
+        </div>
+      </div>
+
+      <div style="margin-top:var(--space-lg)">
+        <button type="submit" class="btn btn-primary btn--sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px;margin-right:4px">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
+          </svg>
+          Guardar datos personales
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {# ── Perfil deportivo ────────────────────────────────────────────────── #}
+  <div class="profile-section" style="background:var(--midnight-navy);border:1px solid var(--line-soft);
+       border-radius:var(--radius-lg);padding:var(--space-xl)">
+
+    <h2 style="font-family:var(--fuente-titulo);font-size:1rem;color:var(--ice-white);
+               margin:0 0 var(--space-sm);display:flex;align-items:center;gap:var(--space-sm)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="2" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>
+      </svg>
+      Perfil deportivo
+    </h2>
+
+    {% if not deportista %}
+    <p style="font-size:0.875rem;color:var(--slate-blue);margin:0 0 var(--space-lg)">
+      Completa tu perfil deportivo para acceder a tus sesiones y métricas de entrenamiento.
+      Al guardar, tu cuenta se actualizará al rol <strong style="color:var(--cyan-core)">deportista</strong>.
+    </p>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('usuario.perfil') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="accion" value="deportivo">
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-md)">
+        <div class="form-group">
+          <label class="form-label" for="fecha_nacimiento">Fecha de nacimiento</label>
+          <input class="form-input" type="date" id="fecha_nacimiento" name="fecha_nacimiento"
+                 value="{{ deportista.fecha_nacimiento.strftime('%Y-%m-%d') if deportista and deportista.fecha_nacimiento else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="sexo">Sexo biológico</label>
+          <select class="form-input" id="sexo" name="sexo" style="cursor:pointer">
+            <option value="">— Sin especificar —</option>
+            <option value="M" {{ 'selected' if deportista and deportista.sexo == 'M' }}>Masculino</option>
+            <option value="F" {{ 'selected' if deportista and deportista.sexo == 'F' }}>Femenino</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="altura_cm">Altura (cm)</label>
+          <input class="form-input" type="number" id="altura_cm" name="altura_cm" min="100" max="250"
+                 value="{{ deportista.altura_cm or '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="peso_kg">Peso (kg)</label>
+          <input class="form-input" type="number" id="peso_kg" name="peso_kg" min="30" max="250" step="0.1"
+                 value="{{ '%.1f'|format(deportista.peso_kg) if deportista and deportista.peso_kg else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="deporte">Deporte</label>
+          <input class="form-input" type="text" id="deporte" name="deporte" maxlength="60"
+                 value="{{ deportista.deporte or '' }}" placeholder="Ej: Fútbol, Ciclismo…">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="categoria">Categoría</label>
+          <input class="form-input" type="text" id="categoria" name="categoria" maxlength="60"
+                 value="{{ deportista.categoria or '' }}" placeholder="Ej: Sub-20, Amateur…">
+        </div>
+
+        {% if deportista %}
+        <div class="form-group">
+          <label class="form-label" for="fc_max_estimada">FC máx estimada (bpm)</label>
+          <input class="form-input" type="number" id="fc_max_estimada" name="fc_max_estimada" min="120" max="230"
+                 value="{{ deportista.fc_max_estimada or '' }}">
+          <span class="form-hint">Si se deja vacío se calcula automáticamente.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fc_reposo">FC en reposo (bpm)</label>
+          <input class="form-input" type="number" id="fc_reposo" name="fc_reposo" min="30" max="100"
+                 value="{{ deportista.fc_reposo or '' }}">
+        </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-top:var(--space-lg)">
+        <button type="submit" class="btn btn-primary btn--sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px;margin-right:4px">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
+          </svg>
+          {% if deportista %}Actualizar perfil deportivo{% else %}Completar perfil deportivo{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</section>
+{% endblock %}

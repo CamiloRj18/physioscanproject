@@ -301,18 +301,16 @@ def _destino_post_login() -> str:
     destino = request.args.get("next", "")
     if destino and destino.startswith("/") and not destino.startswith("//"):
         return destino
-    from flask import BuildError
     if current_user.is_authenticated:
         rol = getattr(current_user, "nombre_rol", None)
-        try:
-            if rol == "administrador":
-                return url_for("admin.panel")
-            if rol == "entrenador":
-                return url_for("entrenador.inicio")
-            if rol == "deportista":
-                return url_for("deportista.inicio")
-        except BuildError:
-            pass
+        if rol == "administrador":
+            return url_for("admin.panel")
+        if rol == "entrenador":
+            return url_for("entrenador.deportistas")
+        if rol == "deportista":
+            return url_for("deportista.sesiones")
+        if rol == "usuario":
+            return url_for("usuario.perfil")
     return url_for("publico.home")
 
 

@@ -203,6 +203,8 @@ def usuario_detalle(id: int):
         asignaciones     = dr.listar_asignaciones_entrenador(id)
         deportistas_todos = dr.listar_todos()
 
+    roles = ur.listar_roles()
+
     return render_template(
         "admin/usuario_detalle.html",
         usuario=usuario,
@@ -211,6 +213,7 @@ def usuario_detalle(id: int):
         asignaciones=asignaciones,
         entrenadores=entrenadores,
         deportistas_todos=deportistas_todos,
+        roles=roles,
     )
 
 
@@ -240,6 +243,32 @@ def cambiar_estado(id: int):
         detalle={"id_objetivo": id, "nuevo_estado": nuevo_estado},
     )
     flash(f"Estado de cuenta actualizado a '{nuevo_estado}'.", "success")
+    return redirect(url_for("admin.usuario_detalle", id=id))
+
+
+# ── Cambio de rol ────────────────────────────────────────────────────────────
+
+@bp_admin.post("/usuarios/<int:id>/rol")
+@rol_requerido("administrador")
+def cambiar_rol(id: int):
+    usuario = ur.buscar_por_id(id)
+    if not usuario:
+        abort(404)
+
+    nombre_rol = request.form.get("nombre_rol", "").strip()
+    rol = ur.buscar_rol_por_nombre(nombre_rol)
+    if not rol:
+        flash("Rol no válido.", "error")
+        return redirect(url_for("admin.usuario_detalle", id=id))
+
+    ur.actualizar_rol(id, rol["id_rol"])
+    audit(
+        "ADMIN_ROL_CAMBIADO",
+        int(current_user.get_id()),
+        request.remote_addr,
+        detalle={"id_objetivo": id, "nuevo_rol": nombre_rol},
+    )
+    flash(f"Rol actualizado a '{nombre_rol}'.", "success")
     return redirect(url_for("admin.usuario_detalle", id=id))
 
 

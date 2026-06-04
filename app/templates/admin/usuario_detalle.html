@@ -109,6 +109,35 @@
       </div>
     </div>
 
+    <!-- Cambio de rol -->
+    <div class="action-panel" style="margin-top:var(--space-lg)">
+      <p class="action-panel__title">Cambiar rol</p>
+      <form method="post" action="{{ url_for('admin.cambiar_rol', id=usuario.id_usuario) }}"
+            style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:flex-end;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label style="font-size:0.8rem;color:var(--slate-blue);display:flex;flex-direction:column;gap:4px;">
+          Nuevo rol
+          <select name="nombre_rol" class="filter-bar select"
+                  style="background:var(--dark-ocean);border:1px solid var(--line-soft);
+                         border-radius:var(--radius-sm);color:var(--ice-white);
+                         padding:var(--space-sm);cursor:pointer;min-width:160px;">
+            {% for r in roles %}
+            <option value="{{ r.nombre }}" {{ 'selected' if r.nombre == usuario.nombre_rol }}>
+              {{ r.nombre | capitalize }}
+            </option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="btn btn-warn btn-xs" style="align-self:flex-end;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Cambiar rol
+        </button>
+      </form>
+    </div>
+
     <!-- Archivo de recuperación (lote de 12) -->
     <div class="info-card">
       <div class="info-card__header">

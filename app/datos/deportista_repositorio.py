@@ -32,6 +32,29 @@ def crear(id_usuario: int) -> int:
     )
 
 
+def actualizar_perfil(
+    id_deportista: int,
+    fecha_nacimiento: str | None,
+    sexo: str | None,
+    altura_cm: int | None,
+    peso_kg: float | None,
+    deporte: str | None,
+    categoria: str | None,
+    fc_max_estimada: int | None,
+    fc_reposo: int | None,
+) -> None:
+    ejecutar(
+        """
+        UPDATE deportista
+        SET fecha_nacimiento=%s, sexo=%s, altura_cm=%s, peso_kg=%s,
+            deporte=%s, categoria=%s, fc_max_estimada=%s, fc_reposo=%s
+        WHERE id_deportista=%s
+        """,
+        (fecha_nacimiento, sexo, altura_cm, peso_kg,
+         deporte, categoria, fc_max_estimada, fc_reposo, id_deportista),
+    )
+
+
 def listar_todos() -> list[dict[str, Any]]:
     return muchos(
         """

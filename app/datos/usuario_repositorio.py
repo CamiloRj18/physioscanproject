@@ -259,3 +259,30 @@ def actualizar_datos_basicos(
         (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
          telefono, id_rol, id_usuario),
     )
+
+
+def actualizar_datos_personales(
+    id_usuario: int,
+    primer_nombre: str,
+    segundo_nombre: str | None,
+    primer_apellido: str,
+    segundo_apellido: str | None,
+    telefono: str | None,
+) -> None:
+    ejecutar(
+        """
+        UPDATE usuario
+        SET primer_nombre=%s, segundo_nombre=%s, primer_apellido=%s, segundo_apellido=%s,
+            telefono=%s
+        WHERE id_usuario=%s
+        """,
+        (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
+         telefono, id_usuario),
+    )
+
+
+def actualizar_rol(id_usuario: int, id_rol: int) -> None:
+    ejecutar(
+        "UPDATE usuario SET id_rol=%s WHERE id_usuario=%s",
+        (id_rol, id_usuario),
+    )

@@ -61,9 +61,9 @@ def registrar_usuario(
     if ur.buscar_por_email(email):
         raise ConflictoError("El correo ya está registrado.")
 
-    rol = ur.buscar_rol_por_nombre("deportista")
+    rol = ur.buscar_rol_por_nombre("usuario")
     if not rol:
-        raise ValidacionError("Rol 'deportista' no configurado.")
+        raise ValidacionError("Rol 'usuario' no configurado.")
 
     hash_pwd = hash_nueva(password)
 
