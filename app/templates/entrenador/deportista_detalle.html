@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}{{ deportista.primer_nombre }} {{ deportista.primer_apellido }} — PhysioScan{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard" aria-label="Perfil y sesiones del deportista">
+
+  <header class="dashboard__header">
+    <a href="{{ url_for('entrenador.deportistas') }}" class="dashboard__back" aria-label="Volver a mis deportistas">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Mis deportistas
+    </a>
+    <div style="margin-left:var(--space-sm)">
+      <h1 class="dashboard__title">
+        {{ deportista.primer_nombre }} {{ deportista.primer_apellido }}
+      </h1>
+      <p class="dashboard__subtitle">
+        {{ deportista.codigo_usuario or '' }}
+        {% if deportista.deporte %}&nbsp;·&nbsp;{{ deportista.deporte }}{% endif %}
+        {% if deportista.categoria %}&nbsp;·&nbsp;{{ deportista.categoria }}{% endif %}
+      </p>
+    </div>
+
+    {% if sesion_activa %}
+    <div style="margin-left:auto;display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+      <span class="live-indicator">
+        <span class="live-indicator__dot" aria-hidden="true"></span>
+        En sesión activa
+      </span>
+      {% set sev = severidad or 'verde' %}
+      <span class="semaforo semaforo--{{ sev }}" role="status" aria-label="Estado: {{ sev }}">
+        <span class="semaforo__dot" aria-hidden="true"></span>
+        <span class="semaforo__text">
+          {{ {'verde':'Normal','amarillo':'Precaución','rojo':'Alerta'}[sev] or sev.capitalize() }}
+        </span>
+      </span>
+    </div>
+    {% endif %}
+  </header>
+
+  {# ── Datos biométricos del deportista ─────────────────────────────────── #}
+  <div class="metrics-grid" style="margin-bottom:var(--space-xl)" role="list" aria-label="Datos del deportista">
+
+    <article class="metric-card" role="listitem">
+      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>
+      </svg>
+      <span class="metric-card__label">FC máx est.</span>
+      <span class="metric-card__value">{{ deportista.fc_max_estimada or '—' }}</span>
+      <span class="metric-card__unit">bpm</span>
+    </article>
+
+    <article class="metric-card" role="listitem">
+      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+      </svg>
+      <span class="metric-card__label">Peso</span>
+      <span class="metric-card__value">{{ '%.1f'|format(deportista.peso_kg) if deportista.peso_kg else '—' }}</span>
+      <span class="metric-card__unit">kg</span>
+    </article>
+
+    <article class="metric-card" role="listitem">
+      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 3v18h18"/><polyline points="18.5 8 12 14 8 10 3 15"/>
+      </svg>
+      <span class="metric-card__label">Altura</span>
+      <span class="metric-card__value">{{ deportista.altura_cm or '—' }}</span>
+      <span class="metric-card__unit">cm</span>
+    </article>
+
+    <article class="metric-card" role="listitem">
+      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span class="metric-card__label">Sesiones</span>
+      <span class="metric-card__value">{{ sesiones|length }}</span>
+      <span class="metric-card__unit">registradas</span>
+    </article>
+
+  </div>
+
+  {# ── Historial de sesiones ─────────────────────────────────────────────── #}
+  <h2 style="font-family:var(--fuente-titulo);font-size:1rem;color:var(--ice-white);
+             margin:0 0 var(--space-md)">
+    Historial de sesiones
+  </h2>
+
+  {% if sesiones %}
+  <div class="sessions-table-wrap" role="region" aria-label="Historial de sesiones">
+    <table class="sessions-table">
+      <thead>
+        <tr>
+          <th scope="col">Sesión</th>
+          <th scope="col">Inicio</th>
+          <th scope="col">Duración</th>
+          <th scope="col">FC prom</th>
+          <th scope="col">FC máx</th>
+          <th scope="col">Distancia</th>
+          <th scope="col">Cal.</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sesiones %}
+        <tr>
+          <td style="font-family:var(--fuente-datos);color:var(--cyan-core)">
+            #{{ s.id_sesion }}
+            {% if s.titulo %}<br><span style="color:var(--slate-blue);font-size:0.75rem">{{ s.titulo }}</span>{% endif %}
+          </td>
+          <td>{{ s.inicio.strftime('%d/%m/%Y %H:%M') if s.inicio else '—' }}</td>
+          <td>
+            {% if s.duracion_seg %}
+              {% set mn = (s.duracion_seg // 60) %}{% set sg = (s.duracion_seg % 60) %}
+              {{ '%d:%02d'|format(mn, sg) }}
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ (s.fc_promedio|string ~ ' bpm') if s.fc_promedio else '—' }}</td>
+          <td>{{ (s.fc_maxima|string ~ ' bpm') if s.fc_maxima else '—' }}</td>
+          <td>
+            {% if s.distancia_total_m %}
+              {% if s.distancia_total_m >= 1000 %}{{ '%.2f km'|format(s.distancia_total_m/1000) }}
+              {% else %}{{ '%.0f m'|format(s.distancia_total_m) }}{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ '%.0f'|format(s.calorias_estimadas) if s.calorias_estimadas else '—' }}</td>
+          <td><span class="badge badge--{{ s.estado }}">{{ s.estado.replace('_',' ') }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" role="status">
+    <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    <p class="empty-state__title">Sin sesiones registradas</p>
+    <p class="empty-state__text">Cuando este deportista tenga sesiones aparecerán aquí.</p>
+  </div>
+  {% endif %}
+
+</section>
+{% endblock %}

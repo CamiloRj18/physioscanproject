@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Mis deportistas — PhysioScan{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard" aria-label="Deportistas asignados">
+
+  <header class="dashboard__header">
+    <div>
+      <h1 class="dashboard__title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true" style="vertical-align:-3px;margin-right:8px;color:var(--cyan-core)">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        Mis deportistas
+      </h1>
+      <p class="dashboard__subtitle">Deportistas asignados a tu cuenta</p>
+    </div>
+  </header>
+
+  {% if deportistas %}
+  <div class="athletes-grid" role="list" aria-label="Lista de deportistas">
+    {% for fila in deportistas %}
+    <a href="{{ url_for('entrenador.deportista_detalle', id_deportista=fila.id_deportista) }}"
+       class="athlete-card" role="listitem"
+       aria-label="Ver perfil de {{ fila.primer_nombre }} {{ fila.primer_apellido }}">
+
+      <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--slate-blue)"
+             stroke-width="1.5" aria-hidden="true"
+             style="background:var(--dark-ocean);border-radius:50%;padding:6px;flex-shrink:0">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <div>
+          <p class="athlete-card__name">{{ fila.primer_nombre }} {{ fila.primer_apellido }}</p>
+          <p class="athlete-card__code">{{ fila.codigo_usuario or fila.email or '' }}</p>
+        </div>
+      </div>
+
+      <div class="athlete-card__meta">
+        {% if fila.sesion_activa %}
+          <span class="live-indicator" aria-label="Sesión en curso">
+            <span class="live-indicator__dot" aria-hidden="true"></span>
+            En sesión
+          </span>
+          {% set sev = fila.severidad or 'verde' %}
+          <span class="semaforo semaforo--{{ sev }}" role="status" aria-label="Estado: {{ sev }}">
+            <span class="semaforo__dot" aria-hidden="true"></span>
+            <span class="semaforo__text">
+              {{ {'verde':'Normal','amarillo':'Precaución','rojo':'Alerta'}[sev] or sev.capitalize() }}
+            </span>
+          </span>
+        {% else %}
+          <span class="badge badge--finalizada">Sin sesión activa</span>
+        {% endif %}
+      </div>
+
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state" role="status">
+    <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+    </svg>
+    <p class="empty-state__title">Sin deportistas asignados</p>
+    <p class="empty-state__text">El administrador debe asignarte deportistas para que aparezcan aquí.</p>
+  </div>
+  {% endif %}
+
+</section>
+{% endblock %}

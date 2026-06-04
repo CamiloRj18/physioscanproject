@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}En vivo — Sesión {{ sesion.id_sesion }} — PhysioScan{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard" aria-label="Panel en vivo">
+
+  <header class="dashboard__header">
+    <a href="{{ url_for('deportista.sesion_detalle', id_sesion=sesion.id_sesion) }}"
+       class="dashboard__back" aria-label="Volver al detalle de sesión">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Detalle
+    </a>
+    <div>
+      <h1 class="dashboard__title">Panel en vivo</h1>
+      <p class="dashboard__subtitle">
+        {{ sesion.titulo or ('Sesión #' ~ sesion.id_sesion) }}
+        &nbsp;·&nbsp; Actualiza cada 2 s
+      </p>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+      <span class="live-indicator" aria-live="polite">
+        <span class="live-indicator__dot" aria-hidden="true"></span>
+        <span id="live-status">Conectando…</span>
+      </span>
+      <span id="live-semaforo" class="semaforo semaforo--sin_datos" role="status" aria-live="polite" aria-label="Estado de alerta">
+        <span class="semaforo__dot" aria-hidden="true"></span>
+        <span class="semaforo__text">Sin datos</span>
+      </span>
+    </div>
+  </header>
+
+  {# ── Grid en vivo ────────────────────────────────────────────────────── #}
+  <div id="live-panel" class="live-grid" data-sesion="{{ sesion.id_sesion }}">
+
+    {# BPM #}
+    <article class="live-panel" aria-label="Frecuencia cardíaca">
+      <p class="live-panel__title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true" style="vertical-align:-2px;margin-right:4px;color:var(--alert-rose)">
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>
+        </svg>
+        Frecuencia cardíaca
+      </p>
+      <div class="live-bpm" aria-live="polite" aria-atomic="true">
+        <span id="live-bpm-value" class="live-bpm__value" aria-label="BPM actual">—</span>
+        <span class="live-bpm__unit">bpm</span>
+      </div>
+    </article>
+
+    {# Inclinación #}
+    <article class="live-panel" aria-label="Inclinación corporal">
+      <p class="live-panel__title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true" style="vertical-align:-2px;margin-right:4px;color:var(--warn-amber)">
+          <path d="M18 20V10M12 20V4M6 20v-6"/>
+        </svg>
+        Inclinación corporal
+      </p>
+      <div aria-live="polite" aria-atomic="true">
+        <span id="live-inc-value" class="inclinacion-value" aria-label="Inclinación actual">—</span>
+        <div class="inclinacion-bar" role="progressbar" aria-valuemin="0" aria-valuemax="90"
+             aria-valuenow="0" aria-label="Barra de inclinación">
+          <div id="live-inc-bar" class="inclinacion-bar__fill" style="width:0%"></div>
+        </div>
+      </div>
+    </article>
+
+    {# Mini-mapa GPS #}
+    <article class="live-panel" aria-label="Recorrido GPS">
+      <p class="live-panel__title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true" style="vertical-align:-2px;margin-right:4px;color:var(--cyan-core)">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        Recorrido GPS
+      </p>
+      <canvas id="live-map-canvas" class="minimap-canvas"
+              aria-label="Mapa de recorrido en vivo" role="img"></canvas>
+    </article>
+
+  </div>
+
+  {# ── Alertas activas ─────────────────────────────────────────────────── #}
+  <section aria-labelledby="alertas-vivo-heading"
+           style="background:var(--midnight-navy);border:1px solid var(--line-soft);
+                  border-radius:var(--radius-lg);padding:var(--space-lg)">
+    <h2 id="alertas-vivo-heading"
+        style="font-family:var(--fuente-cuerpo);font-size:0.8rem;color:var(--slate-blue);
+               text-transform:uppercase;letter-spacing:.06em;margin:0 0 var(--space-md)">
+      Alertas activas
+    </h2>
+    <ul id="live-alerts-list" class="alerts-list" aria-live="polite" aria-atomic="true">
+      <li class="alert-item alert-item--verde">
+        <span class="alert-item__text">Sin alertas activas</span>
+      </li>
+    </ul>
+  </section>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/tiempo_real.js') }}" defer></script>
+{% endblock %}

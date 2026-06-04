@@ -64,6 +64,39 @@ def listar_por_deportista(id_deportista: int) -> list[dict[str, Any]]:
     )
 
 
+def listar_con_metricas(id_deportista: int) -> list[dict[str, Any]]:
+    """Sesiones con sus métricas resumidas (JOIN LEFT con metrica_sesion)."""
+    return muchos(
+        """
+        SELECT
+            se.id_sesion, se.titulo, se.inicio, se.fin, se.estado,
+            disp.codigo_dispositivo,
+            ms.fc_promedio, ms.fc_maxima, ms.distancia_total_m,
+            ms.velocidad_prom_kmh, ms.duracion_seg, ms.calorias_estimadas
+        FROM sesion_entrenamiento se
+        LEFT JOIN dispositivo disp ON disp.id_dispositivo = se.id_dispositivo
+        LEFT JOIN metrica_sesion ms ON ms.id_sesion = se.id_sesion
+        WHERE se.id_deportista = %s
+        ORDER BY se.inicio DESC
+        """,
+        (id_deportista,),
+    )
+
+
+def sesion_en_curso(id_deportista: int) -> dict[str, Any] | None:
+    """Devuelve la sesión en_curso del deportista si existe."""
+    return uno(
+        """
+        SELECT id_sesion, inicio, estado
+        FROM sesion_entrenamiento
+        WHERE id_deportista = %s AND estado = 'en_curso'
+        ORDER BY inicio DESC
+        LIMIT 1
+        """,
+        (id_deportista,),
+    )
+
+
 def guardar_metrica(id_sesion: int, m: dict[str, Any]) -> None:
     """INSERT OR UPDATE en metrica_sesion (ON DUPLICATE KEY UPDATE)."""
     ejecutar(

@@ -119,14 +119,17 @@ def ultima_lectura_imu(id_sesion: int) -> dict[str, Any] | None:
 
 
 def estadisticas_ecg(id_sesion: int) -> dict[str, Any] | None:
-    """Agregados de ECG: fc_promedio, fc_maxima, fc_minima."""
+    """Agregados de ECG: FC en BPM (usa columna bpm si existe, sino conversión ADC lineal)."""
     return uno(
         """
         SELECT
-            AVG(valor_adc)  AS adc_promedio,
-            MAX(valor_adc)  AS adc_maximo,
-            MIN(valor_adc)  AS adc_minimo,
-            COUNT(*)        AS total
+            AVG(CASE WHEN bpm IS NOT NULL THEN bpm
+                     ELSE 40 + (valor_adc / 4095.0) * 160 END) AS fc_promedio,
+            MAX(CASE WHEN bpm IS NOT NULL THEN bpm
+                     ELSE 40 + (valor_adc / 4095.0) * 160 END) AS fc_maxima,
+            MIN(CASE WHEN bpm IS NOT NULL THEN bpm
+                     ELSE 40 + (valor_adc / 4095.0) * 160 END) AS fc_minima,
+            COUNT(*) AS total
         FROM lectura_ecg
         WHERE id_sesion = %s
         """,
@@ -160,4 +163,62 @@ def estadisticas_imu(id_sesion: int) -> dict[str, Any] | None:
         WHERE id_sesion = %s
         """,
         (id_sesion,),
+    )
+
+
+def serie_bpm(id_sesion: int, limite: int = 300) -> list[dict[str, Any]]:
+    """Serie temporal BPM para gráfica (hasta `limite` muestras, orden cronológico)."""
+    return muchos(
+        """
+        SELECT capturado_en,
+               CAST(CASE WHEN bpm IS NOT NULL THEN bpm
+                         ELSE 40 + (valor_adc / 4095.0) * 160 END AS UNSIGNED) AS bpm_calc
+        FROM lectura_ecg
+        WHERE id_sesion = %s
+        ORDER BY capturado_en
+        LIMIT %s
+        """,
+        (id_sesion, limite),
+    )
+
+
+def serie_inclinacion(id_sesion: int, limite: int = 300) -> list[dict[str, Any]]:
+    """Serie temporal de inclinación IMU para gráfica."""
+    return muchos(
+        """
+        SELECT capturado_en, inclinacion_grados
+        FROM lectura_imu
+        WHERE id_sesion = %s AND inclinacion_grados IS NOT NULL
+        ORDER BY capturado_en
+        LIMIT %s
+        """,
+        (id_sesion, limite),
+    )
+
+
+def serie_velocidad(id_sesion: int, limite: int = 200) -> list[dict[str, Any]]:
+    """Serie temporal de velocidad GPS para gráfica."""
+    return muchos(
+        """
+        SELECT capturado_en, velocidad_kmh
+        FROM lectura_gps
+        WHERE id_sesion = %s AND velocidad_kmh IS NOT NULL
+        ORDER BY capturado_en
+        LIMIT %s
+        """,
+        (id_sesion, limite),
+    )
+
+
+def recorrido_gps_reciente(id_sesion: int, limite: int = 50) -> list[dict[str, Any]]:
+    """Últimas N posiciones GPS para el mini-mapa en vivo."""
+    return muchos(
+        """
+        SELECT latitud, longitud
+        FROM lectura_gps
+        WHERE id_sesion = %s
+        ORDER BY capturado_en DESC
+        LIMIT %s
+        """,
+        (id_sesion, limite),
     )
