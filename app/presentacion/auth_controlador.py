@@ -6,7 +6,7 @@ Rutas:
     GET      /auth/codigos-recuperacion          (una sola vez, post-registro)
     GET/POST /auth/login
     GET/POST /auth/verificar-2fa
-    POST     /auth/logout
+    GET/POST /auth/logout
     GET/POST /auth/2fa/activar
 """
 from __future__ import annotations
@@ -27,6 +27,7 @@ from flask import (
 )
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_mail import Message
+from werkzeug.routing.exceptions import BuildError
 
 from app.comun.errores import AutenticacionError, BloqueadoError, ConflictoError, ValidacionError
 from app.comun.validadores import validar_contrasena, validar_email
@@ -245,7 +246,7 @@ def verificar_2fa():
 
 # ── Logout ──────────────────────────────────────────────────────────────────
 
-@bp_auth.post("/logout")
+@bp_auth.route("/logout", methods=["GET", "POST"])
 @login_required
 def logout():
     token_srv = session.get("_sesion_srv")
@@ -303,14 +304,17 @@ def _destino_post_login() -> str:
         return destino
     if current_user.is_authenticated:
         rol = getattr(current_user, "nombre_rol", None)
-        if rol == "administrador":
-            return url_for("admin.panel")
-        if rol == "entrenador":
-            return url_for("entrenador.deportistas")
-        if rol == "deportista":
-            return url_for("deportista.sesiones")
-        if rol == "usuario":
-            return url_for("usuario.perfil")
+        try:
+            if rol == "administrador":
+                return url_for("admin.panel")
+            if rol == "entrenador":
+                return url_for("entrenador.deportistas")
+            if rol == "deportista":
+                return url_for("deportista.sesiones")
+            if rol == "usuario":
+                return url_for("usuario.perfil")
+        except BuildError:
+            pass
     return url_for("publico.home")
 
 
