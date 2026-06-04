@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}API key del dispositivo — Administración{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/_sidebar.html" %}
+
+  <main class="admin-content" id="main-content">
+    <div class="admin-content__header">
+      <div>
+        <h1 class="admin-content__title">Dispositivo registrado</h1>
+        <p class="admin-content__subtitle">Guarda la API key ahora — no se volverá a mostrar.</p>
+      </div>
+    </div>
+
+    <div class="info-card" style="border-left: 4px solid var(--neon-cyan);">
+      <div style="display:flex; align-items:center; gap:var(--space-sm); margin-bottom:var(--space-md);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" stroke-width="2" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <span style="font-size:1.1rem; font-weight:600; color:var(--neon-cyan);">Dispositivo creado correctamente</span>
+      </div>
+
+      <div class="info-row" style="margin-bottom:var(--space-md);">
+        <div class="info-item">
+          <span class="info-item__label">Código del dispositivo</span>
+          <code style="font-size:1.4rem; color:var(--neon-cyan); display:block; margin-top:4px;">{{ codigo }}</code>
+        </div>
+      </div>
+
+      <div style="background:var(--surface-alt, #0d1117); border-radius:8px; padding:var(--space-md); margin-bottom:var(--space-md);">
+        <p style="color:var(--text-muted, #8b949e); font-size:0.8rem; margin-bottom:var(--space-xs); text-transform:uppercase; letter-spacing:.05em;">
+          API Key (visible una sola vez)
+        </p>
+        <code id="api-key-value" style="font-size:1rem; word-break:break-all; color:#e6edf3; display:block;">{{ api_key }}</code>
+      </div>
+
+      <div style="background:#2d1b00; border:1px solid #f0a500; border-radius:8px; padding:var(--space-sm) var(--space-md); margin-bottom:var(--space-lg);">
+        <p style="color:#f0c060; margin:0; font-size:0.9rem;">
+          <strong>Atención:</strong> Esta API key no se almacena en texto claro. Cópiala ahora y
+          pégala en el archivo <code>config.h</code> del firmware. Si la pierdes, deberás
+          crear un nuevo dispositivo.
+        </p>
+      </div>
+
+      <p style="font-size:0.875rem; color:var(--slate-blue); margin-bottom:var(--space-md);">
+        Los 3 sensores (AD8232, NEO-7M, MPU-6050) han sido registrados con la configuración
+        de pines del blueprint §8.2.
+      </p>
+
+      <div style="display:flex; gap:var(--space-sm);">
+        <a href="{{ url_for('admin.dispositivo_detalle', id=id_dispositivo) }}" class="btn btn-primary">
+          Ver detalle del dispositivo
+        </a>
+        <a href="{{ url_for('admin.dispositivos') }}" class="btn btn-secondary">
+          Volver a lista
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

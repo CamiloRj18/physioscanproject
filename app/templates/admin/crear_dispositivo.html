@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Registrar dispositivo — Administración{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/_sidebar.html" %}
+
+  <main class="admin-content" id="main-content">
+    <div class="admin-content__header">
+      <div>
+        <a href="{{ url_for('admin.dispositivos') }}" style="color:var(--slate-blue); font-size:0.875rem; display:inline-flex; align-items:center; gap:4px; margin-bottom:var(--space-xs);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Dispositivos
+        </a>
+        <h1 class="admin-content__title">Registrar dispositivo</h1>
+        <p class="admin-content__subtitle">
+          Al registrar se generará automáticamente el código <code>CHAL####</code> y una API key.
+          La API key se mostrará <strong>una sola vez</strong> — guárdela de inmediato.
+        </p>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}" role="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="info-card">
+      <form method="post" action="{{ url_for('admin.crear_dispositivo') }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="info-row" style="margin-bottom:var(--space-md);">
+          <div class="info-item" style="flex:2; min-width:240px;">
+            <label class="info-item__label" for="nombre">Nombre del dispositivo *</label>
+            <input class="form-input" type="text" id="nombre" name="nombre"
+                   placeholder="Chaleco Equipo A — Deportista 1" required>
+          </div>
+          <div class="info-item" style="flex:1; min-width:180px;">
+            <label class="info-item__label" for="mac">MAC (opcional)</label>
+            <input class="form-input" type="text" id="mac" name="mac"
+                   placeholder="AA:BB:CC:DD:EE:FF" pattern="^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$">
+          </div>
+        </div>
+
+        <div class="info-row" style="margin-bottom:var(--space-md);">
+          <div class="info-item" style="flex:1; min-width:240px;">
+            <label class="info-item__label" for="id_deportista">Deportista asignado (opcional)</label>
+            <select class="form-input" id="id_deportista" name="id_deportista" style="cursor:pointer;">
+              <option value="">— Sin asignar —</option>
+              {% for dep in deportistas %}
+                <option value="{{ dep.id_deportista }}">
+                  {{ dep.primer_nombre }} {{ dep.primer_apellido }}
+                  {% if dep.codigo_usuario %}({{ dep.codigo_usuario }}){% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <p style="font-size:0.85rem; color:var(--slate-blue); margin-bottom:var(--space-md);">
+          Los 3 sensores (AD8232 / NEO-7M / MPU-6050) se registran automáticamente
+          con la configuración de pines del blueprint (§8.2).
+        </p>
+
+        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-lg);">
+          <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Registrar y obtener API key
+          </button>
+          <a href="{{ url_for('admin.dispositivos') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

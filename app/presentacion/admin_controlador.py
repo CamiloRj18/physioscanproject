@@ -29,8 +29,10 @@ from flask_login import current_user
 
 from app.comun.decoradores import rol_requerido
 from app.comun.errores import ConflictoError, ValidacionError
+from app.comun.seguridad_utils import hash_password, generar_token_url
 from app.comun.validadores import validar_contrasena, validar_email
 from app.datos import deportista_repositorio as dr
+from app.datos import dispositivo_repositorio as dispr
 from app.datos import seguridad_repositorio as sr
 from app.datos import usuario_repositorio as ur
 from app.negocio.seguridad import recuperacion_archivo_servicio as ras
@@ -336,6 +338,102 @@ def eliminar_asignacion(id_asignacion: int):
     if id_usuario_redir:
         return redirect(url_for("admin.usuario_detalle", id=id_usuario_redir))
     return redirect(url_for("admin.usuarios"))
+
+
+# ── Gestión de dispositivos ───────────────────────────────────────────────────
+
+@bp_admin.get("/dispositivos")
+@rol_requerido("administrador")
+def dispositivos():
+    lista = dispr.listar_todos()
+    return render_template("admin/dispositivos.html", dispositivos=lista)
+
+
+@bp_admin.route("/dispositivos/crear", methods=["GET", "POST"])
+@rol_requerido("administrador")
+def crear_dispositivo():
+    deportistas = dr.listar_todos()
+
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        mac    = request.form.get("mac", "").strip() or None
+
+        if not nombre:
+            flash("El nombre del dispositivo es obligatorio.", "error")
+            return render_template("admin/crear_dispositivo.html", deportistas=deportistas)
+
+        # Genera API key en claro — se muestra UNA sola vez
+        api_key = generar_token_url(32)
+        api_key_hash = hash_password(api_key)
+
+        resultado = dispr.registrar(nombre, api_key_hash, mac)
+        id_disp   = resultado["id_dispositivo"]
+        codigo    = resultado["codigo_dispositivo"]
+
+        # Registrar sensores por defecto (NEO-7M=GPS, AD8232=ECG, MPU-6050=IMU)
+        # Los id_tipo_sensor corresponden al orden del seed: ECG=1, GPS=2, IMU=3
+        sensores_defecto = [
+            {"id_tipo_sensor": 1, "modelo": "AD8232",  "config_pines": "OUTPUT=34,LO+=35,LO-=32"},
+            {"id_tipo_sensor": 2, "modelo": "NEO-7M",  "config_pines": "TX=16(RX2),RX=17(TX2)"},
+            {"id_tipo_sensor": 3, "modelo": "MPU-6050", "config_pines": "SDA=21,SCL=22"},
+        ]
+        dispr.registrar_sensores(id_disp, sensores_defecto)
+
+        id_deportista = request.form.get("id_deportista", type=int)
+        if id_deportista:
+            dispr.asignar_deportista(id_disp, id_deportista)
+
+        audit(
+            "DISPOSITIVO_CREADO",
+            int(current_user.get_id()),
+            request.remote_addr,
+            detalle={"id_dispositivo": id_disp, "codigo": codigo},
+        )
+
+        # Renderiza la pantalla de API key (mostrada una sola vez)
+        return render_template(
+            "admin/dispositivo_api_key.html",
+            codigo=codigo,
+            api_key=api_key,
+            id_dispositivo=id_disp,
+        )
+
+    return render_template("admin/crear_dispositivo.html", deportistas=deportistas)
+
+
+@bp_admin.get("/dispositivos/<int:id>")
+@rol_requerido("administrador")
+def dispositivo_detalle(id: int):
+    disp = dispr.buscar_por_id(id)
+    if not disp:
+        abort(404)
+    sensores    = dispr.listar_sensores(id)
+    deportistas = dr.listar_todos()
+    return render_template(
+        "admin/dispositivo_detalle.html",
+        disp=disp,
+        sensores=sensores,
+        deportistas=deportistas,
+    )
+
+
+@bp_admin.post("/dispositivos/<int:id>/asignar")
+@rol_requerido("administrador")
+def asignar_dispositivo(id: int):
+    disp = dispr.buscar_por_id(id)
+    if not disp:
+        abort(404)
+
+    id_deportista = request.form.get("id_deportista", type=int) or None
+    dispr.asignar_deportista(id, id_deportista)
+    audit(
+        "DISPOSITIVO_ASIGNADO",
+        int(current_user.get_id()),
+        request.remote_addr,
+        detalle={"id_dispositivo": id, "id_deportista": id_deportista},
+    )
+    flash("Dispositivo asignado correctamente.", "success")
+    return redirect(url_for("admin.dispositivo_detalle", id=id))
 
 
 # ── Bitácora de auditoría ─────────────────────────────────────────────────────

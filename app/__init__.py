@@ -113,6 +113,7 @@ def _registrar_blueprints(app: Flask) -> None:
     from app.presentacion.admin_controlador        import bp_admin
     from app.presentacion.sesion_controlador       import bp_sesion
     from app.presentacion.api_ingesta_controlador  import bp_api_ingesta
+    from app.extensions import csrf
 
     app.register_blueprint(bp_publico)
     app.register_blueprint(bp_auth)
@@ -122,3 +123,5 @@ def _registrar_blueprints(app: Flask) -> None:
     app.register_blueprint(bp_admin)
     app.register_blueprint(bp_sesion)
     app.register_blueprint(bp_api_ingesta)
+
+    csrf.exempt(bp_api_ingesta)
