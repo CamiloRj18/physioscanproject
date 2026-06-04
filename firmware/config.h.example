@@ -1,0 +1,7 @@
+// Copiar a config.h y completar con valores reales (no commitear config.h)
+#pragma once
+#define SSID         "tu_red_wifi"
+#define PASS         "tu_contrasena_wifi"
+#define SERVER_URL   "http://192.168.1.X:5000"  // IP LAN del PC con Flask
+#define DEVICE_CODE  "CHAL0001"
+#define DEVICE_KEY   "api-key-del-dispositivo"
