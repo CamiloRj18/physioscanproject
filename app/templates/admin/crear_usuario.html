@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Crear usuario — Administración{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/_sidebar.html" %}
+
+  <main class="admin-content" id="main-content">
+    <div class="admin-content__header">
+      <div>
+        <a href="{{ url_for('admin.usuarios') }}" style="color:var(--slate-blue); font-size:0.875rem; display:inline-flex; align-items:center; gap:4px; margin-bottom:var(--space-xs); cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Usuarios
+        </a>
+        <h1 class="admin-content__title">Crear usuario</h1>
+        <p class="admin-content__subtitle">El usuario se creará con estado activo y email verificado. Se generará y descargará su archivo de recuperación.</p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <form method="post" action="{{ url_for('admin.crear_usuario') }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="info-row" style="margin-bottom:var(--space-md);">
+          <div class="info-item" style="flex:1; min-width:200px;">
+            <label class="info-item__label" for="primer_nombre">Primer nombre *</label>
+            <input class="form-input" type="text" id="primer_nombre" name="primer_nombre"
+                   value="{{ form.primer_nombre | default('') | e }}" required autocomplete="given-name">
+          </div>
+          <div class="info-item" style="flex:1; min-width:200px;">
+            <label class="info-item__label" for="segundo_nombre">Segundo nombre</label>
+            <input class="form-input" type="text" id="segundo_nombre" name="segundo_nombre"
+                   value="{{ form.segundo_nombre | default('') | e }}" autocomplete="additional-name">
+          </div>
+        </div>
+        <div class="info-row" style="margin-bottom:var(--space-md);">
+          <div class="info-item" style="flex:1; min-width:200px;">
+            <label class="info-item__label" for="primer_apellido">Primer apellido *</label>
+            <input class="form-input" type="text" id="primer_apellido" name="primer_apellido"
+                   value="{{ form.primer_apellido | default('') | e }}" required autocomplete="family-name">
+          </div>
+          <div class="info-item" style="flex:1; min-width:200px;">
+            <label class="info-item__label" for="segundo_apellido">Segundo apellido</label>
+            <input class="form-input" type="text" id="segundo_apellido" name="segundo_apellido"
+                   value="{{ form.segundo_apellido | default('') | e }}">
+          </div>
+        </div>
+        <div class="info-row" style="margin-bottom:var(--space-md);">
+          <div class="info-item" style="flex:2; min-width:240px;">
+            <label class="info-item__label" for="email">Correo electrónico *</label>
+            <input class="form-input" type="email" id="email" name="email"
+                   value="{{ form.email | default('') | e }}" required autocomplete="email">
+          </div>
+          <div class="info-item" style="flex:1; min-width:160px;">
+            <label class="info-item__label" for="telefono">Teléfono</label>
+            <input class="form-input" type="tel" id="telefono" name="telefono"
+                   value="{{ form.telefono | default('') | e }}" autocomplete="tel">
+          </div>
+        </div>
+        <div class="info-row" style="margin-bottom:var(--space-md);">
+          <div class="info-item" style="flex:1; min-width:160px;">
+            <label class="info-item__label" for="id_rol">Rol *</label>
+            <select class="form-input" id="id_rol" name="id_rol" required style="cursor:pointer;">
+              <option value="">— Seleccionar —</option>
+              {% for r in roles %}
+                <option value="{{ r.id_rol }}" {% if form.id_rol == r.id_rol %}selected{% endif %}>
+                  {{ r.nombre | capitalize }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="info-item" style="flex:2; min-width:240px;">
+            <label class="info-item__label" for="password">Contraseña temporal *</label>
+            <input class="form-input" type="password" id="password" name="password"
+                   required autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-lg);">
+          <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8zM20 8v6M23 11h-6"/>
+            </svg>
+            Crear usuario y descargar archivo
+          </button>
+          <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

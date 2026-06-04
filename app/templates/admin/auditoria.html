@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Bitácora de auditoría — Administración{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/_sidebar.html" %}
+
+  <main class="admin-content" id="main-content">
+    <div class="admin-content__header">
+      <div>
+        <h1 class="admin-content__title">Bitácora de auditoría</h1>
+        <p class="admin-content__subtitle">{{ total }} evento(s) encontrado(s)</p>
+      </div>
+    </div>
+
+    <form class="filter-bar" method="get" action="{{ url_for('admin.auditoria') }}" role="search">
+      <label>
+        ID de usuario
+        <input type="text" name="usuario" value="{{ filtros.usuario }}" placeholder="e.g. 42"
+               style="width:120px;" inputmode="numeric">
+      </label>
+      <label>
+        Acción (contiene)
+        <input type="search" name="accion" value="{{ filtros.accion }}" placeholder="LOGIN_OK, RESET…"
+               style="width:200px;" autocomplete="off">
+      </label>
+      <button type="submit" class="btn btn-secondary btn-xs" style="align-self:flex-end;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Filtrar
+      </button>
+      {% if filtros.usuario or filtros.accion %}
+        <a href="{{ url_for('admin.auditoria') }}" class="btn btn-secondary btn-xs" style="align-self:flex-end;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Limpiar
+        </a>
+      {% endif %}
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table" aria-label="Bitácora de auditoría">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Acción</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">IP</th>
+            <th scope="col">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if eventos %}
+            {% for e in eventos %}
+            <tr>
+              <td style="white-space:nowrap; font-size:0.8rem; color:var(--slate-blue);">
+                {{ e.creado_en.strftime('%Y-%m-%d %H:%M:%S') if e.creado_en else '—' }}
+              </td>
+              <td>
+                <code style="font-size:0.8rem; color:{% if 'ERROR' in e.accion or 'INVALIDO' in e.accion or 'BLOQUEADA' in e.accion %}var(--alert-rose){% elif 'OK' in e.accion or 'VERIFICADO' in e.accion or 'CREADO' in e.accion %}var(--success-mint){% elif 'REEMITIDO' in e.accion or 'RESET' in e.accion %}var(--warn-amber){% else %}var(--cyan-core){% endif %};">
+                  {{ e.accion }}
+                </code>
+              </td>
+              <td style="font-size:0.875rem;">
+                {% if e.primer_nombre %}
+                  <a href="{{ url_for('admin.usuario_detalle', id=e.id_usuario) }}"
+                     style="color:var(--ice-white); cursor:pointer;">
+                    {{ e.primer_nombre }} {{ e.primer_apellido }}
+                  </a>
+                  <br><span style="font-size:0.75rem; color:var(--slate-blue);">{{ e.email or '' }}</span>
+                {% elif e.id_usuario %}
+                  <code style="color:var(--slate-blue);">id={{ e.id_usuario }}</code>
+                {% else %}
+                  <span style="color:var(--slate-blue);">—</span>
+                {% endif %}
+              </td>
+              <td style="font-family:var(--fuente-datos); font-size:0.8rem; color:var(--slate-blue);">
+                {{ e.ip or '—' }}
+              </td>
+              <td style="font-family:var(--fuente-datos); font-size:0.75rem; color:var(--slate-blue); max-width:280px; word-break:break-all;">
+                {% if e.detalle %}
+                  {{ e.detalle | truncate(120) }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center; color:var(--slate-blue); padding:var(--space-xl);">
+                No se encontraron eventos con los filtros aplicados.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if paginas > 1 %}
+    <nav class="pagination" aria-label="Paginación">
+      <span class="pagination__info">Página {{ pagina }} de {{ paginas }} — {{ total }} eventos</span>
+
+      <a href="{{ url_for('admin.auditoria', p=pagina-1, usuario=filtros.usuario, accion=filtros.accion) if pagina > 1 else '#' }}"
+         class="pagination__btn{% if pagina <= 1 %} pagination__btn--disabled{% endif %}"
+         aria-label="Página anterior" {% if pagina <= 1 %}aria-disabled="true"{% endif %}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        Anterior
+      </a>
+
+      <a href="{{ url_for('admin.auditoria', p=pagina+1, usuario=filtros.usuario, accion=filtros.accion) if pagina < paginas else '#' }}"
+         class="pagination__btn{% if pagina >= paginas %} pagination__btn--disabled{% endif %}"
+         aria-label="Página siguiente" {% if pagina >= paginas %}aria-disabled="true"{% endif %}>
+        Siguiente
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </a>
+    </nav>
+    {% endif %}
+
+  </main>
+</div>
+{% endblock %}

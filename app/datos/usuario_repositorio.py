@@ -132,3 +132,130 @@ def actualizar_ultimo_acceso(id_usuario: int) -> None:
         "UPDATE usuario SET ultimo_acceso = NOW(), intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id_usuario = %s",
         (id_usuario,),
     )
+
+
+# ── Admin: listado paginado y filtros ────────────────────────────────────────
+
+def listar_paginado(
+    pagina: int = 1,
+    por_pagina: int = 20,
+    nombre_rol: str | None = None,
+    estado: str | None = None,
+    busqueda: str | None = None,
+) -> list[dict[str, Any]]:
+    condiciones: list[str] = []
+    params: list[Any] = []
+    if nombre_rol:
+        condiciones.append("r.nombre = %s")
+        params.append(nombre_rol)
+    if estado:
+        condiciones.append("u.estado = %s")
+        params.append(estado)
+    if busqueda:
+        condiciones.append("(u.email LIKE %s OR u.primer_nombre LIKE %s OR u.primer_apellido LIKE %s)")
+        params += [f"%{busqueda}%", f"%{busqueda}%", f"%{busqueda}%"]
+    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    offset = (pagina - 1) * por_pagina
+    params += [por_pagina, offset]
+    from app.datos.base_repositorio import muchos
+    return muchos(
+        f"{_SQL_SELECT} {where} ORDER BY u.fecha_creacion DESC LIMIT %s OFFSET %s",
+        tuple(params),
+    )
+
+
+def contar_total(
+    nombre_rol: str | None = None,
+    estado: str | None = None,
+    busqueda: str | None = None,
+) -> int:
+    condiciones: list[str] = []
+    params: list[Any] = []
+    if nombre_rol:
+        condiciones.append("r.nombre = %s")
+        params.append(nombre_rol)
+    if estado:
+        condiciones.append("u.estado = %s")
+        params.append(estado)
+    if busqueda:
+        condiciones.append("(u.email LIKE %s OR u.primer_nombre LIKE %s OR u.primer_apellido LIKE %s)")
+        params += [f"%{busqueda}%", f"%{busqueda}%", f"%{busqueda}%"]
+    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    from app.datos.base_repositorio import uno as _uno
+    fila = _uno(
+        f"""
+        SELECT COUNT(*) AS total
+        FROM usuario u JOIN rol r ON r.id_rol = u.id_rol
+        {where}
+        """,
+        tuple(params),
+    )
+    return int(fila["total"]) if fila else 0
+
+
+def buscar_todos_por_rol(nombre_rol: str) -> list[dict[str, Any]]:
+    from app.datos.base_repositorio import muchos
+    return muchos(
+        _SQL_SELECT + " WHERE r.nombre = %s ORDER BY u.primer_apellido, u.primer_nombre",
+        (nombre_rol,),
+    )
+
+
+def listar_roles() -> list[dict[str, Any]]:
+    from app.datos.base_repositorio import muchos
+    return muchos("SELECT * FROM rol ORDER BY id_rol", ())
+
+
+def crear_con_rol(
+    primer_nombre: str,
+    segundo_nombre: str | None,
+    primer_apellido: str,
+    segundo_apellido: str | None,
+    email: str,
+    telefono: str | None,
+    id_rol: int,
+    hash_contrasena: str,
+) -> int:
+    from app.datos.base_repositorio import transaccion
+    with transaccion() as (conn, cur):
+        cur.execute(
+            """
+            INSERT INTO usuario
+                (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
+                 email, telefono, id_rol, estado, email_verificado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'activo', TRUE)
+            """,
+            (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
+             email, telefono, id_rol),
+        )
+        id_usuario = cur.lastrowid
+        cur.execute(
+            "INSERT INTO credencial (id_usuario, hash_contrasena, algoritmo) VALUES (%s, %s, 'argon2id')",
+            (id_usuario, hash_contrasena),
+        )
+        cur.execute(
+            "INSERT INTO historial_contrasena (id_usuario, hash_contrasena) VALUES (%s, %s)",
+            (id_usuario, hash_contrasena),
+        )
+    return id_usuario
+
+
+def actualizar_datos_basicos(
+    id_usuario: int,
+    primer_nombre: str,
+    segundo_nombre: str | None,
+    primer_apellido: str,
+    segundo_apellido: str | None,
+    telefono: str | None,
+    id_rol: int,
+) -> None:
+    ejecutar(
+        """
+        UPDATE usuario
+        SET primer_nombre=%s, segundo_nombre=%s, primer_apellido=%s, segundo_apellido=%s,
+            telefono=%s, id_rol=%s
+        WHERE id_usuario=%s
+        """,
+        (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
+         telefono, id_rol, id_usuario),
+    )

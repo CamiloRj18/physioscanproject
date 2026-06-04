@@ -1,0 +1,37 @@
+<aside class="admin-sidebar" aria-label="Navegación de administración">
+  <p class="admin-sidebar__title">Administración</p>
+  <nav>
+    <ul class="admin-nav" role="list">
+      <li>
+        <a href="{{ url_for('admin.panel') }}"
+           class="admin-nav__link{% if request.endpoint == 'admin.panel' %} active{% endif %}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          Panel
+        </a>
+      </li>
+      <li>
+        <a href="{{ url_for('admin.usuarios') }}"
+           class="admin-nav__link{% if request.endpoint in ('admin.usuarios', 'admin.usuario_detalle', 'admin.crear_usuario') %} active{% endif %}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          Usuarios
+        </a>
+      </li>
+      <li>
+        <a href="{{ url_for('admin.auditoria') }}"
+           class="admin-nav__link{% if request.endpoint == 'admin.auditoria' %} active{% endif %}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+          </svg>
+          Auditoría
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>

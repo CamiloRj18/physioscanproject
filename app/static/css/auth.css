@@ -233,9 +233,115 @@
 .pwd-strength--good   .pwd-strength__bar { width: 75%; background: var(--cyan-core); }
 .pwd-strength--strong .pwd-strength__bar { width: 100%; background: var(--success-mint); }
 
+/* ── Opciones de recuperación (landing /recuperar/) ──────────────────────── */
+.recovery-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+}
+
+.recovery-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(121, 219, 255, .04);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--ice-white);
+  transition: border-color var(--transition-normal), background var(--transition-normal), box-shadow var(--transition-normal);
+  cursor: pointer;
+}
+
+.recovery-option:hover {
+  border-color: var(--cyan-core);
+  background: rgba(121, 219, 255, .08);
+  box-shadow: var(--glow-cyan);
+  color: var(--ice-white);
+}
+
+.recovery-option:focus-visible {
+  outline: 2px solid var(--cyan-core);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.recovery-option__icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(121, 219, 255, .08);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--cyan-core);
+  transition: background var(--transition-fast);
+}
+
+.recovery-option:hover .recovery-option__icon {
+  background: rgba(121, 219, 255, .14);
+}
+
+.recovery-option__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recovery-option__title {
+  font-family: var(--fuente-titulo);
+  font-size: 0.95rem;
+  color: var(--ice-white);
+}
+
+.recovery-option__desc {
+  font-size: 0.8125rem;
+  color: var(--slate-blue);
+  line-height: 1.4;
+}
+
+.recovery-option__arrow {
+  color: var(--slate-blue);
+  flex-shrink: 0;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.recovery-option:hover .recovery-option__arrow {
+  color: var(--cyan-core);
+  transform: translateX(3px);
+}
+
+/* ── Strength bar (nueva contraseña) ─────────────────────────────────────── */
+.strength-bar {
+  height: 4px;
+  background: var(--line-soft);
+  border-radius: 2px;
+  margin-top: var(--space-xs);
+  overflow: hidden;
+}
+
+.strength-bar__fill {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  transition: width var(--transition-slow), background var(--transition-slow);
+}
+
+/* ── Utilidades de espaciado ─────────────────────────────────────────────── */
+.mt-lg { margin-top: var(--space-lg); }
+.mt-md { margin-top: var(--space-md); }
+.text-center { text-align: center; }
+
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
   .auth-card { padding: var(--space-xl) var(--space-md); border-radius: var(--radius-lg); }
   .auth-form__row { grid-template-columns: 1fr; }
   .recovery-grid { grid-template-columns: 1fr; }
+  .recovery-option { flex-wrap: wrap; }
+  .recovery-option__icon { width: 40px; height: 40px; }
 }

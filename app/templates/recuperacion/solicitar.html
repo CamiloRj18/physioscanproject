@@ -1,16 +1,64 @@
 {% extends "base.html" %}
-{% block title %}Recuperar contraseña — PhysioScan{% endblock %}
+{% block title %}Recuperar acceso — PhysioScan{% endblock %}
 {% block body_class %}auth-page{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
 
 {% block content %}
-<div class="auth-card">
+<div class="auth-card auth-card--wide">
   <header class="auth-header">
-    <h1 class="auth-title">Recuperar contraseña</h1>
-    <p class="auth-subtitle">Esta función estará disponible próximamente.</p>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="1.5" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0110 0v4"/>
+    </svg>
+    <h1 class="auth-title">Recuperar acceso</h1>
+    <p class="auth-subtitle">Elige cómo quieres recuperar tu contraseña</p>
   </header>
-  <div class="auth-footer-link">
-    <a href="{{ url_for('auth.login') }}">Volver al inicio de sesión</a>
+
+  <div class="recovery-options">
+
+    <a href="{{ url_for('recuperacion.correo_solicitar') }}" class="recovery-option">
+      <span class="recovery-option__icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </span>
+      <div class="recovery-option__body">
+        <span class="recovery-option__title">Recuperar por correo</span>
+        <span class="recovery-option__desc">Te enviaremos un enlace para restablecer tu contraseña</span>
+      </div>
+      <svg class="recovery-option__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </a>
+
+    <a href="{{ url_for('recuperacion.archivo_form') }}" class="recovery-option">
+      <span class="recovery-option__icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10,9 9,9 8,9"/>
+        </svg>
+      </span>
+      <div class="recovery-option__body">
+        <span class="recovery-option__title">Usar código de recuperación</span>
+        <span class="recovery-option__desc">Ingresa uno de los 12 códigos del archivo que guardaste</span>
+      </div>
+      <svg class="recovery-option__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="auth-footer-link mt-lg">
+    <a href="{{ url_for('auth.login') }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Volver al inicio de sesión
+    </a>
   </div>
 </div>
 {% endblock %}

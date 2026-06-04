@@ -168,6 +168,127 @@ def registrar_intento(
     )
 
 
+# ── Lote de recuperación de archivo ─────────────────────────────────────────
+
+def obtener_lote_activo(id_usuario: int) -> dict[str, Any] | None:
+    return uno(
+        "SELECT * FROM lote_recuperacion WHERE id_usuario = %s AND activo = TRUE",
+        (id_usuario,),
+    )
+
+
+def obtener_numero_lote_maximo(id_usuario: int) -> int:
+    fila = uno(
+        "SELECT MAX(numero_lote) AS max_lote FROM lote_recuperacion WHERE id_usuario = %s",
+        (id_usuario,),
+    )
+    return int(fila["max_lote"]) if fila and fila.get("max_lote") is not None else 0
+
+
+def desactivar_lotes_usuario(id_usuario: int) -> None:
+    ejecutar(
+        "UPDATE lote_recuperacion SET activo = FALSE WHERE id_usuario = %s AND activo = TRUE",
+        (id_usuario,),
+    )
+
+
+def crear_lote(id_usuario: int, numero_lote: int, generado_por: int | None) -> int:
+    return ejecutar(
+        """
+        INSERT INTO lote_recuperacion
+            (id_usuario, numero_lote, total_codigos, codigos_usados, activo, generado_por)
+        VALUES (%s, %s, 12, 0, TRUE, %s)
+        """,
+        (id_usuario, numero_lote, generado_por),
+    )
+
+
+def crear_codigos_lote(id_lote: int, hashes: list[str]) -> None:
+    for orden, h in enumerate(hashes, 1):
+        ejecutar(
+            "INSERT INTO codigo_recuperacion_archivo (id_lote, orden, codigo_hash) VALUES (%s, %s, %s)",
+            (id_lote, orden, h),
+        )
+
+
+def obtener_codigos_lote(id_lote: int) -> list[dict]:
+    return muchos(
+        """
+        SELECT * FROM codigo_recuperacion_archivo
+        WHERE id_lote = %s AND usado = FALSE ORDER BY orden
+        """,
+        (id_lote,),
+    )
+
+
+def marcar_codigo_usado(id_codigo: int) -> None:
+    ejecutar(
+        "UPDATE codigo_recuperacion_archivo SET usado = TRUE, usado_en = NOW() WHERE id_codigo = %s",
+        (id_codigo,),
+    )
+
+
+def incrementar_codigos_usados(id_lote: int) -> None:
+    ejecutar(
+        "UPDATE lote_recuperacion SET codigos_usados = codigos_usados + 1 WHERE id_lote = %s",
+        (id_lote,),
+    )
+
+
+def desactivar_lote(id_lote: int) -> None:
+    ejecutar("UPDATE lote_recuperacion SET activo = FALSE WHERE id_lote = %s", (id_lote,))
+
+
+def obtener_lote_por_id(id_lote: int) -> dict[str, Any] | None:
+    return uno("SELECT * FROM lote_recuperacion WHERE id_lote = %s", (id_lote,))
+
+
+# ── Auditoría con paginación/filtros ─────────────────────────────────────────
+
+def listar_auditoria(
+    pagina: int = 1,
+    por_pagina: int = 30,
+    id_usuario: int | None = None,
+    accion: str | None = None,
+) -> list[dict]:
+    condiciones: list[str] = []
+    params: list[Any] = []
+    if id_usuario is not None:
+        condiciones.append("a.id_usuario = %s")
+        params.append(id_usuario)
+    if accion:
+        condiciones.append("a.accion LIKE %s")
+        params.append(f"%{accion}%")
+    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    offset = (pagina - 1) * por_pagina
+    params += [por_pagina, offset]
+    return muchos(
+        f"""
+        SELECT a.*, u.email, u.primer_nombre, u.primer_apellido
+        FROM auditoria a
+        LEFT JOIN usuario u ON u.id_usuario = a.id_usuario
+        {where}
+        ORDER BY a.creado_en DESC
+        LIMIT %s OFFSET %s
+        """,
+        tuple(params),
+    )
+
+
+def contar_auditoria(id_usuario: int | None = None, accion: str | None = None) -> int:
+    condiciones: list[str] = []
+    params: list[Any] = []
+    if id_usuario is not None:
+        condiciones.append("id_usuario = %s")
+        params.append(id_usuario)
+    if accion:
+        condiciones.append("accion LIKE %s")
+        params.append(f"%{accion}%")
+    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    fila = uno(f"SELECT COUNT(*) AS total FROM auditoria {where}", tuple(params))
+    return int(fila["total"]) if fila else 0
+
+
 # ── Auditoría ────────────────────────────────────────────────────────────────
 
 def registrar_auditoria(

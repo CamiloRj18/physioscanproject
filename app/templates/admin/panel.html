@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Panel de administración — PhysioScan{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+
+  {% include "admin/_sidebar.html" %}
+
+  <main class="admin-content" id="main-content">
+    <div class="admin-content__header">
+      <div>
+        <h1 class="admin-content__title">Panel de administración</h1>
+        <p class="admin-content__subtitle">Resumen del sistema — PhysioScan</p>
+      </div>
+      <a href="{{ url_for('admin.crear_usuario') }}" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8zM20 8v6M23 11h-6"/>
+        </svg>
+        Nuevo usuario
+      </a>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-card__value">{{ stats.usuarios }}</span>
+        <span class="stat-card__label">Usuarios totales</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__value">{{ stats.deportistas }}</span>
+        <span class="stat-card__label">Deportistas</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__value">{{ stats.entrenadores }}</span>
+        <span class="stat-card__label">Entrenadores</span>
+      </div>
+      <div class="stat-card" style="border-color: rgba(255,114,133,.3);">
+        <span class="stat-card__value" style="color: var(--alert-rose);">{{ stats.bloqueados }}</span>
+        <span class="stat-card__label">Cuentas bloqueadas</span>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card__header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="1.5" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span class="info-card__title">Acciones rápidas</span>
+      </div>
+      <div class="action-panel__actions">
+        <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+          Gestionar usuarios
+        </a>
+        <a href="{{ url_for('admin.auditoria') }}" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          Ver bitácora de auditoría
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

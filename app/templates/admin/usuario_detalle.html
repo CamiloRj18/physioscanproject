@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}{{ usuario.primer_nombre }} {{ usuario.primer_apellido }} — Administración{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  {% include "admin/_sidebar.html" %}
+
+  <main class="admin-content" id="main-content">
+
+    <div class="admin-content__header">
+      <div>
+        <a href="{{ url_for('admin.usuarios') }}" style="color:var(--slate-blue); font-size:0.875rem; display:inline-flex; align-items:center; gap:4px; margin-bottom:var(--space-xs); cursor:pointer;" aria-label="Volver a la lista">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Usuarios
+        </a>
+        <h1 class="admin-content__title">
+          {{ usuario.primer_nombre }} {{ usuario.primer_apellido }}
+        </h1>
+        <p class="admin-content__subtitle">
+          <code>{{ usuario.codigo_usuario or '—' }}</code> ·
+          <span class="badge badge--{{ usuario.nombre_rol }}">{{ usuario.nombre_rol | capitalize }}</span>
+          <span class="badge badge--{{ usuario.estado }}" style="margin-left:4px;">{{ usuario.estado | replace('_', ' ') | capitalize }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Información del usuario -->
+    <div class="info-card">
+      <div class="info-card__header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="1.5" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8z"/>
+        </svg>
+        <span class="info-card__title">Datos personales</span>
+      </div>
+      <div class="info-row">
+        <div class="info-item">
+          <span class="info-item__label">Correo</span>
+          <span class="info-item__value">{{ usuario.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item__label">Teléfono</span>
+          <span class="info-item__value">{{ usuario.telefono or '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item__label">Email verificado</span>
+          <span class="info-item__value">{{ 'Sí' if usuario.email_verificado else 'No' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item__label">Último acceso</span>
+          <span class="info-item__value">{{ usuario.ultimo_acceso.strftime('%Y-%m-%d %H:%M') if usuario.ultimo_acceso else 'Nunca' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-item__label">Registro</span>
+          <span class="info-item__value">{{ usuario.fecha_creacion.strftime('%Y-%m-%d') if usuario.fecha_creacion else '—' }}</span>
+        </div>
+        {% if usuario.intentos_fallidos %}
+        <div class="info-item">
+          <span class="info-item__label">Intentos fallidos</span>
+          <span class="info-item__value" style="color:var(--alert-rose);">{{ usuario.intentos_fallidos }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Acciones de estado -->
+    <div class="action-panel">
+      <p class="action-panel__title">Estado de la cuenta</p>
+      <div class="action-panel__actions">
+        {% if usuario.estado != 'activo' %}
+        <form method="post" action="{{ url_for('admin.cambiar_estado', id=usuario.id_usuario) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="estado" value="activo">
+          <button type="submit" class="btn btn-success btn-xs" aria-label="Activar cuenta">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 12l2 2 4-4M22 12A10 10 0 1112 2a10 10 0 0110 10z"/>
+            </svg>
+            Activar
+          </button>
+        </form>
+        {% endif %}
+
+        {% if usuario.estado != 'inactivo' %}
+        <form method="post" action="{{ url_for('admin.cambiar_estado', id=usuario.id_usuario) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="estado" value="inactivo">
+          <button type="submit" class="btn btn-secondary btn-xs" aria-label="Inactivar cuenta">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Inactivar
+          </button>
+        </form>
+        {% endif %}
+
+        {% if usuario.estado != 'bloqueado' %}
+        <form method="post" action="{{ url_for('admin.cambiar_estado', id=usuario.id_usuario) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="estado" value="bloqueado">
+          <button type="submit" class="btn btn-danger btn-xs" aria-label="Bloquear cuenta">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            Bloquear
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Archivo de recuperación (lote de 12) -->
+    <div class="info-card">
+      <div class="info-card__header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="1.5" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+        </svg>
+        <span class="info-card__title">Archivo de recuperación (12 códigos)</span>
+      </div>
+      {% if lote_activo %}
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-item__label">Lote activo</span>
+            <span class="info-item__value">#{{ lote_activo.numero_lote }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Códigos usados</span>
+            <span class="info-item__value">{{ lote_activo.codigos_usados }} / {{ lote_activo.total_codigos }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Generado</span>
+            <span class="info-item__value">{{ lote_activo.generado_en.strftime('%Y-%m-%d') if lote_activo.generado_en else '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Emitido por</span>
+            <span class="info-item__value">{{ 'Admin' if lote_activo.generado_por else 'Sistema' }}</span>
+          </div>
+        </div>
+      {% else %}
+        <p style="color:var(--alert-rose); font-size:0.875rem; margin-bottom:var(--space-md);">
+          No hay lote de recuperación activo. El usuario no puede usar códigos de archivo.
+        </p>
+      {% endif %}
+
+      <div style="margin-top:var(--space-md);">
+        <a href="{{ url_for('admin.reemitir_recuperacion', id=usuario.id_usuario) }}" class="btn btn-warn btn-xs">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+          </svg>
+          {% if lote_activo %}Reemitir archivo{% else %}Emitir archivo de recuperación{% endif %}
+        </a>
+      </div>
+    </div>
+
+    <!-- Asignaciones (si es entrenador) -->
+    {% if usuario.nombre_rol == 'entrenador' %}
+    <div class="info-card">
+      <div class="info-card__header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="1.5" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        <span class="info-card__title">Deportistas asignados</span>
+      </div>
+
+      {% if asignaciones %}
+        <div class="data-table-wrap" style="margin-bottom:var(--space-md);">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Deportista</th>
+                <th>Correo</th>
+                <th>Asignado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in asignaciones %}
+              <tr>
+                <td>{{ a.primer_nombre }} {{ a.primer_apellido }}</td>
+                <td style="color:var(--slate-blue);">{{ a.email }}</td>
+                <td style="font-size:0.8rem;color:var(--slate-blue);">{{ a.fecha_asignacion.strftime('%Y-%m-%d') if a.fecha_asignacion else '—' }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('admin.eliminar_asignacion', id_asignacion=a.id_asignacion) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="id_usuario_redir" value="{{ usuario.id_usuario }}">
+                    <button type="submit" class="btn btn-danger btn-xs" aria-label="Desasignar deportista">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                      Desasignar
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p style="color:var(--slate-blue); font-size:0.875rem; margin-bottom:var(--space-md);">
+          No hay deportistas asignados a este entrenador.
+        </p>
+      {% endif %}
+
+      {% if deportistas_todos %}
+        <form method="post" action="{{ url_for('admin.crear_asignacion') }}" style="display:flex; gap:var(--space-sm); flex-wrap:wrap; align-items:flex-end;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="id_entrenador" value="{{ usuario.id_usuario }}">
+          <input type="hidden" name="id_usuario_redir" value="{{ usuario.id_usuario }}">
+          <label style="font-size:0.8rem; color:var(--slate-blue); display:flex; flex-direction:column; gap:4px;">
+            Asignar deportista
+            <select name="id_deportista" class="filter-bar select" style="background:var(--dark-ocean); border:1px solid var(--line-soft); border-radius:var(--radius-sm); color:var(--ice-white); padding:var(--space-sm); cursor:pointer;">
+              <option value="">— Seleccionar —</option>
+              {% for d in deportistas_todos %}
+                <option value="{{ d.id_deportista }}">{{ d.primer_nombre }} {{ d.primer_apellido }} ({{ d.email }})</option>
+              {% endfor %}
+            </select>
+          </label>
+          <button type="submit" class="btn btn-success btn-xs" style="align-self:flex-end;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Asignar
+          </button>
+        </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div style="margin-top:var(--space-md);">
+      <a href="{{ url_for('admin.auditoria', usuario=usuario.id_usuario) }}" class="btn btn-secondary btn-xs">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+        </svg>
+        Ver auditoría de este usuario
+      </a>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Recuperación con código — PhysioScan{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-card auth-card--wide">
+
+  {% if bloqueado %}
+  <div class="auth-header">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--alert-rose)" stroke-width="1.5" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <h1 class="auth-title">Demasiados intentos</h1>
+    <p class="auth-subtitle">
+      Has superado el límite de {{ max_intentos }} intentos. Por seguridad, esta sesión ha sido bloqueada.<br>
+      Contacta al administrador para reemitir tu archivo de recuperación.
+    </p>
+  </div>
+  <div class="auth-footer-link mt-lg">
+    <a href="{{ url_for('auth.login') }}">Volver al inicio de sesión</a>
+  </div>
+
+  {% else %}
+
+  <header class="auth-header">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-core)" stroke-width="1.5" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+      <polyline points="14,2 14,8 20,8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+    <h1 class="auth-title">Recuperación con código</h1>
+    <p class="auth-subtitle">Usa uno de los 12 códigos del archivo de recuperación que guardaste</p>
+  </header>
+
+  <div class="recovery-warning" role="alert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <span>
+      Cada código solo puede usarse <strong>una vez</strong>.
+      Al agotar los 12 códigos, necesitarás que el administrador reemita tu archivo.
+    </span>
+  </div>
+
+  <form class="auth-form" method="post" action="{{ url_for('recuperacion.archivo_form') }}" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-group">
+      <label class="form-label" for="email">Correo electrónico</label>
+      <input
+        class="form-input"
+        type="email"
+        id="email"
+        name="email"
+        autocomplete="email"
+        required
+        aria-required="true"
+        placeholder="tu@correo.com"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="codigo">Código de recuperación</label>
+      <input
+        class="form-input"
+        type="text"
+        id="codigo"
+        name="codigo"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        required
+        aria-required="true"
+        placeholder="XXXX-XXXX-XXXX"
+        style="font-family: var(--fuente-datos); letter-spacing: 0.15em;"
+      >
+      <span class="form-hint">Formato: XXXX-XXXX-XXXX (mayúsculas y dígitos)</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Nueva contraseña</label>
+      <div class="input-password-wrap">
+        <input
+          class="form-input"
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="new-password"
+          required
+          aria-required="true"
+          placeholder="Mínimo 12 caracteres"
+        >
+        <button type="button" class="btn-toggle-pwd" aria-label="Mostrar contraseña">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="strength-bar" aria-hidden="true">
+        <div class="strength-bar__fill" id="strength-fill"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password2">Confirmar contraseña</label>
+      <div class="input-password-wrap">
+        <input
+          class="form-input"
+          type="password"
+          id="password2"
+          name="password2"
+          autocomplete="new-password"
+          required
+          aria-required="true"
+          placeholder="Repite la contraseña"
+        >
+        <button type="button" class="btn-toggle-pwd" aria-label="Mostrar contraseña">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-submit">
+      <button type="submit" class="btn btn-primary btn--full">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 12l2 2 4-4M22 12A10 10 0 1112 2a10 10 0 0110 10z"/>
+        </svg>
+        Recuperar acceso
+      </button>
+    </div>
+  </form>
+
+  <div class="auth-footer-link mt-lg">
+    <a href="{{ url_for('recuperacion.correo_solicitar') }}">¿Prefieres recuperar por correo?</a>
+  </div>
+  <div class="auth-footer-link">
+    <a href="{{ url_for('auth.login') }}">Volver al inicio de sesión</a>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}
