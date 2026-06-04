@@ -23,12 +23,14 @@ class UsuarioProxy(UserMixin):
     """Adapta el DTO Usuario a la interfaz de flask-login.
 
     Mantiene app/modelos/usuario.py libre de dependencias de Flask.
+    Los campos extra del JOIN (p. ej. nombre_rol) se exponen a través de _extra.
     """
 
     def __init__(self, fila: dict) -> None:
         from app.modelos.usuario import Usuario
-        campos = Usuario.__dataclass_fields__
-        self._u = Usuario(**{k: v for k, v in fila.items() if k in campos})
+        campos    = set(Usuario.__dataclass_fields__)
+        self._u   = Usuario(**{k: v for k, v in fila.items() if k in campos})
+        self._extra: dict = {k: v for k, v in fila.items() if k not in campos}
 
     def get_id(self) -> str:
         return str(self._u.id_usuario)
@@ -38,15 +40,29 @@ class UsuarioProxy(UserMixin):
         return self._u.estado == "activo"
 
     def __getattr__(self, name: str):
-        return getattr(self._u, name)
+        extra = self.__dict__.get("_extra", {})
+        if name in extra:
+            return extra[name]
+        u = self.__dict__.get("_u")
+        if u is not None:
+            return getattr(u, name)
+        raise AttributeError(name)
 
 
 @login_manager.user_loader
 def _cargar_usuario(id_str: str):
-    """Recarga el usuario desde BD en cada petición autenticada."""
+    """Recarga el usuario (con nombre_rol) desde BD en cada petición autenticada."""
     try:
         from app.datos.base_repositorio import uno
-        fila = uno("SELECT * FROM usuario WHERE id_usuario = %s", (int(id_str),))
+        fila = uno(
+            """
+            SELECT u.*, r.nombre AS nombre_rol
+            FROM   usuario u
+            JOIN   rol r ON r.id_rol = u.id_rol
+            WHERE  u.id_usuario = %s
+            """,
+            (int(id_str),),
+        )
         return UsuarioProxy(fila) if fila else None
     except Exception:
         return None

@@ -1,0 +1,30 @@
+<footer class="footer" role="contentinfo">
+  <div class="footer__container">
+    <div class="footer__brand">
+      <span class="footer__brand-text">PhysioScan</span>
+      <p class="footer__tagline">Monitoreo del rendimiento deportivo</p>
+    </div>
+
+    <div class="footer__col">
+      <h4>Plataforma</h4>
+      <ul>
+        <li><a href="{{ url_for('publico.home') }}">Inicio</a></li>
+        <li><a href="{{ url_for('auth.registro') }}">Registrarse</a></li>
+        <li><a href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4>Institución</h4>
+      <ul>
+        <li><span>UniEspinal</span></li>
+        <li><span>Institución Universitaria de El Espinal</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <span>© {{ now.year if now else 2026 }} PhysioScan — UniEspinal</span>
+    <span class="footer__law">Tratamiento de datos conforme a la Ley 1581 de 2012</span>
+  </div>
+</footer>

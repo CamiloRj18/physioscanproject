@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PhysioScan — Monitoreo del rendimiento deportivo">
+  <title>{% block title %}PhysioScan{% endblock %}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+  {% include "componentes/navbar.html" %}
+
+  <main id="main-content" role="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container" aria-live="polite" aria-atomic="false">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category }}" role="alert">
+              <span>{{ message }}</span>
+              <button class="flash__close" aria-label="Cerrar aviso" onclick="this.parentElement.remove()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "componentes/footer.html" %}
+
+  <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

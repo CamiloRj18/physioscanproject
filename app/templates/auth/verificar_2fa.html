@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Verificación en dos pasos — PhysioScan{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <header class="auth-header">
+    <a href="{{ url_for('publico.home') }}" class="auth-logo" aria-label="PhysioScan — inicio">
+      <svg class="auth-logo__icon" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 14h2l2-5 3 10 2-7 1 2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="auth-logo__text">PhysioScan</span>
+    </a>
+    <h1 class="auth-title">Verificación en dos pasos</h1>
+    {% if metodo == 'email' %}
+      <p class="auth-subtitle">Ingresa el código de 6 dígitos enviado a tu correo</p>
+    {% else %}
+      <p class="auth-subtitle">Ingresa el código de tu aplicación autenticadora</p>
+    {% endif %}
+  </header>
+
+  <form class="auth-form" method="post" action="{{ url_for('auth.verificar_2fa') }}" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-group">
+      <label class="form-label" for="codigo">
+        {% if metodo == 'email' %}Código enviado por correo{% else %}Código TOTP{% endif %}
+      </label>
+      <input
+        class="form-input otp-input"
+        type="text"
+        id="codigo"
+        name="codigo"
+        maxlength="6"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        required
+        aria-required="true"
+        placeholder="000000"
+        autofocus
+      >
+      <p class="form-hint">
+        {% if metodo == 'email' %}
+          Válido por 5 minutos. Revisa tu bandeja de entrada.
+        {% else %}
+          El código de 6 dígitos de Google Authenticator o Authy.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="auth-submit">
+      <button type="submit" class="btn btn-primary btn--full">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 12l2 2 4-4M22 12A10 10 0 1112 2a10 10 0 0110 10z"/>
+        </svg>
+        Verificar
+      </button>
+    </div>
+  </form>
+
+  <div class="auth-footer-link">
+    <a href="{{ url_for('auth.login') }}">Volver al inicio de sesión</a>
+  </div>
+</div>
+{% endblock %}

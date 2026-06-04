@@ -48,6 +48,11 @@ def create_app(config_name: str | None = None) -> Flask:
     from app.comun.errores import registrar_handlers
     registrar_handlers(app)
 
+    @app.context_processor
+    def _inject_globals():
+        from datetime import datetime
+        return {"now": datetime.utcnow()}
+
     from app.cli import registrar_comandos
     registrar_comandos(app)
 

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Códigos de recuperación — PhysioScan{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-card auth-card--wide">
+  <header class="auth-header">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--success-mint)" stroke-width="1.5" aria-hidden="true">
+      <path d="M9 12l2 2 4-4M22 12A10 10 0 1112 2a10 10 0 0110 10z"/>
+    </svg>
+    <h1 class="auth-title">Cuenta creada</h1>
+    <p class="auth-subtitle">
+      Revisa tu correo <strong>{{ email | e }}</strong> para verificar tu cuenta.<br>
+      Tu código de usuario es: <code>{{ codigo_usuario | e }}</code>
+    </p>
+  </header>
+
+  <div class="recovery-warning" role="alert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <span>
+      <strong>Esta es la única vez que verás estos códigos.</strong>
+      Guárdalos en un lugar seguro ahora. No se pueden recuperar ni mostrar de nuevo.
+      Son necesarios si pierdes acceso a tu correo.
+    </span>
+  </div>
+
+  <div class="recovery-grid" aria-label="Códigos de recuperación">
+    {% for codigo in codigos %}
+      <div class="recovery-code">
+        <span class="recovery-code__num">{{ loop.index }}</span>
+        {{ codigo | e }}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-lg">
+    <a
+      href="{{ url_for('auth.login') }}"
+      class="btn btn-primary btn--full"
+      download="physioscan_recuperacion_{{ codigo_usuario }}.txt"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+      </svg>
+      Confirmar y continuar al login
+    </a>
+  </div>
+
+  <p class="form-hint text-center mt-md">
+    Recomendamos imprimir o guardar esta página en un gestor de contraseñas antes de continuar.
+  </p>
+</div>
+{% endblock %}

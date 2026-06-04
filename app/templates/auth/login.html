@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión — PhysioScan{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <header class="auth-header">
+    <a href="{{ url_for('publico.home') }}" class="auth-logo" aria-label="PhysioScan — inicio">
+      <svg class="auth-logo__icon" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 14h2l2-5 3 10 2-7 1 2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="auth-logo__text">PhysioScan</span>
+    </a>
+    <h1 class="auth-title">Bienvenido</h1>
+    <p class="auth-subtitle">Ingresa con tu cuenta para continuar</p>
+  </header>
+
+  <form class="auth-form" method="post" action="{{ url_for('auth.login') }}" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-group">
+      <label class="form-label" for="email">Correo electrónico</label>
+      <input
+        class="form-input"
+        type="email"
+        id="email"
+        name="email"
+        value="{{ email | default('') | e }}"
+        autocomplete="email"
+        required
+        aria-required="true"
+        placeholder="tu@correo.com"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Contraseña</label>
+      <div class="input-password-wrap">
+        <input
+          class="form-input"
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="current-password"
+          required
+          aria-required="true"
+          placeholder="Tu contraseña"
+        >
+        <button type="button" class="btn-toggle-pwd" aria-label="Mostrar contraseña">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-submit">
+      <button type="submit" class="btn btn-primary btn--full">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+        </svg>
+        Ingresar
+      </button>
+    </div>
+  </form>
+
+  <div class="auth-footer-link">
+    <a href="{{ url_for('recuperacion.solicitar') }}">¿Olvidaste tu contraseña?</a>
+  </div>
+
+  <div class="auth-divider">o</div>
+
+  <div class="auth-footer-link">
+    ¿No tienes cuenta?
+    <a href="{{ url_for('auth.registro') }}">Regístrate gratis</a>
+  </div>
+</div>
+{% endblock %}

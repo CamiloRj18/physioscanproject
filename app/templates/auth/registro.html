@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Crear cuenta — PhysioScan{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-card auth-card--wide">
+  <header class="auth-header">
+    <a href="{{ url_for('publico.home') }}" class="auth-logo" aria-label="PhysioScan — inicio">
+      <svg class="auth-logo__icon" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 14h2l2-5 3 10 2-7 1 2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="auth-logo__text">PhysioScan</span>
+    </a>
+    <h1 class="auth-title">Crear cuenta</h1>
+    <p class="auth-subtitle">Completa el formulario para unirte a PhysioScan</p>
+  </header>
+
+  <form class="auth-form" method="post" action="{{ url_for('auth.registro') }}" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="auth-form__row">
+      <div class="form-group">
+        <label class="form-label" for="primer_nombre">Primer nombre <span aria-hidden="true">*</span></label>
+        <input
+          class="form-input"
+          type="text"
+          id="primer_nombre"
+          name="primer_nombre"
+          value="{{ form.primer_nombre | default('') | e }}"
+          autocomplete="given-name"
+          required
+          aria-required="true"
+          placeholder="Camilo"
+        >
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="segundo_nombre">Segundo nombre</label>
+        <input
+          class="form-input"
+          type="text"
+          id="segundo_nombre"
+          name="segundo_nombre"
+          value="{{ form.segundo_nombre | default('') | e }}"
+          autocomplete="additional-name"
+          placeholder="Opcional"
+        >
+      </div>
+    </div>
+
+    <div class="auth-form__row">
+      <div class="form-group">
+        <label class="form-label" for="primer_apellido">Primer apellido <span aria-hidden="true">*</span></label>
+        <input
+          class="form-input"
+          type="text"
+          id="primer_apellido"
+          name="primer_apellido"
+          value="{{ form.primer_apellido | default('') | e }}"
+          autocomplete="family-name"
+          required
+          aria-required="true"
+          placeholder="Ramírez"
+        >
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="segundo_apellido">Segundo apellido</label>
+        <input
+          class="form-input"
+          type="text"
+          id="segundo_apellido"
+          name="segundo_apellido"
+          value="{{ form.segundo_apellido | default('') | e }}"
+          placeholder="Opcional"
+        >
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Correo electrónico <span aria-hidden="true">*</span></label>
+      <input
+        class="form-input"
+        type="email"
+        id="email"
+        name="email"
+        value="{{ form.email | default('') | e }}"
+        autocomplete="email"
+        required
+        aria-required="true"
+        placeholder="tu@correo.com"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="telefono">Teléfono</label>
+      <input
+        class="form-input"
+        type="tel"
+        id="telefono"
+        name="telefono"
+        value="{{ form.telefono | default('') | e }}"
+        autocomplete="tel"
+        placeholder="Opcional"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Contraseña <span aria-hidden="true">*</span></label>
+      <div class="input-password-wrap">
+        <input
+          class="form-input"
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="new-password"
+          required
+          aria-required="true"
+          aria-describedby="pwd-hint"
+          placeholder="Mín. 12 caracteres"
+        >
+        <button type="button" class="btn-toggle-pwd" aria-label="Mostrar contraseña">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="pwd-strength" aria-hidden="true"><div class="pwd-strength__bar"></div></div>
+      <p class="form-hint" id="pwd-hint">Mínimo 12 caracteres, 1 mayúscula, 1 minúscula y 1 dígito</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password2">Confirmar contraseña <span aria-hidden="true">*</span></label>
+      <div class="input-password-wrap">
+        <input
+          class="form-input"
+          type="password"
+          id="password2"
+          name="password2"
+          autocomplete="new-password"
+          required
+          aria-required="true"
+          placeholder="Repite tu contraseña"
+        >
+        <button type="button" class="btn-toggle-pwd" aria-label="Mostrar contraseña">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <p class="form-hint">
+      Al registrarte aceptas el tratamiento de tus datos personales conforme a la Ley 1581 de 2012.
+    </p>
+
+    <div class="auth-submit">
+      <button type="submit" class="btn btn-primary btn--full">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        Crear cuenta
+      </button>
+    </div>
+  </form>
+
+  <div class="auth-footer-link">
+    ¿Ya tienes cuenta?
+    <a href="{{ url_for('auth.login') }}">Inicia sesión</a>
+  </div>
+</div>
+{% endblock %}

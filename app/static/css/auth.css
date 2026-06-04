@@ -1,0 +1,241 @@
+/* PhysioScan — Estilos de páginas de autenticación */
+
+/* ── Layout de página ──────────────────────────────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(25, 170, 255, .10) 0%, transparent 70%),
+              var(--deep-space);
+}
+
+.auth-page main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+}
+
+/* ── Tarjeta de formulario ──────────────────────────────────────────────────── */
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--panel-frost);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-xl);
+  box-shadow: var(--glow-cyan), var(--shadow-xl);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.auth-card--wide { max-width: 520px; }
+
+/* ── Cabecera de la tarjeta ────────────────────────────────────────────────── */
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  text-decoration: none;
+}
+
+.auth-logo__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--cyan-core);
+  filter: drop-shadow(0 0 8px rgba(121, 219, 255, .6));
+}
+
+.auth-logo__text {
+  font-family: var(--fuente-titulo);
+  font-size: 1.375rem;
+  color: var(--ice-white);
+  letter-spacing: 0.1em;
+}
+
+.auth-title {
+  font-family: var(--fuente-titulo);
+  font-size: 1.375rem;
+  color: var(--ice-white);
+  margin-bottom: var(--space-xs);
+}
+
+.auth-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-blue);
+}
+
+/* ── Formulario ────────────────────────────────────────────────────────────── */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.auth-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* ── Botón de envío ────────────────────────────────────────────────────────── */
+.auth-submit {
+  margin-top: var(--space-sm);
+}
+
+/* ── Divisor ────────────────────────────────────────────────────────────────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  color: var(--slate-blue);
+  font-size: 0.8125rem;
+  margin: var(--space-sm) 0;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+/* ── Enlace de acción secundaria ───────────────────────────────────────────── */
+.auth-footer-link {
+  text-align: center;
+  margin-top: var(--space-md);
+  font-size: 0.875rem;
+  color: var(--slate-blue);
+}
+.auth-footer-link a { color: var(--cyan-core); font-weight: 600; }
+.auth-footer-link a:hover { color: var(--cyan-strong); }
+
+/* ── Campo de contraseña con toggle ─────────────────────────────────────────── */
+.input-password-wrap {
+  position: relative;
+}
+.input-password-wrap .form-input { padding-right: 3rem; }
+
+.btn-toggle-pwd {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--slate-blue);
+  cursor: pointer;
+  padding: var(--space-xs);
+  transition: color var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+.btn-toggle-pwd:hover { color: var(--cyan-core); }
+.btn-toggle-pwd:focus-visible {
+  outline: 2px solid var(--cyan-core);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Código de verificación ────────────────────────────────────────────────── */
+.otp-input {
+  text-align: center;
+  font-size: 1.75rem;
+  letter-spacing: 0.35em;
+  font-family: var(--fuente-datos);
+}
+
+/* ── QR container ───────────────────────────────────────────────────────────── */
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+}
+.qr-container img {
+  border-radius: var(--radius-md);
+  image-rendering: pixelated;
+}
+.qr-secret {
+  font-family: var(--fuente-datos);
+  font-size: 0.8125rem;
+  color: var(--cyan-strong);
+  letter-spacing: 0.12em;
+  word-break: break-all;
+  text-align: center;
+}
+
+/* ── Lista de códigos de recuperación ────────────────────────────────────────── */
+.recovery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+}
+.recovery-code {
+  font-family: var(--fuente-datos);
+  font-size: 0.9375rem;
+  color: var(--cyan-strong);
+  background: rgba(121, 219, 255, .06);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+.recovery-code__num {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--slate-blue);
+  margin-bottom: 2px;
+}
+
+.recovery-warning {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  padding: var(--space-md);
+  background: rgba(255, 114, 133, .08);
+  border: 1px solid rgba(255, 114, 133, .25);
+  border-radius: var(--radius-md);
+  color: var(--alert-rose);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.recovery-warning svg { flex-shrink: 0; margin-top: 2px; }
+
+/* ── Indicador de seguridad de contraseña ────────────────────────────────────── */
+.pwd-strength {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line-soft);
+  overflow: hidden;
+  margin-top: var(--space-xs);
+}
+.pwd-strength__bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width var(--transition-slow), background var(--transition-slow);
+}
+.pwd-strength--weak   .pwd-strength__bar { width: 25%; background: var(--alert-rose); }
+.pwd-strength--fair   .pwd-strength__bar { width: 50%; background: var(--warn-amber); }
+.pwd-strength--good   .pwd-strength__bar { width: 75%; background: var(--cyan-core); }
+.pwd-strength--strong .pwd-strength__bar { width: 100%; background: var(--success-mint); }
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .auth-card { padding: var(--space-xl) var(--space-md); border-radius: var(--radius-lg); }
+  .auth-form__row { grid-template-columns: 1fr; }
+  .recovery-grid { grid-template-columns: 1fr; }
+}
