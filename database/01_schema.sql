@@ -1,9 +1,9 @@
 -- PhysioScan — DDL completo
--- MySQL 8.x, utf8mb4, InnoDB, FKs con ON UPDATE CASCADE
+-- MySQL 5.7+, utf8mb4, InnoDB, FKs con ON UPDATE CASCADE
 -- Ejecutar con usuario admin (no con physioscan_app)
 
 CREATE DATABASE IF NOT EXISTS physioscan
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE physioscan;
 
 -- ───────────────────────── Identidad y seguridad ─────────────────────────
