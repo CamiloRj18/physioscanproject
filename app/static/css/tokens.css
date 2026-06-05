@@ -1,97 +1,181 @@
-/* PhysioScan — Design tokens
-   §7.3 del Blueprint Técnico + MASTER.md
-   Fuentes: stacks del sistema (compatible con CSP font-src 'self')
-*/
-:root {
-  /* ── Fondos (dark-space) ─────────────────────────────────── */
-  --deep-space:    #020813;
-  --midnight-navy: #041425;
-  --dark-ocean:    #071C34;
-  --panel-frost:   rgba(10, 34, 66, .52);
+/* ============================================================
+   PhysioScan — Design Tokens
+   Dark = default (data-theme="dark" en <html>). Light es ciudadano
+   de primera clase (data-theme="light"). Ambos cumplen WCAG AA.
+   CSP-safe: archivo externo, sin estilos inline.
+   ============================================================ */
 
-  /* ── Acentos ─────────────────────────────────────────────── */
-  --cyan-core:    #79DBFF;
-  --cyan-strong:  #B4F8FF;
-  --action-grad:  linear-gradient(90deg, #19AAFF, #68F0FF);
-  --data-grad:    linear-gradient(90deg, #1EB1FF, #7AF4FF);
+:root,
+:root[data-theme="dark"],
+.force-dark{
+  /* Fondos */
+  --bg-base:#020813;
+  --bg-raised:#041425;
+  --bg-surface:#071C34;
+  --bg-glass:rgba(10,34,66,.52);
 
-  /* ── Tipografía / texto ──────────────────────────────────── */
-  --ice-white:    #ECFBFF;
-  --slate-blue:   #9784C8;
-  --success-mint: #2FD69E;
-  --alert-rose:   #FF7285;
-  --warn-amber:   #FBBF24;
+  /* Acentos / acción */
+  --accent:#79DBFF;
+  --accent-strong:#B4F8FF;
+  --accent-grad:linear-gradient(90deg,#19AAFF,#68F0FF);
 
-  /* ── Bordes ──────────────────────────────────────────────── */
-  --line-soft:    rgba(117, 218, 255, .22);
-  --line-strong:  rgba(117, 218, 255, .40);
-  --sensor-glow:  #9EF7FF;
-  --bullet-glow:  #7AF4FF;
+  /* Texto */
+  --text-primary:#ECFBFF;
+  --text-secondary:#9784C8;
 
-  /* ── Fuentes del sistema (sin CDN externo) ───────────────── */
-  --fuente-titulo: "Bahnschrift", "Segoe UI", system-ui, sans-serif;
-  --fuente-cuerpo: "Trebuchet MS", system-ui, sans-serif;
-  --fuente-datos:  "Cascadia Code", Consolas, "Courier New", monospace;
+  /* Estado */
+  --success:#2FD69E;
+  --danger:#FF7285;
+  --warning:#FFC861;
 
-  /* ── Espaciado ───────────────────────────────────────────── */
-  --space-xs:  0.25rem;
-  --space-sm:  0.5rem;
-  --space-md:  1rem;
-  --space-lg:  1.5rem;
-  --space-xl:  2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
+  /* Estructura */
+  --border-soft:rgba(117,218,255,.14);
+  --border-strong:rgba(117,218,255,.32);
+  --glow:0 0 24px rgba(121,219,255,.35);
 
-  /* ── Sombras ─────────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, .10);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, .10);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, .15);
+  /* tonos de superficie translúcida para semáforos */
+  --tint-accent:rgba(121,219,255,.12);
+  --tint-success:rgba(47,214,158,.14);
+  --tint-warning:rgba(255,200,97,.14);
+  --tint-danger:rgba(255,114,133,.14);
 
-  /* ── Glow cian ───────────────────────────────────────────── */
-  --glow-cyan:  0 0 20px rgba(121, 219, 255, .35);
-  --glow-strong: 0 0 30px rgba(121, 219, 255, .55);
+  --shadow-card:0 10px 30px rgba(0,0,0,.34);
+  --shadow-pop:0 18px 50px rgba(0,0,0,.45);
+  --scheme:dark;
 
-  /* ── Radio de bordes ─────────────────────────────────────── */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  /* ── Navbar ──────────────────────────────────────────────── */
-  --navbar-height: 64px;
-
-  /* ── Transiciones ────────────────────────────────────────── */
-  --transition-fast:   150ms ease;
-  --transition-normal: 200ms ease;
-  --transition-slow:   300ms ease;
+  /* compatibilidad con variables del sistema anterior */
+  --deep-space:#020813;
+  --midnight-navy:#041425;
+  --dark-ocean:#071C34;
+  --panel-frost:rgba(10,34,66,.52);
+  --cyan-core:#79DBFF;
+  --cyan-strong:#B4F8FF;
+  --action-grad:linear-gradient(90deg,#19AAFF,#68F0FF);
+  --data-grad:linear-gradient(90deg,#1EB1FF,#7AF4FF);
+  --ice-white:#ECFBFF;
+  --slate-blue:#9784C8;
+  --success-mint:#2FD69E;
+  --alert-rose:#FF7285;
+  --warn-amber:#FFC861;
+  --line-soft:rgba(117,218,255,.14);
+  --line-strong:rgba(117,218,255,.32);
+  --glow-cyan:0 0 24px rgba(121,219,255,.35);
+  --glow-strong:0 0 30px rgba(121,219,255,.55);
 }
 
-/* ── Modo claro (light mode) ─────────────────────────────────────────────── */
-[data-theme="light"] {
-  --deep-space:    #EEF6FF;
-  --midnight-navy: #DFF0FF;
-  --dark-ocean:    #CCE8F8;
-  --panel-frost:   rgba(200, 230, 255, .70);
+:root[data-theme="light"],
+.force-light{
+  --bg-base:#F0F7FF;
+  --bg-raised:#E2F0FF;
+  --bg-surface:#FFFFFF;
+  --bg-glass:rgba(200,230,255,.70);
 
-  --ice-white:    #0A1628;
-  --slate-blue:   #4A5E80;
+  --accent:#0077B6;
+  --accent-strong:#005A8E;
+  --accent-grad:linear-gradient(90deg,#0090D8,#00B4D8);
 
-  --line-soft:    rgba(10, 60, 120, .16);
-  --line-strong:  rgba(10, 60, 120, .32);
+  --text-primary:#041425;
+  --text-secondary:#2D5A8E;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, .10);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, .08);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, .12);
+  --success:#0B7A4E;
+  --danger:#C0392B;
+  --warning:#B26A00;
 
-  --glow-cyan:   0 0 20px rgba(25, 170, 255, .25);
-  --glow-strong: 0 0 30px rgba(25, 170, 255, .40);
+  --border-soft:rgba(10,60,120,.12);
+  --border-strong:rgba(10,60,120,.28);
+  --glow:0 0 24px rgba(0,119,182,.25);
+
+  --tint-accent:rgba(0,119,182,.10);
+  --tint-success:rgba(11,122,78,.12);
+  --tint-warning:rgba(178,106,0,.13);
+  --tint-danger:rgba(192,57,43,.11);
+
+  --shadow-card:0 10px 28px rgba(13,42,92,.12);
+  --shadow-pop:0 18px 50px rgba(13,42,92,.18);
+  --scheme:light;
+
+  /* compatibilidad con variables del sistema anterior */
+  --deep-space:#F0F7FF;
+  --midnight-navy:#E2F0FF;
+  --dark-ocean:#FFFFFF;
+  --panel-frost:rgba(200,230,255,.70);
+  --cyan-core:#0077B6;
+  --cyan-strong:#005A8E;
+  --ice-white:#041425;
+  --slate-blue:#2D5A8E;
+  --success-mint:#0B7A4E;
+  --alert-rose:#C0392B;
+  --warn-amber:#B26A00;
+  --line-soft:rgba(10,60,120,.12);
+  --line-strong:rgba(10,60,120,.28);
+  --glow-cyan:0 0 24px rgba(0,119,182,.25);
+  --glow-strong:0 0 30px rgba(0,119,182,.40);
+
+  --r-sm:    6px;
+  --r-card:  12px;
+  --r-panel: 16px;
+  --r-pill:  999px;
+  --t-fast:  150ms ease;
+  --t-med:   200ms ease;
+  --font-title: Bahnschrift, "Segoe UI", system-ui, sans-serif;
+  --font-body:  "Trebuchet MS", system-ui, sans-serif;
+  --font-data:  "Cascadia Code", Consolas, "Courier New", monospace;
 }
 
-/* ── Botón de tema: visibilidad de ícono luna / sol ─────────────────────── */
-.btn-theme .icon-sun  { display: none; }
-.btn-theme .icon-moon { display: inline; }
+:root{
+  /* Tipografías */
+  --font-title:"Bahnschrift","Segoe UI Variable","Segoe UI",system-ui,sans-serif;
+  --font-body:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --font-data:"Cascadia Code","Cascadia Mono",Consolas,"Courier New",monospace;
 
-[data-theme="light"] .btn-theme .icon-sun  { display: inline; }
-[data-theme="light"] .btn-theme .icon-moon { display: none; }
+  /* compatibilidad con variables del sistema anterior */
+  --fuente-titulo:"Bahnschrift","Segoe UI Variable","Segoe UI",system-ui,sans-serif;
+  --fuente-cuerpo:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --fuente-datos:"Cascadia Code","Cascadia Mono",Consolas,"Courier New",monospace;
+
+  /* Radios */
+  --r-card:8px;
+  --r-panel:12px;
+  --r-pill:999px;
+  --radius-sm:6px;
+  --radius-md:10px;
+  --radius-lg:16px;
+  --radius-xl:24px;
+
+  /* Escala de espaciado (8px) */
+  --s-1:8px; --s-2:16px; --s-3:24px; --s-4:32px; --s-6:48px; --s-8:64px;
+  --space-xs:.25rem; --space-sm:.5rem; --space-md:1rem;
+  --space-lg:1.5rem; --space-xl:2rem; --space-2xl:3rem; --space-3xl:4rem;
+
+  /* Transiciones base */
+  --t-fast:150ms ease;
+  --t-med:200ms ease;
+  --t-theme:background .3s ease, color .3s ease, border-color .3s ease;
+  --transition-fast:150ms ease;
+  --transition-normal:200ms ease;
+  --transition-slow:300ms ease;
+
+  /* Focus ring */
+  --ring:0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent);
+
+  /* Navbar */
+  --navbar-height:64px;
+
+  /* Sombras compatibilidad */
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 6px rgba(0,0,0,.10);
+  --shadow-lg:0 10px 15px rgba(0,0,0,.10);
+  --shadow-xl:0 20px 25px rgba(0,0,0,.15);
+}
+
+/* color-scheme nativo para inputs/scrollbars del SO */
+:root[data-theme="dark"]{ color-scheme:dark; }
+:root[data-theme="light"]{ color-scheme:light; }
+.force-dark{color-scheme:dark;background:var(--bg-base);color:var(--text-primary);}
+.force-light{color-scheme:light;background:var(--bg-base);color:var(--text-primary);}
+
+/* toggle tema — compatibilidad botón id="theme-toggle" y data-theme-toggle */
+.btn-theme .icon-sun{display:none;}
+.btn-theme .icon-moon{display:inline;}
+:root[data-theme="light"] .btn-theme .icon-sun{display:inline;}
+:root[data-theme="light"] .btn-theme .icon-moon{display:none;}
