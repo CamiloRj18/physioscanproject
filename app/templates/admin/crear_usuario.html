@@ -59,16 +59,15 @@
                      placeholder=" " autocomplete="tel">
               <label for="c-tel">Teléfono</label>
             </div>
-            <div class="field">
-              <select id="c-rol" name="id_rol" class="field-select" required aria-label="Rol">
-                <option value="">— Seleccionar —</option>
+            <div class="field-group">
+              <label for="c-rol" class="field-label">Rol *</label>
+              <select id="c-rol" name="id_rol" class="field-select" required
+                      spellcheck="false" autocorrect="off" autocomplete="off">
+                <option value="">— Seleccionar rol —</option>
                 {% for r in roles %}
-                  <option value="{{ r.id_rol }}">
-                    {{ r.nombre | capitalize }}
-                  </option>
+                  <option value="{{ r.id_rol }}">{{ r.nombre | capitalize }}</option>
                 {% endfor %}
               </select>
-              <label for="c-rol">Rol <abbr title="obligatorio" aria-hidden="true">*</abbr></label>
             </div>
             <div class="field">
               <input id="c-pwd" type="password" name="password"

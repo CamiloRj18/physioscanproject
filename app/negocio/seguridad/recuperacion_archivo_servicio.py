@@ -7,9 +7,10 @@ volver a mostrarlo.
 """
 from __future__ import annotations
 
+import io
 import secrets
 import string
-from datetime import datetime
+from datetime import date, datetime
 
 from app.comun.errores import AutenticacionError, BloqueadoError, ValidacionError
 from app.comun.seguridad_utils import hash_codigo, verificar_codigo
@@ -25,7 +26,7 @@ _TOTAL    = 12
 def generar_lote(
     id_usuario: int,
     generado_por: int | None = None,
-) -> tuple[list[str], str, str]:
+) -> tuple[list[str], str, str, bytes]:
     """Genera un nuevo lote de 12 códigos de recuperación de archivo.
 
     Desactiva el lote anterior (si existe) y crea uno nuevo.
@@ -36,10 +37,11 @@ def generar_lote(
         generado_por: id_usuario del admin que reemite; None si es el registro inicial.
 
     Returns:
-        (codigos_planos, contenido_txt, nombre_archivo)
+        (codigos_planos, contenido_txt, nombre_archivo, pdf_bytes)
         - codigos_planos: lista de 12 strings (texto claro, one-time).
         - contenido_txt:  texto del archivo descargable.
-        - nombre_archivo: nombre sugerido para Content-Disposition.
+        - nombre_archivo: nombre base (sin extensión) para Content-Disposition.
+        - pdf_bytes:       PDF en memoria listo para enviar al navegador.
     """
     usuario = ur.buscar_por_id(id_usuario)
     if not usuario:
@@ -73,10 +75,16 @@ def generar_lote(
         },
     )
 
-    contenido_txt = _construir_txt(codigo_usuario, numero_nuevo, codigos_planos, generado_por)
-    nombre_archivo = f"physioscan_recuperacion_{codigo_usuario}.txt"
+    contenido_txt  = _construir_txt(codigo_usuario, numero_nuevo, codigos_planos, generado_por)
+    nombre_archivo = f"physioscan_recuperacion_{codigo_usuario}"
 
-    return codigos_planos, contenido_txt, nombre_archivo
+    nombre_usuario = ""
+    if usuario:
+        nombre_usuario = f"{usuario.get('primer_nombre', '')} {usuario.get('primer_apellido', '')}".strip()
+
+    pdf_bytes = _generar_pdf(codigos_planos, codigo_usuario, nombre_usuario)
+
+    return codigos_planos, contenido_txt, nombre_archivo, pdf_bytes
 
 
 def recuperar_con_codigo(
@@ -199,6 +207,108 @@ def _buscar_coincidencia(codigo_normalizado: str, codigos: list[dict]) -> dict |
         if verificar_codigo(codigo_normalizado, c["codigo_hash"]):
             return c
     return None
+
+
+def _pagina_oscura(canvas, doc):
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    canvas.saveState()
+    canvas.setFillColor(colors.HexColor("#020813"))
+    canvas.rect(0, 0, A4[0], A4[1], fill=1, stroke=0)
+    canvas.restoreState()
+
+
+def _generar_pdf(codigos: list[str], codigo_usuario: str, nombre_usuario: str) -> bytes:
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import cm
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=2 * cm, rightMargin=2 * cm,
+        topMargin=2 * cm, bottomMargin=2 * cm,
+    )
+
+    getSampleStyleSheet()
+    elements = []
+
+    titulo_style = ParagraphStyle(
+        "titulo", fontSize=24, fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#79DBFF"), spaceAfter=6, alignment=TA_CENTER,
+    )
+    elements.append(Paragraph("PhysioScan", titulo_style))
+
+    subtitulo_style = ParagraphStyle(
+        "subtitulo", fontSize=13, fontName="Helvetica",
+        textColor=colors.HexColor("#9784C8"), spaceAfter=4, alignment=TA_CENTER,
+    )
+    elements.append(Paragraph("Archivo de Códigos de Recuperación", subtitulo_style))
+    elements.append(Spacer(1, 0.3 * cm))
+
+    info_style = ParagraphStyle(
+        "info", fontSize=10, fontName="Helvetica",
+        textColor=colors.HexColor("#ECFBFF"), spaceAfter=2, alignment=TA_CENTER,
+    )
+    if nombre_usuario:
+        elements.append(Paragraph(f"Usuario: {nombre_usuario}", info_style))
+    elements.append(Paragraph(f"Código: {codigo_usuario}", info_style))
+    elements.append(Paragraph(f"Generado: {date.today().strftime('%d/%m/%Y')}", info_style))
+    elements.append(Spacer(1, 0.5 * cm))
+
+    warn_style = ParagraphStyle(
+        "warn", fontSize=9, fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#FF7285"), spaceAfter=4, alignment=TA_CENTER,
+        borderColor=colors.HexColor("#FF7285"), borderWidth=1, borderPadding=8,
+        backColor=colors.HexColor("#1a0a0d"),
+    )
+    elements.append(Paragraph(
+        "IMPORTANTE: Cada código solo puede usarse UNA VEZ. "
+        "Guarda este archivo en un lugar seguro. "
+        "Al agotar los 12 códigos, solicita reemisión al administrador.",
+        warn_style,
+    ))
+    elements.append(Spacer(1, 0.5 * cm))
+
+    data = []
+    for i in range(0, 12, 2):
+        data.append([
+            f"{i + 1}.  {codigos[i]}",
+            f"{i + 2}.  {codigos[i + 1]}" if i + 1 < len(codigos) else "",
+        ])
+
+    tabla = Table(data, colWidths=[8 * cm, 8 * cm], rowHeights=1.1 * cm)
+    tabla.setStyle(TableStyle([
+        ("FONTNAME",    (0, 0), (-1, -1), "Courier-Bold"),
+        ("FONTSIZE",    (0, 0), (-1, -1), 11),
+        ("TEXTCOLOR",   (0, 0), (-1, -1), colors.HexColor("#79DBFF")),
+        ("ROWBACKGROUNDS", (0, 0), (-1, -1),
+         [colors.HexColor("#041425"), colors.HexColor("#071C34")]),
+        ("ALIGN",       (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN",      (0, 0), (-1, -1), "MIDDLE"),
+        ("GRID",        (0, 0), (-1, -1), 0.5, colors.HexColor("#79DBFF")),
+        ("TOPPADDING",  (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(tabla)
+    elements.append(Spacer(1, 0.5 * cm))
+
+    footer_style = ParagraphStyle(
+        "footer", fontSize=8, fontName="Helvetica",
+        textColor=colors.HexColor("#9784C8"), alignment=TA_CENTER,
+    )
+    elements.append(Paragraph(
+        "PhysioScan · Institución Universitaria de El Espinal — UniEspinal · "
+        "Tratamiento de datos conforme a la Ley 1581 de 2012",
+        footer_style,
+    ))
+
+    doc.build(elements, onFirstPage=_pagina_oscura, onLaterPages=_pagina_oscura)
+    buffer.seek(0)
+    return buffer.read()
 
 
 def _construir_txt(

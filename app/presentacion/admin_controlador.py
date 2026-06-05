@@ -151,11 +151,12 @@ def crear_usuario():
 
         # Generar lote de recuperación inicial para el nuevo usuario
         try:
-            _, contenido_txt, nombre_archivo = ras.generar_lote(id_nuevo, int(current_user.get_id()))
+            _, contenido_txt, nombre_archivo, pdf_bytes = ras.generar_lote(id_nuevo, int(current_user.get_id()))
         except Exception as exc:
             current_app.logger.warning("Lote recuperación no generado para %s: %s", id_nuevo, exc)
             contenido_txt  = None
             nombre_archivo = None
+            pdf_bytes      = None
 
         audit(
             "USUARIO_CREADO_ADMIN",
@@ -166,10 +167,10 @@ def crear_usuario():
 
         flash(f"Usuario creado correctamente (id={id_nuevo}).", "success")
 
-        if contenido_txt:
-            resp = make_response(contenido_txt)
-            resp.headers["Content-Type"]        = "text/plain; charset=utf-8"
-            resp.headers["Content-Disposition"] = f'attachment; filename="{nombre_archivo}"'
+        if pdf_bytes:
+            resp = make_response(pdf_bytes)
+            resp.headers["Content-Type"]        = "application/pdf"
+            resp.headers["Content-Disposition"] = f'inline; filename="{nombre_archivo}.pdf"'
             resp.headers["Cache-Control"]       = "no-store"
             return resp
 
@@ -291,7 +292,7 @@ def reemitir_recuperacion(id: int):
     if request.method == "POST":
         id_admin = int(current_user.get_id())
         try:
-            _, contenido_txt, nombre_archivo = ras.generar_lote(id, generado_por=id_admin)
+            _, contenido_txt, nombre_archivo, pdf_bytes = ras.generar_lote(id, generado_por=id_admin)
         except ValidacionError as exc:
             flash(str(exc), "error")
             return redirect(url_for("admin.usuario_detalle", id=id))
@@ -303,9 +304,9 @@ def reemitir_recuperacion(id: int):
             detalle={"id_usuario_objetivo": id, "lote_anterior": lote_actual["id_lote"] if lote_actual else None},
         )
 
-        resp = make_response(contenido_txt)
-        resp.headers["Content-Type"]        = "text/plain; charset=utf-8"
-        resp.headers["Content-Disposition"] = f'attachment; filename="{nombre_archivo}"'
+        resp = make_response(pdf_bytes)
+        resp.headers["Content-Type"]        = "application/pdf"
+        resp.headers["Content-Disposition"] = f'inline; filename="{nombre_archivo}.pdf"'
         resp.headers["Cache-Control"]       = "no-store"
         return resp
 

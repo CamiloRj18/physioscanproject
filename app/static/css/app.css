@@ -2,6 +2,11 @@
    PhysioScan — App shell: navbar, sidebar, drawer, layout
    ============================================================ */
 
+/* ---- field-label + field-group (label estático para selects) ---- */
+.field-label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;
+  font-family:var(--font-data);letter-spacing:.05em;text-transform:uppercase;}
+.field-group{display:flex;flex-direction:column;gap:0;}
+
 /* auth pages: hide global nav + footer */
 .auth-page .nav,.auth-page .footer{display:none;}
 .auth-page #main-content{padding:0;}

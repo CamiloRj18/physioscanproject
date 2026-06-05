@@ -15,6 +15,8 @@ import base64
 import io
 
 import qrcode
+
+from app.negocio.seguridad.recuperacion_archivo_servicio import _generar_pdf
 from flask import (
     Blueprint,
     current_app,
@@ -95,32 +97,40 @@ def registro():
             _enviar_email_verificacion(form["email"], form["primer_nombre"], token_v)
 
             fila = ur.buscar_por_id(id_usuario)
-            codigo_usuario = fila["codigo_usuario"] if fila else "???????"
+            codigo_usuario  = fila["codigo_usuario"] if fila else "???????"
+            nombre_usuario  = (
+                f"{fila['primer_nombre']} {fila['primer_apellido']}"
+                if fila else form["primer_nombre"] + " " + form["primer_apellido"]
+            )
 
-            session["codigos_registro"] = {
-                "codigos":       codigos,
-                "email":         form["email"],
-                "codigo_usuario": codigo_usuario,
-            }
-            return redirect(url_for("auth.codigos_recuperacion"))
+            try:
+                pdf_bytes = _generar_pdf(codigos, codigo_usuario, nombre_usuario)
+                pdf_b64   = base64.b64encode(pdf_bytes).decode()
+            except Exception as exc:
+                current_app.logger.warning("PDF códigos no generado: %s", exc)
+                pdf_b64 = None
+
+            session["pdf_codigos"] = pdf_b64
+            return redirect(url_for("auth.codigos_pdf"))
 
     return render_template("auth/registro.html", form=form)
 
 
-# ── Códigos de recuperación (una sola vez) ───────────────────────────────────
+# ── Visor PDF de códigos de recuperación (una sola vez) ──────────────────────
+
+@bp_auth.get("/codigos-pdf")
+def codigos_pdf():
+    pdf_b64 = session.pop("pdf_codigos", None)
+    if not pdf_b64:
+        flash("Los códigos de recuperación ya fueron mostrados o la sesión expiró.", "info")
+        return redirect(url_for("auth.login"))
+    return render_template("auth/codigos_pdf.html", pdf_b64=pdf_b64)
+
 
 @bp_auth.get("/codigos-recuperacion")
 def codigos_recuperacion():
-    datos = session.pop("codigos_registro", None)
-    if not datos:
-        flash("Los códigos de recuperación ya fueron mostrados o la sesión expiró.", "info")
-        return redirect(url_for("auth.login"))
-    return render_template(
-        "auth/codigos_recuperacion.html",
-        codigos=datos["codigos"],
-        email=datos["email"],
-        codigo_usuario=datos["codigo_usuario"],
-    )
+    flash("Los códigos de recuperación se entregan ahora como PDF.", "info")
+    return redirect(url_for("auth.login"))
 
 
 # ── Verificación de correo ───────────────────────────────────────────────────
@@ -302,19 +312,18 @@ def _destino_post_login() -> str:
     destino = request.args.get("next", "")
     if destino and destino.startswith("/") and not destino.startswith("//"):
         return destino
-    if current_user.is_authenticated:
+    try:
         rol = getattr(current_user, "nombre_rol", None)
-        try:
-            if rol == "administrador":
-                return url_for("admin.panel")
-            if rol == "entrenador":
-                return url_for("entrenador.deportistas")
-            if rol == "deportista":
-                return url_for("deportista.sesiones")
-            if rol == "usuario":
-                return url_for("usuario.perfil")
-        except BuildError:
-            pass
+        if rol == "administrador":
+            return url_for("admin.panel")
+        if rol == "entrenador":
+            return url_for("entrenador.deportistas")
+        if rol == "deportista":
+            return url_for("deportista.sesiones")
+        if rol == "usuario":
+            return url_for("usuario.perfil")
+    except BuildError:
+        pass
     return url_for("publico.home")
 
 

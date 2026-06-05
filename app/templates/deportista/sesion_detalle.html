@@ -1,184 +1,157 @@
 {% extends "base.html" %}
 {% block title %}Sesión {{ sesion.id_sesion }} — PhysioScan{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/page-dashboard.css') }}">{% endblock %}
 
 {% block content %}
-<section class="dashboard" aria-label="Detalle de sesión">
+<div class="container dash">
 
-  <header class="dashboard__header">
-    <a href="{{ url_for('deportista.sesiones') }}" class="dashboard__back" aria-label="Volver a mis sesiones">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Mis sesiones
-    </a>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+  <section class="athlete reveal">
+    <div class="athlete-id">
       <div>
-        <h1 class="dashboard__title">{{ sesion.titulo or ('Sesión #' ~ sesion.id_sesion) }}</h1>
-        <p class="dashboard__subtitle">
-          {{ sesion.inicio.strftime('%d de %B %Y, %H:%M') if sesion.inicio else '' }}
-          {% if sesion.estado == 'en_curso' %}
-          &nbsp;·&nbsp;
-          <a href="{{ url_for('deportista.en_vivo', id_sesion=sesion.id_sesion) }}"
-             style="color:var(--success-mint);font-size:0.8rem;text-decoration:none;cursor:pointer">
-            Ver en vivo
-          </a>
+        <a href="{{ url_for('deportista.sesiones') }}" class="btn btn-ghost btn--sm">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-arrow-left"></use></svg>
+          Mis sesiones
+        </a>
+        <h1>{{ sesion.titulo or ('Sesión #' ~ sesion.id_sesion) }}</h1>
+        <div class="athlete-meta">
+          <span class="badge badge-muted mono">{{ sesion.inicio.strftime('%d %b %Y · %H:%M') if sesion.inicio else '—' }}</span>
+          <span class="badge badge--{{ sesion.estado }}">{{ sesion.estado.replace('_', ' ') }}</span>
+        </div>
+      </div>
+    </div>
+    {% if sesion.estado == 'en_curso' %}
+    <a href="{{ url_for('deportista.en_vivo', id_sesion=sesion.id_sesion) }}" class="btn btn-primary pulse-attn">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ecg"></use></svg>
+      Ver en vivo
+    </a>
+    {% endif %}
+  </section>
+
+  <section class="metrics-grid stagger" aria-label="Métricas de la sesión">
+
+    <article class="card metric-card">
+      <div class="kpi-top">
+        <span class="m-ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-heart"></use></svg></span>
+      </div>
+      <div class="kpi-val">
+        <span>{{ metrica.fc_promedio or '—' }}</span>
+        {% if metrica.fc_promedio %}<span class="u">bpm</span>{% endif %}
+      </div>
+      <div class="kpi-lab">FC promedio</div>
+    </article>
+
+    <article class="card metric-card">
+      <div class="kpi-top">
+        <span class="m-ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-heart"></use></svg></span>
+      </div>
+      <div class="kpi-val">
+        <span>{{ metrica.fc_maxima or '—' }}</span>
+        {% if metrica.fc_maxima %}<span class="u">bpm</span>{% endif %}
+      </div>
+      <div class="kpi-lab">FC máxima</div>
+    </article>
+
+    <article class="card metric-card">
+      <div class="kpi-top">
+        <span class="m-ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-speed"></use></svg></span>
+      </div>
+      <div class="kpi-val">
+        {% if metrica.duracion_seg %}
+          <span>{{ '%d:%02d'|format(metrica.duracion_seg // 60, metrica.duracion_seg % 60) }}</span>
+          <span class="u">min</span>
+        {% else %}
+          <span>—</span>
+        {% endif %}
+      </div>
+      <div class="kpi-lab">Duración</div>
+    </article>
+
+    <article class="card metric-card">
+      <div class="kpi-top">
+        <span class="m-ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-gps"></use></svg></span>
+      </div>
+      <div class="kpi-val">
+        {% if metrica.distancia_total_m %}
+          {% if metrica.distancia_total_m >= 1000 %}
+            <span>{{ '%.2f'|format(metrica.distancia_total_m / 1000) }}</span>
+            <span class="u">km</span>
+          {% else %}
+            <span>{{ '%.0f'|format(metrica.distancia_total_m) }}</span>
+            <span class="u">m</span>
           {% endif %}
+        {% else %}
+          <span>—</span>
+        {% endif %}
+      </div>
+      <div class="kpi-lab">Distancia</div>
+    </article>
+
+    <article class="card metric-card">
+      <div class="kpi-top">
+        <span class="m-ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-speed"></use></svg></span>
+      </div>
+      <div class="kpi-val">
+        <span>{{ '%.1f'|format(metrica.velocidad_max_kmh) if metrica.velocidad_max_kmh else '—' }}</span>
+        {% if metrica.velocidad_max_kmh %}<span class="u">km/h</span>{% endif %}
+      </div>
+      <div class="kpi-lab">Vel. máxima</div>
+    </article>
+
+    <article class="card metric-card">
+      <div class="kpi-top">
+        <span class="m-ic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-gyro"></use></svg></span>
+      </div>
+      <div class="kpi-val">
+        <span>{{ '%.0f'|format(metrica.calorias_estimadas) if metrica.calorias_estimadas else '—' }}</span>
+        {% if metrica.calorias_estimadas %}<span class="u">kcal</span>{% endif %}
+      </div>
+      <div class="kpi-lab">Calorías est.</div>
+    </article>
+
+  </section>
+
+  {% if alertas %}
+  <section class="card reveal">
+    <div class="section-title">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-alert-triangle"></use></svg>
+      <h3>Alertas registradas</h3>
+    </div>
+    <div class="sem-list">
+      {% for a in alertas %}
+      <div class="sem-row">
+        <span class="semaphore {{ a.severidad }}">
+          <span class="s-dot"></span>
+          {{ a.severidad|title }}
+        </span>
+        <p class="muted t-sm">
+          <strong>{{ a.tipo.replace('_', ' ') }}</strong> — {{ a.mensaje }}
+          <span class="mono t-sm">
+            {{ a.capturado_en.strftime('%H:%M:%S') if a.capturado_en else '' }}
+            {% if a.reconocida %} · reconocida{% endif %}
+          </span>
         </p>
       </div>
-      <span class="badge badge--{{ sesion.estado }}">{{ sesion.estado.replace('_', ' ') }}</span>
-    </div>
-  </header>
-
-  {# ── Métricas resumen ────────────────────────────────────────────────── #}
-  <div class="metrics-grid" role="list" aria-label="Métricas de la sesión">
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/>
-      </svg>
-      <span class="metric-card__label">FC promedio</span>
-      <span class="metric-card__value">{{ metrica.fc_promedio or '—' }}</span>
-      <span class="metric-card__unit">bpm</span>
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-      </svg>
-      <span class="metric-card__label">FC máxima</span>
-      <span class="metric-card__value">{{ metrica.fc_maxima or '—' }}</span>
-      <span class="metric-card__unit">bpm</span>
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
-      </svg>
-      <span class="metric-card__label">FC mínima</span>
-      <span class="metric-card__value">{{ metrica.fc_minima or '—' }}</span>
-      <span class="metric-card__unit">bpm</span>
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-      </svg>
-      <span class="metric-card__label">Duración</span>
-      {% if metrica.duracion_seg %}
-        {% set m = (metrica.duracion_seg // 60) %}
-        {% set s = (metrica.duracion_seg % 60) %}
-        <span class="metric-card__value">{{ '%d:%02d'|format(m, s) }}</span>
-        <span class="metric-card__unit">min:seg</span>
-      {% else %}
-        <span class="metric-card__value">—</span>
-      {% endif %}
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z"/>
-        <path d="M12 8v4l3 3"/>
-      </svg>
-      <span class="metric-card__label">Distancia</span>
-      {% if metrica.distancia_total_m %}
-        {% if metrica.distancia_total_m >= 1000 %}
-          <span class="metric-card__value">{{ '%.2f'|format(metrica.distancia_total_m / 1000) }}</span>
-          <span class="metric-card__unit">km</span>
-        {% else %}
-          <span class="metric-card__value">{{ '%.0f'|format(metrica.distancia_total_m) }}</span>
-          <span class="metric-card__unit">m</span>
-        {% endif %}
-      {% else %}
-        <span class="metric-card__value">—</span>
-      {% endif %}
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-      </svg>
-      <span class="metric-card__label">Vel. máx</span>
-      <span class="metric-card__value">{{ '%.1f'|format(metrica.velocidad_max_kmh) if metrica.velocidad_max_kmh else '—' }}</span>
-      <span class="metric-card__unit">km/h</span>
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M18 20V10M12 20V4M6 20v-6"/>
-      </svg>
-      <span class="metric-card__label">Inclinación máx</span>
-      <span class="metric-card__value">{{ '%.1f'|format(metrica.inclinacion_max) if metrica.inclinacion_max else '—' }}</span>
-      <span class="metric-card__unit">°</span>
-    </article>
-
-    <article class="metric-card" role="listitem">
-      <svg class="metric-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-        <path d="M12 6v6l4 2"/>
-      </svg>
-      <span class="metric-card__label">Calorías est.</span>
-      <span class="metric-card__value">{{ '%.0f'|format(metrica.calorias_estimadas) if metrica.calorias_estimadas else '—' }}</span>
-      <span class="metric-card__unit">kcal</span>
-    </article>
-
-  </div>
-
-  {# ── Gráficas ────────────────────────────────────────────────────────── #}
-  <div id="charts-panel" data-sesion="{{ sesion.id_sesion }}" aria-label="Gráficas de la sesión">
-    <div class="charts-section">
-      <div class="chart-card">
-        <p class="chart-card__title">Frecuencia cardíaca (BPM)</p>
-        <canvas id="chart-bpm" class="chart-canvas" aria-label="Gráfica de FC" role="img"></canvas>
-      </div>
-      <div class="chart-card">
-        <p class="chart-card__title">Inclinación corporal (°)</p>
-        <canvas id="chart-inc" class="chart-canvas" aria-label="Gráfica de inclinación" role="img"></canvas>
-      </div>
-      <div class="chart-card">
-        <p class="chart-card__title">Velocidad GPS (km/h)</p>
-        <canvas id="chart-vel" class="chart-canvas" aria-label="Gráfica de velocidad" role="img"></canvas>
-      </div>
-      <div class="chart-card">
-        <p class="chart-card__title">Recorrido GPS</p>
-        <canvas id="chart-ruta" class="route-canvas" aria-label="Mapa de recorrido" role="img"></canvas>
-      </div>
-    </div>
-  </div>
-
-  {# ── Alertas ─────────────────────────────────────────────────────────── #}
-  {% if alertas %}
-  <section aria-labelledby="alertas-heading" style="margin-bottom:var(--space-xl)">
-    <h2 id="alertas-heading" style="font-family:var(--fuente-titulo);font-size:1rem;
-        color:var(--ice-white);margin:0 0 var(--space-md)">
-      Alertas registradas
-    </h2>
-    <ul class="alerts-list" aria-live="off">
-      {% for a in alertas %}
-      <li class="alert-item alert-item--{{ a.severidad }}">
-        <svg class="alert-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-        <span class="alert-item__text">
-          <span class="alert-item__tipo">{{ a.tipo.replace('_',' ') }}</span><br>
-          {{ a.mensaje }}
-          <span style="font-size:0.7rem;color:var(--slate-blue);display:block">
-            {{ a.capturado_en.strftime('%H:%M:%S') if a.capturado_en else '' }}
-            {% if a.reconocida %}&nbsp;· reconocida{% endif %}
-          </span>
-        </span>
-      </li>
       {% endfor %}
-    </ul>
+    </div>
   </section>
   {% endif %}
 
-</section>
+  <div id="charts-panel" class="reveal" data-sesion="{{ sesion.id_sesion }}" aria-label="Gráficas de la sesión">
+    <div class="two-col">
+      <div class="card">
+        <p class="block-title">Frecuencia cardíaca (BPM)</p>
+        <canvas id="chart-bpm" aria-label="Gráfica de FC" role="img"></canvas>
+      </div>
+      <div class="card">
+        <p class="block-title">Inclinación corporal (°)</p>
+        <canvas id="chart-inc" aria-label="Gráfica de inclinación" role="img"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
 {% endblock %}
 
-{% block extra_js %}
+{% block page_js %}
 <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
 {% endblock %}

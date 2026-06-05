@@ -7,6 +7,7 @@ from flask_login import current_user
 from app.comun.decoradores import doble_factor_verificado, rol_requerido
 from app.datos import alerta_repositorio as ar
 from app.datos import deportista_repositorio as dr
+from app.datos import lectura_repositorio as lr
 from app.datos import sesion_repositorio as sr
 
 bp_deportista = Blueprint("deportista", __name__, url_prefix="/deportista")
@@ -16,6 +17,10 @@ def _get_deportista_o_404():
     dep = dr.buscar_por_id_usuario(current_user.id_usuario)
     if not dep:
         abort(404)
+    dep = dict(dep)
+    for field in ("primer_nombre", "primer_apellido", "email", "codigo_usuario", "nombre_rol"):
+        if field not in dep:
+            dep[field] = getattr(current_user, field, None)
     return dep
 
 
@@ -67,8 +72,13 @@ def en_vivo(id_sesion: int):
         abort(403)
     if sesion["estado"] != "en_curso":
         abort(410)
+    alertas = ar.listar_por_sesion(id_sesion)
+    ultima_ecg = lr.ultima_lectura_ecg(id_sesion) or {}
+    ultimo_bpm = ultima_ecg.get("bpm")
     return render_template(
         "deportista/en_vivo.html",
         deportista=dep,
         sesion=sesion,
+        alertas=alertas,
+        ultimo_bpm=ultimo_bpm,
     )

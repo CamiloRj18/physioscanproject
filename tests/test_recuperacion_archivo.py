@@ -33,11 +33,12 @@ def test_generar_lote_ok(mock_ur, mock_sr, mock_hc, mock_audit):
     mock_sr.crear_lote.return_value = 10
     mock_sr.crear_codigos_lote.return_value = None
 
-    codigos, txt, nombre = svc.generar_lote(1)
+    codigos, txt, nombre, pdf_bytes = svc.generar_lote(1)
 
     assert len(codigos) == 12
     assert "ANA0001" in nombre
     assert "PhysioScan" in txt
+    assert isinstance(pdf_bytes, bytes) and len(pdf_bytes) > 0
     mock_sr.desactivar_lotes_usuario.assert_called_once_with(1)
     mock_audit.assert_called_once()
 
@@ -52,7 +53,7 @@ def test_generar_lote_reemision_admin(mock_ur, mock_sr, mock_hc, mock_audit):
     mock_sr.crear_lote.return_value = 11
     mock_sr.crear_codigos_lote.return_value = None
 
-    _, _, _ = svc.generar_lote(1, generado_por=99)
+    _, _, _, _ = svc.generar_lote(1, generado_por=99)
 
     audit_call = mock_audit.call_args
     assert audit_call[0][0] == "LOTE_REEMITIDO"
