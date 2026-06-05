@@ -141,3 +141,27 @@
 
   @keyframes holo-pulse { 0%, 100% { opacity: .7; } }
 }
+
+/* ── Vignette del hero ─────────────────────────────────────────────────────
+   Oscurece los bordes del hero sobre el degradado de fondo.
+   El ::before ya está tomado por componentes.css (scanlines).
+   Usamos ::after para la viñeta radial.
+*/
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 90% 75% at 50% 50%,
+    transparent 40%,
+    rgba(2, 8, 19, .68) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* El contenido del hero debe estar sobre la vignette */
+.hero__container {
+  position: relative;
+  z-index: 1;
+}

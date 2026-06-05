@@ -1,13 +1,17 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{{ self.meta_description() if self.meta_description is defined else 'PhysioScan — Monitoreo del rendimiento deportivo mediante chaleco inteligente con sensores biométricos. UniEspinal.' }}">
   <title>{% block title %}PhysioScan{% endblock %}</title>
 
+  <!-- Tema: carga síncrona en <head> para evitar flash de modo incorrecto -->
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
   <!-- Tokens primero (variables CSS disponibles para todos los sheets) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loader.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/componentes.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/holograma.css') }}">
@@ -15,6 +19,22 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
+
+  <!-- Loader de arranque (corazón + ECG) — visible en todas las páginas -->
+  <div id="page-loader" role="status" aria-label="Cargando PhysioScan">
+    <div class="loader-heart" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="loader-heart__path"
+          d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+    </div>
+    <svg class="loader-ecg" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <polyline class="loader-ecg__line"
+        points="0,21 28,21 35,21 42,6 49,36 56,10 63,32 70,21 100,21 108,21 115,5 122,37 129,12 136,30 143,21 172,21 200,21"/>
+    </svg>
+    <span class="loader-label">Iniciando PhysioScan</span>
+  </div>
+
   <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
   {% include "componentes/navbar.html" %}
@@ -43,6 +63,7 @@
   {% include "componentes/footer.html" %}
 
   <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/loader.js') }}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

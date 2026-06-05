@@ -60,4 +60,27 @@
       if (el.parentElement) el.remove();
     }, 6000);
   });
+
+  // ── Scroll: revelar elementos .fade-up con IntersectionObserver ───────────
+  if (typeof IntersectionObserver !== "undefined") {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var delay = parseInt(entry.target.getAttribute("data-delay") || "0", 10);
+          setTimeout(function () {
+            entry.target.classList.add("visible");
+          }, delay);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll(".fade-up").forEach(function (el) {
+      io.observe(el);
+    });
+  } else {
+    document.querySelectorAll(".fade-up").forEach(function (el) {
+      el.classList.add("visible");
+    });
+  }
 })();

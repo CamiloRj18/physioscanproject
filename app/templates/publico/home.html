@@ -2,9 +2,7 @@
 
 {% block title %}PhysioScan — Monitoreo del Rendimiento Deportivo | UniEspinal{% endblock %}
 
-{% block extra_css %}
-<!-- No extra CSS: base.html ya incluye tokens, base, componentes, holograma, responsive -->
-{% endblock %}
+{% block extra_css %}{% endblock %}
 
 {% block content %}
 
@@ -78,7 +76,7 @@
     <!-- Holograma 3D -->
     <div class="hero__visual fade-up" data-delay="200" aria-hidden="true">
       <div class="holograma-wrap" role="img" aria-label="Visualización 3D de monitoreo biométrico corporal">
-        <canvas id="holograma-canvas"></canvas>
+        <canvas id="holograma-canvas" data-model="{{ url_for('static', filename='models/cuerpo.glb') }}"></canvas>
 
         <!-- Fallback sin WebGL -->
         <div id="holograma-fallback" role="img" aria-label="Ilustración de chaleco con sensores">
@@ -99,7 +97,7 @@
           <span class="hud-corner hud-corner--br"></span>
         </div>
 
-        <!-- Etiquetas de sensores -->
+        <!-- Etiquetas HUD flotantes de sensores -->
         <span class="hud-label hud-label--ecg" aria-hidden="true">ECG · AD8232</span>
         <span class="hud-label hud-label--imu" aria-hidden="true">IMU · MPU-6050</span>
         <span class="hud-label hud-label--gps" aria-hidden="true">GPS · NEO-7M</span>
@@ -219,6 +217,8 @@
 
 <!-- ══════════════════════════════════════════════════════════════════════════
      SECCIÓN 4 — PALETA DE COLORES
+     Nota: se usan clases CSS (swatch__color--*) en lugar de inline styles
+     para cumplir con CSP style-src 'self'.
 ══════════════════════════════════════════════════════════════════════════ -->
 <section class="section section--alt" aria-labelledby="palette-title">
   <div class="section__container">
@@ -226,14 +226,13 @@
     <h2 class="section__title" id="palette-title">Paleta de Colores</h2>
     <p class="section__desc">
       Tokens de color del sistema de diseño PhysioScan — dark space con acento cian institucional.
-      Todos los valores cumplen contraste WCAG AA (≥ 4.5:1) sobre fondos oscuros.
+      Todos los valores cumplen contraste WCAG AA (&#8805; 4.5:1) sobre fondos oscuros.
     </p>
 
     <div class="palette-grid" role="list" aria-label="Colores del sistema de diseño">
 
-      <!-- Fondos -->
       <div class="swatch" role="listitem" aria-label="Deep Space">
-        <div class="swatch__color" style="background:#020813;border:1px solid rgba(117,218,255,.15)"></div>
+        <div class="swatch__color swatch__color--deep-space"></div>
         <div class="swatch__info">
           <span class="swatch__name">Deep Space</span>
           <span class="swatch__hex">#020813</span>
@@ -241,7 +240,7 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Midnight Navy">
-        <div class="swatch__color" style="background:#041425"></div>
+        <div class="swatch__color swatch__color--midnight-navy"></div>
         <div class="swatch__info">
           <span class="swatch__name">Midnight Navy</span>
           <span class="swatch__hex">#041425</span>
@@ -249,7 +248,7 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Dark Ocean">
-        <div class="swatch__color" style="background:#071C34"></div>
+        <div class="swatch__color swatch__color--dark-ocean"></div>
         <div class="swatch__info">
           <span class="swatch__name">Dark Ocean</span>
           <span class="swatch__hex">#071C34</span>
@@ -257,16 +256,15 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Panel Frost">
-        <div class="swatch__color" style="background:rgba(10,34,66,.52);backdrop-filter:blur(8px)"></div>
+        <div class="swatch__color swatch__color--panel-frost"></div>
         <div class="swatch__info">
           <span class="swatch__name">Panel Frost</span>
           <span class="swatch__hex">rgba(10,34,66,.52)</span>
         </div>
       </div>
 
-      <!-- Acentos -->
       <div class="swatch" role="listitem" aria-label="Cyan Core">
-        <div class="swatch__color" style="background:#79DBFF"></div>
+        <div class="swatch__color swatch__color--cyan-core"></div>
         <div class="swatch__info">
           <span class="swatch__name">Cyan Core</span>
           <span class="swatch__hex">#79DBFF</span>
@@ -274,16 +272,15 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Cyan Strong">
-        <div class="swatch__color" style="background:#B4F8FF"></div>
+        <div class="swatch__color swatch__color--cyan-strong"></div>
         <div class="swatch__info">
           <span class="swatch__name">Cyan Strong</span>
           <span class="swatch__hex">#B4F8FF</span>
         </div>
       </div>
 
-      <!-- Texto -->
       <div class="swatch" role="listitem" aria-label="Ice White">
-        <div class="swatch__color" style="background:#ECFBFF"></div>
+        <div class="swatch__color swatch__color--ice-white"></div>
         <div class="swatch__info">
           <span class="swatch__name">Ice White</span>
           <span class="swatch__hex">#ECFBFF</span>
@@ -291,16 +288,15 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Slate Blue">
-        <div class="swatch__color" style="background:#9784C8"></div>
+        <div class="swatch__color swatch__color--slate-blue"></div>
         <div class="swatch__info">
           <span class="swatch__name">Slate Blue</span>
           <span class="swatch__hex">#9784C8</span>
         </div>
       </div>
 
-      <!-- Estado -->
       <div class="swatch" role="listitem" aria-label="Success Mint">
-        <div class="swatch__color" style="background:#2FD69E"></div>
+        <div class="swatch__color swatch__color--success-mint"></div>
         <div class="swatch__info">
           <span class="swatch__name">Success Mint</span>
           <span class="swatch__hex">#2FD69E</span>
@@ -308,16 +304,15 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Alert Rose">
-        <div class="swatch__color" style="background:#FF7285"></div>
+        <div class="swatch__color swatch__color--alert-rose"></div>
         <div class="swatch__info">
           <span class="swatch__name">Alert Rose</span>
           <span class="swatch__hex">#FF7285</span>
         </div>
       </div>
 
-      <!-- Sensores / glow -->
       <div class="swatch" role="listitem" aria-label="Sensor Glow">
-        <div class="swatch__color" style="background:#9EF7FF"></div>
+        <div class="swatch__color swatch__color--sensor-glow"></div>
         <div class="swatch__info">
           <span class="swatch__name">Sensor Glow</span>
           <span class="swatch__hex">#9EF7FF</span>
@@ -325,7 +320,7 @@
       </div>
 
       <div class="swatch" role="listitem" aria-label="Bullet Glow">
-        <div class="swatch__color" style="background:#7AF4FF"></div>
+        <div class="swatch__color swatch__color--bullet-glow"></div>
         <div class="swatch__info">
           <span class="swatch__name">Bullet Glow</span>
           <span class="swatch__hex">#7AF4FF</span>
@@ -340,6 +335,8 @@
 
 <!-- ══════════════════════════════════════════════════════════════════════════
      SECCIÓN 5 — TIPOGRAFÍAS
+     Nota: se usan clases .typo-specimen--* en lugar de inline font-family
+     para cumplir con CSP style-src 'self'.
 ══════════════════════════════════════════════════════════════════════════ -->
 <section class="section" aria-labelledby="typo-title">
   <div class="section__container">
@@ -359,17 +356,13 @@
           <span class="typo-card__role">Encabezados · UI · Navbar</span>
         </div>
         <div class="typo-card__specimen">
-          <p class="typo-card__large" style="font-family:Bahnschrift,'Segoe UI',sans-serif">
-            Bahnschrift
-          </p>
-          <p class="typo-card__sample" style="font-family:Bahnschrift,'Segoe UI',sans-serif">
+          <p class="typo-card__large typo-specimen--titulo">Bahnschrift</p>
+          <p class="typo-card__sample typo-specimen--titulo">
             Monitoreo del rendimiento deportivo inteligente con sensores biométricos
             de alta precisión integrados en un chaleco wearable.
           </p>
           <div class="typo-card__scale">
-            <span class="typo-card__scale-item" style="font-family:Bahnschrift,'Segoe UI',sans-serif">
-              var(--fuente-titulo)
-            </span>
+            <span class="typo-card__scale-item typo-specimen--titulo">var(--fuente-titulo)</span>
           </div>
         </div>
       </div>
@@ -381,17 +374,13 @@
           <span class="typo-card__role">Párrafos · Descripciones · UI</span>
         </div>
         <div class="typo-card__specimen">
-          <p class="typo-card__large" style="font-family:'Trebuchet MS',system-ui,sans-serif">
-            Trebuchet
-          </p>
-          <p class="typo-card__sample" style="font-family:'Trebuchet MS',system-ui,sans-serif">
+          <p class="typo-card__large typo-specimen--cuerpo">Trebuchet</p>
+          <p class="typo-card__sample typo-specimen--cuerpo">
             Sistema de monitoreo biométrico en tiempo real: frecuencia cardíaca, posicionamiento
             GPS e inclinación corporal para el seguimiento del rendimiento deportivo.
           </p>
           <div class="typo-card__scale">
-            <span class="typo-card__scale-item" style="font-family:'Trebuchet MS',system-ui,sans-serif">
-              var(--fuente-cuerpo)
-            </span>
+            <span class="typo-card__scale-item typo-specimen--cuerpo">var(--fuente-cuerpo)</span>
           </div>
         </div>
       </div>
@@ -403,17 +392,13 @@
           <span class="typo-card__role">Métricas · Código · HUD · API</span>
         </div>
         <div class="typo-card__specimen">
-          <p class="typo-card__large" style="font-family:'Cascadia Code',Consolas,'Courier New',monospace">
-            Monospace
-          </p>
-          <p class="typo-card__sample" style="font-family:'Cascadia Code',Consolas,'Courier New',monospace">
+          <p class="typo-card__large typo-specimen--datos">Monospace</p>
+          <p class="typo-card__sample typo-specimen--datos">
             BPM: 142 · GPS: 4.1490°N -74.8838°W<br>
             IMU: pitch=11.3° roll=2.1° · ECG: 2480 ADC
           </p>
           <div class="typo-card__scale">
-            <span class="typo-card__scale-item" style="font-family:'Cascadia Code',Consolas,monospace">
-              var(--fuente-datos)
-            </span>
+            <span class="typo-card__scale-item typo-specimen--datos">var(--fuente-datos)</span>
           </div>
         </div>
       </div>
@@ -426,6 +411,8 @@
 
 <!-- ══════════════════════════════════════════════════════════════════════════
      SECCIÓN 6 — STACK TECNOLÓGICO
+     Logos oficiales: HTML5 (naranja), CSS3 (azul), JS (amarillo),
+     MySQL / Flask / Python en cian de la paleta.
 ══════════════════════════════════════════════════════════════════════════ -->
 <section class="section section--alt" aria-labelledby="stack-title">
   <div class="section__container">
@@ -437,54 +424,55 @@
 
     <div class="stack-grid" role="list" aria-label="Stack tecnológico del proyecto">
 
-      <!-- HTML5 -->
-      <div class="stack-card" role="listitem" aria-label="HTML5 — Estructura">
+      <!-- HTML5 — pentágono naranja oficial W3C -->
+      <div class="stack-card" role="listitem" aria-label="HTML5 — Estructura semántica">
         <div class="stack-card__icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.5">
-            <path d="M4 3l1.5 16.5L12 21l6.5-1.5L20 3H4z"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8.5 8.5h7M9 12.5h5.5l-.4 3.5L12 17l-2.1-.5L9.5 15"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="32" height="36" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 2l2.4 26.4L16 32l11.6-3.6L30 2H2z"
+                  fill="#E44D26" fill-opacity="0.18" stroke="#E44D26" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M9 10h14M9.6 15.5h12.8l-.4 4.5L16 22l-6-.5-.4-4h5.2l.2 1.8L16 20l.8-.2.4-2H10.4"
+                  stroke="#E44D26" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <text x="16" y="29" text-anchor="middle"
+                  font-family="Bahnschrift,Arial,sans-serif" font-size="6" font-weight="700" fill="#E44D26">HTML5</text>
           </svg>
         </div>
         <span class="stack-card__name">HTML5</span>
         <span class="stack-card__role">Estructura semántica</span>
       </div>
 
-      <!-- CSS3 -->
-      <div class="stack-card" role="listitem" aria-label="CSS3 — Presentación">
+      <!-- CSS3 — escudo azul oficial W3C -->
+      <div class="stack-card" role="listitem" aria-label="CSS3 — Estilos y design system">
         <div class="stack-card__icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.5">
-            <path d="M4 3l1.5 16.5L12 21l6.5-1.5L20 3H4z"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8.5 8.5h7M8.5 12.5h6l-.3 3L12 17l-2.2-.5-.2-2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M9.5 8.5l-.4-2h6l-.3 2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="32" height="36" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 2l2.4 26.4L16 32l11.6-3.6L30 2H2z"
+                  fill="#1572B6" fill-opacity="0.18" stroke="#1572B6" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M9 10h14M9 15.5h13.4l-.6 6.5L16 24l-5.8-2-.3-3.5h2l.2 1.8L16 21.5l3.6-1.2.3-3.3H9.6"
+                  stroke="#1572B6" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <text x="16" y="29" text-anchor="middle"
+                  font-family="Bahnschrift,Arial,sans-serif" font-size="6" font-weight="700" fill="#1572B6">CSS3</text>
           </svg>
         </div>
         <span class="stack-card__name">CSS3</span>
         <span class="stack-card__role">Estilos · Design system</span>
       </div>
 
-      <!-- JavaScript -->
-      <div class="stack-card" role="listitem" aria-label="JavaScript — Interactividad">
+      <!-- JavaScript — cuadrado amarillo con "JS" -->
+      <div class="stack-card" role="listitem" aria-label="JavaScript — Interactividad y Three.js">
         <div class="stack-card__icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8 17v-6M12 17c0 0 0-3 2.5-3s2.5 2 2.5 2-0 1.5-1.5 2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.5" y="1.5" width="29" height="29" rx="3"
+                  fill="#F7DF1E" fill-opacity="0.18" stroke="#F7DF1E" stroke-width="1.4"/>
+            <path d="M11 22V10M11 22c0 2 1.5 3 3.5 3s3.5-1 3.5-3v-7"
+                  stroke="#F7DF1E" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M21 14c-.5-1.5-1.8-2-3-2-2 0-3 1-3 2.5 0 1.5 1 2 2.5 2.5S21 18 21 20c0 2-1.5 3-3.5 3-1.5 0-3-.7-3.5-2"
+                  stroke="#F7DF1E" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
         <span class="stack-card__name">JavaScript</span>
         <span class="stack-card__role">Three.js · Canvas · Polling</span>
       </div>
 
-      <!-- MySQL -->
+      <!-- MySQL — cilindros de base de datos en cian -->
       <div class="stack-card" role="listitem" aria-label="MySQL — Base de datos">
         <div class="stack-card__icon" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -499,30 +487,32 @@
         <span class="stack-card__role">Persistencia · Triggers · InnoDB</span>
       </div>
 
-      <!-- Flask / Python -->
-      <div class="stack-card" role="listitem" aria-label="Flask — Backend web">
+      <!-- Flask — botella matraz en cian -->
+      <div class="stack-card" role="listitem" aria-label="Flask — Backend web Python">
         <div class="stack-card__icon" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.5">
-            <path d="M9 3h6l-1 6h2l-4 12-4-12h2L9 3z"
+            <path d="M9 3h6l-1 5h-4L9 3z" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 8l-3 7c-.5 1-.5 2 0 3h10c.5-1 .5-2 0-3L14 8"
                   stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M7 18c-1 1-2 2-2 3h14c0-1-1-2-2-3"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9.5"  cy="14" r="0.7" fill="currentColor" stroke="none"/>
+            <circle cx="13"   cy="16" r="0.7" fill="currentColor" stroke="none"/>
+            <circle cx="11"   cy="17.5" r="0.5" fill="currentColor" stroke="none"/>
           </svg>
         </div>
         <span class="stack-card__name">Flask</span>
         <span class="stack-card__role">Backend · API · Blueprints</span>
       </div>
 
-      <!-- Python -->
-      <div class="stack-card" role="listitem" aria-label="Python — Lenguaje base">
+      <!-- Python — logo serpiente simplificado en cian -->
+      <div class="stack-card" role="listitem" aria-label="Python 3 — Lenguaje base">
         <div class="stack-card__icon" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.5">
             <path d="M12 2C9 2 7 3 7 5v3h5v1H5C3 9 2 11 2 13s1 4 3 4h2v-2c0-2 2-3 5-3s5 1 5 3v2h2c2 0 3-2 3-4s-1-4-3-4h-6V8h5V5c0-2-2-3-5-3z"
                   stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="9.5" cy="5" r="0.8" fill="currentColor"/>
-            <circle cx="14.5" cy="19" r="0.8" fill="currentColor"/>
+            <circle cx="9.5" cy="5"  r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="14.5" cy="19" r="0.8" fill="currentColor" stroke="none"/>
           </svg>
         </div>
         <span class="stack-card__name">Python 3</span>
@@ -536,9 +526,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Three.js r128 autohospedado: carga sin CDN externo (CSP self) -->
+<!-- Three.js r128 autohospedado: carga sin CDN externo (CSP 'self') -->
 <script src="{{ url_for('static', filename='js/vendor/three.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/GLTFLoader.js') }}"></script>
 <script src="{{ url_for('static', filename='js/holograma3d.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
 {% endblock %}

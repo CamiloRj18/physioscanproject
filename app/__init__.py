@@ -11,11 +11,14 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 
-# CSP estricta: sin unsafe-inline, sin unsafe-eval, sin CDN externo
+# CSP estricta: sin unsafe-inline, sin unsafe-eval, sin CDN externo.
+# 'unsafe-hashes' en style-src cubre eventuales atributos style producidos
+# por Three.js r128 WebGLRenderer; los inline styles propios del proyecto se
+# sirven desde clases CSS externas (style-src 'self' es suficiente para eso).
 _CSP: dict[str, str] = {
     "default-src":     "'self'",
     "script-src":      "'self'",
-    "style-src":       "'self'",
+    "style-src":       "'self' 'unsafe-hashes'",
     "img-src":         "'self' data:",
     "font-src":        "'self'",
     "object-src":      "'none'",

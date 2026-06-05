@@ -1,0 +1,94 @@
+/* PhysioScan — Loader de arranque: corazón SVG + traza ECG */
+
+#page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--deep-space, #020813);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#page-loader.loader--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ── Corazón ─────────────────────────────────────────────────────────────── */
+.loader-heart {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  filter: drop-shadow(0 0 12px rgba(121, 219, 255, .65));
+}
+
+.loader-heart svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.loader-heart__path {
+  fill: none;
+  stroke: var(--cyan-core, #79DBFF);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: loader-draw-heart 1.0s ease forwards;
+}
+
+@keyframes loader-draw-heart {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ── Línea ECG ───────────────────────────────────────────────────────────── */
+.loader-ecg {
+  width: 200px;
+  height: 42px;
+  overflow: visible;
+}
+
+.loader-ecg__line {
+  fill: none;
+  stroke: var(--cyan-core, #79DBFF);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 480;
+  stroke-dashoffset: 480;
+  animation: loader-draw-ecg 1.3s 0.35s ease forwards;
+}
+
+@keyframes loader-draw-ecg {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ── Etiqueta ────────────────────────────────────────────────────────────── */
+.loader-label {
+  font-family: var(--fuente-datos, "Cascadia Code", Consolas, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(121, 219, 255, .55);
+  animation: loader-blink 1.2s 1s infinite;
+}
+
+@keyframes loader-blink {
+  0%, 100% { opacity: .55; }
+  50%       { opacity: .15; }
+}
+
+/* ── prefers-reduced-motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .loader-heart__path,
+  .loader-ecg__line   { animation: none; stroke-dashoffset: 0; }
+  .loader-label       { animation: none; }
+  #page-loader        { transition: none; }
+}

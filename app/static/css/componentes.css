@@ -468,6 +468,25 @@
   border-radius: 4px;
 }
 
+/* ── Swatch: colores del design system (sin inline styles → CSP 'self') ───── */
+.swatch__color--deep-space    { background: var(--deep-space); border: 1px solid rgba(117,218,255,.15); }
+.swatch__color--midnight-navy { background: #041425; }
+.swatch__color--dark-ocean    { background: #071C34; }
+.swatch__color--panel-frost   { background: rgba(10,34,66,.52); backdrop-filter: blur(8px); }
+.swatch__color--cyan-core     { background: var(--cyan-core); }
+.swatch__color--cyan-strong   { background: var(--cyan-strong); }
+.swatch__color--ice-white     { background: var(--ice-white); }
+.swatch__color--slate-blue    { background: var(--slate-blue); }
+.swatch__color--success-mint  { background: var(--success-mint); }
+.swatch__color--alert-rose    { background: var(--alert-rose); }
+.swatch__color--sensor-glow   { background: var(--sensor-glow); }
+.swatch__color--bullet-glow   { background: var(--bullet-glow); }
+
+/* ── Especímenes tipográficos (sin inline font-family → CSP 'self') ────────── */
+.typo-specimen--titulo { font-family: var(--fuente-titulo); }
+.typo-specimen--cuerpo { font-family: var(--fuente-cuerpo); }
+.typo-specimen--datos  { font-family: var(--fuente-datos); }
+
 /* ── Stack tecnológico ─────────────────────────────────────────────────────── */
 .stack-grid {
   display: grid;
