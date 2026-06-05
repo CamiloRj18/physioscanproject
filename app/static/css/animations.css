@@ -1,0 +1,75 @@
+/* ============================================================
+   PhysioScan — Animaciones
+   Cada animación tiene su contraparte en
+   @media (prefers-reduced-motion: reduce): la versión animada es el
+   default; la reducida desactiva el movimiento dejando el estado final.
+   ============================================================ */
+
+/* ---------- keyframes ---------- */
+@keyframes ps-fade-up{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+@keyframes ps-fade-in{from{opacity:0;}to{opacity:1;}}
+@keyframes ps-scale-in{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:none;}}
+@keyframes ps-pop{from{opacity:0;transform:scale(0);}to{opacity:1;transform:scale(1);}}
+@keyframes ps-slide-down{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
+@keyframes ps-slide-in-right{from{transform:translateX(100%);}to{transform:translateX(0);}}
+@keyframes ps-toast-in{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:none;}}
+
+/* pulso de "EN VIVO" (radial expansivo) */
+@keyframes ps-live{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent);}
+  70%{box-shadow:0 0 0 9px transparent;}
+  100%{box-shadow:0 0 0 0 transparent;}
+}
+@keyframes ps-live-danger{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--danger) 60%,transparent);}
+  70%{box-shadow:0 0 0 10px transparent;}
+  100%{box-shadow:0 0 0 0 transparent;}
+}
+/* latido sincronizado con BPM (la duración la fija el JS via --beat) */
+@keyframes ps-beat{0%,100%{transform:scale(1);}18%{transform:scale(1.045);}36%{transform:scale(1);}}
+/* shimmer en botón CTA y skeleton */
+@keyframes ps-shimmer{from{background-position:-180% 0;}to{background-position:180% 0;}}
+@keyframes ps-skeleton{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+/* glow pulsante de alerta roja */
+@keyframes ps-alarm{0%,100%{box-shadow:0 0 0 1px var(--border-strong),0 0 14px color-mix(in srgb,var(--danger) 30%,transparent);}50%{box-shadow:0 0 0 1px var(--danger),0 0 26px color-mix(in srgb,var(--danger) 55%,transparent);}}
+/* partículas flotantes del visual de login */
+@keyframes ps-float{0%{transform:translateY(0) translateX(0);opacity:.5;}50%{transform:translateY(-26px) translateX(10px);opacity:1;}100%{transform:translateY(0) translateX(0);opacity:.5;}}
+/* aguja del velocímetro / spinner */
+@keyframes ps-spin{to{transform:rotate(360deg);}}
+/* trazo del corazón del loader */
+@keyframes ps-draw{from{stroke-dashoffset:var(--len,360);}to{stroke-dashoffset:0;}}
+
+/* ---------- utilidades de entrada ----------
+   Base = visible. La animación es una mejora: si el motor de
+   animación se congela o no corre, el contenido queda visible. */
+.reveal{animation:ps-fade-up 200ms ease forwards;}
+.reveal-in{animation:ps-fade-in 200ms ease forwards;}
+/* stagger 80ms (hasta 12 elementos) — forwards: nunca deja el elemento oculto */
+.stagger > *{animation:ps-fade-up 200ms ease forwards;}
+.stagger > *:nth-child(1){animation-delay:.00s;}
+.stagger > *:nth-child(2){animation-delay:.08s;}
+.stagger > *:nth-child(3){animation-delay:.16s;}
+.stagger > *:nth-child(4){animation-delay:.24s;}
+.stagger > *:nth-child(5){animation-delay:.32s;}
+.stagger > *:nth-child(6){animation-delay:.40s;}
+.stagger > *:nth-child(7){animation-delay:.48s;}
+.stagger > *:nth-child(8){animation-delay:.56s;}
+.stagger > *:nth-child(9){animation-delay:.64s;}
+.stagger > *:nth-child(10){animation-delay:.72s;}
+.stagger > *:nth-child(11){animation-delay:.80s;}
+.stagger > *:nth-child(12){animation-delay:.88s;}
+
+.anim-pop{animation:ps-pop .25s cubic-bezier(.34,1.56,.64,1) both;}
+.anim-scale-in{animation:ps-scale-in .2s ease both;}
+
+/* ---------- contraparte accesible ---------- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+  .reveal,.reveal-in,.stagger > *{opacity:1 !important;transform:none !important;}
+  /* el latido, el "EN VIVO" y las partículas quedan en su estado base estático */
+}
