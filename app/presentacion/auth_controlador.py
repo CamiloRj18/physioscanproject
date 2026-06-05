@@ -97,21 +97,24 @@ def registro():
             _enviar_email_verificacion(form["email"], form["primer_nombre"], token_v)
 
             fila = ur.buscar_por_id(id_usuario)
-            codigo_usuario  = fila["codigo_usuario"] if fila else "???????"
-            nombre_usuario  = (
+            codigo_usuario = fila["codigo_usuario"] if fila else "???????"
+            nombre_usuario = (
                 f"{fila['primer_nombre']} {fila['primer_apellido']}"
                 if fila else form["primer_nombre"] + " " + form["primer_apellido"]
             )
 
             try:
                 pdf_bytes = _generar_pdf(codigos, codigo_usuario, nombre_usuario)
-                pdf_b64   = base64.b64encode(pdf_bytes).decode()
+                _enviar_codigos_pdf(form["email"], form["primer_nombre"], codigo_usuario, pdf_bytes)
             except Exception as exc:
-                current_app.logger.warning("PDF códigos no generado: %s", exc)
-                pdf_b64 = None
+                current_app.logger.warning("PDF códigos no enviado: %s", exc)
 
-            session["pdf_codigos"] = pdf_b64
-            return redirect(url_for("auth.codigos_pdf"))
+            flash(
+                "Cuenta creada. Te enviamos el archivo de códigos de recuperación "
+                "a tu correo. Revisa también la carpeta de spam.",
+                "success",
+            )
+            return redirect(url_for("auth.login"))
 
     return render_template("auth/registro.html", form=form)
 
@@ -120,11 +123,9 @@ def registro():
 
 @bp_auth.get("/codigos-pdf")
 def codigos_pdf():
-    pdf_b64 = session.pop("pdf_codigos", None)
-    if not pdf_b64:
-        flash("Los códigos de recuperación ya fueron mostrados o la sesión expiró.", "info")
-        return redirect(url_for("auth.login"))
-    return render_template("auth/codigos_pdf.html", pdf_b64=pdf_b64)
+    session.pop("pdf_codigos", None)
+    flash("Los códigos de recuperación se enviaron a tu correo al registrarte.", "info")
+    return redirect(url_for("auth.login"))
 
 
 @bp_auth.get("/codigos-recuperacion")
@@ -325,6 +326,30 @@ def _destino_post_login() -> str:
     except BuildError:
         pass
     return url_for("publico.home")
+
+
+def _enviar_codigos_pdf(
+    email: str, nombre: str, codigo_usuario: str, pdf_bytes: bytes
+) -> None:
+    msg = Message(
+        subject="PhysioScan — Tu archivo de códigos de recuperación",
+        recipients=[email],
+    )
+    msg.body = (
+        f"Hola {nombre},\n\n"
+        "Bienvenido/a a PhysioScan.\n\n"
+        "Adjunto encontrarás tu archivo de 12 códigos de recuperación de contraseña.\n"
+        "Cada código solo puede usarse UNA VEZ.\n"
+        "Guarda este archivo en un lugar seguro.\n\n"
+        "Si no solicitaste esta cuenta, ignora este correo.\n\n"
+        "— Equipo PhysioScan · UniEspinal"
+    )
+    msg.attach(
+        filename=f"physioscan_codigos_{codigo_usuario}.pdf",
+        content_type="application/pdf",
+        data=pdf_bytes,
+    )
+    mail.send(msg)
 
 
 def _enviar_email_verificacion(email: str, nombre: str, token: str) -> None:

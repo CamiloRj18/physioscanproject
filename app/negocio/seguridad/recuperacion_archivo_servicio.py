@@ -209,20 +209,11 @@ def _buscar_coincidencia(codigo_normalizado: str, codigos: list[dict]) -> dict |
     return None
 
 
-def _pagina_oscura(canvas, doc):
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4
-    canvas.saveState()
-    canvas.setFillColor(colors.HexColor("#020813"))
-    canvas.rect(0, 0, A4[0], A4[1], fill=1, stroke=0)
-    canvas.restoreState()
-
-
 def _generar_pdf(codigos: list[str], codigo_usuario: str, nombre_usuario: str) -> bytes:
     from reportlab.lib import colors
-    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
     from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.styles import ParagraphStyle
     from reportlab.lib.units import cm
     from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
@@ -233,80 +224,105 @@ def _generar_pdf(codigos: list[str], codigo_usuario: str, nombre_usuario: str) -
         topMargin=2 * cm, bottomMargin=2 * cm,
     )
 
-    getSampleStyleSheet()
     elements = []
 
     titulo_style = ParagraphStyle(
-        "titulo", fontSize=24, fontName="Helvetica-Bold",
-        textColor=colors.HexColor("#79DBFF"), spaceAfter=6, alignment=TA_CENTER,
+        "titulo", fontSize=26, fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#0077B6"), spaceAfter=4, alignment=TA_CENTER,
     )
     elements.append(Paragraph("PhysioScan", titulo_style))
 
     subtitulo_style = ParagraphStyle(
-        "subtitulo", fontSize=13, fontName="Helvetica",
-        textColor=colors.HexColor("#9784C8"), spaceAfter=4, alignment=TA_CENTER,
+        "sub", fontSize=13, fontName="Helvetica",
+        textColor=colors.HexColor("#2D5A8E"), spaceAfter=4, alignment=TA_CENTER,
     )
     elements.append(Paragraph("Archivo de Códigos de Recuperación", subtitulo_style))
+    elements.append(Spacer(1, 0.2 * cm))
+
+    linea = Table([[""]], colWidths=[17 * cm])
+    linea.setStyle(TableStyle([
+        ("LINEBELOW", (0, 0), (-1, -1), 1, colors.HexColor("#0077B6")),
+    ]))
+    elements.append(linea)
     elements.append(Spacer(1, 0.3 * cm))
 
     info_style = ParagraphStyle(
         "info", fontSize=10, fontName="Helvetica",
-        textColor=colors.HexColor("#ECFBFF"), spaceAfter=2, alignment=TA_CENTER,
+        textColor=colors.HexColor("#041425"), spaceAfter=3, alignment=TA_CENTER,
     )
-    if nombre_usuario:
-        elements.append(Paragraph(f"Usuario: {nombre_usuario}", info_style))
-    elements.append(Paragraph(f"Código: {codigo_usuario}", info_style))
-    elements.append(Paragraph(f"Generado: {date.today().strftime('%d/%m/%Y')}", info_style))
+    elements.append(Paragraph(f"Usuario: <b>{nombre_usuario}</b>", info_style))
+    elements.append(Paragraph(f"Código de cuenta: <b>{codigo_usuario}</b>", info_style))
+    elements.append(Paragraph(
+        f"Generado el: {date.today().strftime('%d/%m/%Y')}", info_style,
+    ))
+    elements.append(Spacer(1, 0.4 * cm))
+
+    warn_data = [[
+        Paragraph(
+            "<b>IMPORTANTE:</b> Cada código solo puede usarse <b>UNA VEZ</b>. "
+            "Guarda este documento en un lugar seguro. "
+            "Al agotar los 12 códigos deberás solicitar reemisión al administrador. "
+            "Nadie de PhysioScan te pedirá estos códigos.",
+            ParagraphStyle("warn", fontSize=9, fontName="Helvetica",
+                           textColor=colors.HexColor("#7B1D1D"), leading=14),
+        )
+    ]]
+    warn_table = Table(warn_data, colWidths=[17 * cm])
+    warn_table.setStyle(TableStyle([
+        ("BACKGROUND",     (0, 0), (-1, -1), colors.HexColor("#FFF3F3")),
+        ("BORDER",         (0, 0), (-1, -1), 1, colors.HexColor("#E57373")),
+        ("TOPPADDING",     (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING",  (0, 0), (-1, -1), 10),
+        ("LEFTPADDING",    (0, 0), (-1, -1), 12),
+        ("RIGHTPADDING",   (0, 0), (-1, -1), 12),
+    ]))
+    elements.append(warn_table)
     elements.append(Spacer(1, 0.5 * cm))
 
-    warn_style = ParagraphStyle(
-        "warn", fontSize=9, fontName="Helvetica-Bold",
-        textColor=colors.HexColor("#FF7285"), spaceAfter=4, alignment=TA_CENTER,
-        borderColor=colors.HexColor("#FF7285"), borderWidth=1, borderPadding=8,
-        backColor=colors.HexColor("#1a0a0d"),
+    inst_style = ParagraphStyle(
+        "inst", fontSize=10, fontName="Helvetica",
+        textColor=colors.HexColor("#2D5A8E"), spaceAfter=12,
     )
     elements.append(Paragraph(
-        "IMPORTANTE: Cada código solo puede usarse UNA VEZ. "
-        "Guarda este archivo en un lugar seguro. "
-        "Al agotar los 12 códigos, solicita reemisión al administrador.",
-        warn_style,
+        "Para recuperar tu contraseña ve a <b>physioscan → Recuperar contraseña → "
+        "Usar código de archivo</b> e ingresa uno de los siguientes códigos:",
+        inst_style,
     ))
-    elements.append(Spacer(1, 0.5 * cm))
 
     data = []
     for i in range(0, 12, 2):
-        data.append([
-            f"{i + 1}.  {codigos[i]}",
-            f"{i + 2}.  {codigos[i + 1]}" if i + 1 < len(codigos) else "",
-        ])
+        c1 = f"{i + 1}.   {codigos[i]}"
+        c2 = f"{i + 2}.   {codigos[i + 1]}" if i + 1 < len(codigos) else ""
+        data.append([c1, c2])
 
-    tabla = Table(data, colWidths=[8 * cm, 8 * cm], rowHeights=1.1 * cm)
+    tabla = Table(data, colWidths=[8.2 * cm, 8.2 * cm], rowHeights=1.05 * cm)
     tabla.setStyle(TableStyle([
-        ("FONTNAME",    (0, 0), (-1, -1), "Courier-Bold"),
-        ("FONTSIZE",    (0, 0), (-1, -1), 11),
-        ("TEXTCOLOR",   (0, 0), (-1, -1), colors.HexColor("#79DBFF")),
+        ("FONTNAME",       (0, 0), (-1, -1), "Courier-Bold"),
+        ("FONTSIZE",       (0, 0), (-1, -1), 11),
+        ("TEXTCOLOR",      (0, 0), (-1, -1), colors.HexColor("#0A1628")),
         ("ROWBACKGROUNDS", (0, 0), (-1, -1),
-         [colors.HexColor("#041425"), colors.HexColor("#071C34")]),
-        ("ALIGN",       (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN",      (0, 0), (-1, -1), "MIDDLE"),
-        ("GRID",        (0, 0), (-1, -1), 0.5, colors.HexColor("#79DBFF")),
-        ("TOPPADDING",  (0, 0), (-1, -1), 8),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+         [colors.HexColor("#EEF6FF"), colors.HexColor("#FFFFFF")]),
+        ("ALIGN",          (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
+        ("GRID",           (0, 0), (-1, -1), 0.5, colors.HexColor("#90CAF9")),
+        ("TOPPADDING",     (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING",  (0, 0), (-1, -1), 8),
     ]))
     elements.append(tabla)
-    elements.append(Spacer(1, 0.5 * cm))
+    elements.append(Spacer(1, 0.6 * cm))
 
     footer_style = ParagraphStyle(
-        "footer", fontSize=8, fontName="Helvetica",
-        textColor=colors.HexColor("#9784C8"), alignment=TA_CENTER,
+        "foot", fontSize=8, fontName="Helvetica",
+        textColor=colors.HexColor("#6B7280"), alignment=TA_CENTER,
     )
     elements.append(Paragraph(
-        "PhysioScan · Institución Universitaria de El Espinal — UniEspinal · "
-        "Tratamiento de datos conforme a la Ley 1581 de 2012",
+        "PhysioScan · Institución Universitaria de El Espinal — UniEspinal<br/>"
+        "Tratamiento de datos personales conforme a la Ley 1581 de 2012.<br/>"
+        "Este documento es confidencial. No lo compartas con nadie.",
         footer_style,
     ))
 
-    doc.build(elements, onFirstPage=_pagina_oscura, onLaterPages=_pagina_oscura)
+    doc.build(elements)
     buffer.seek(0)
     return buffer.read()
 

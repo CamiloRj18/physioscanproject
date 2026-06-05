@@ -19,13 +19,15 @@ from flask import (
     abort,
     current_app,
     flash,
-    make_response,
     redirect,
     render_template,
     request,
     url_for,
 )
 from flask_login import current_user
+from flask_mail import Message
+
+from app.extensions import mail
 
 from app.comun.decoradores import rol_requerido
 from app.comun.errores import ConflictoError, ValidacionError
@@ -40,6 +42,30 @@ from app.negocio.seguridad.auditoria_servicio import registrar as audit
 from app.negocio.seguridad.contrasena_servicio import hash_nueva, validar_politica
 
 bp_admin = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+def _enviar_codigos_pdf(
+    email: str, nombre: str, codigo_usuario: str, pdf_bytes: bytes
+) -> None:
+    msg = Message(
+        subject="PhysioScan — Tu archivo de códigos de recuperación",
+        recipients=[email],
+    )
+    msg.body = (
+        f"Hola {nombre},\n\n"
+        "Bienvenido/a a PhysioScan.\n\n"
+        "Adjunto encontrarás tu archivo de 12 códigos de recuperación de contraseña.\n"
+        "Cada código solo puede usarse UNA VEZ.\n"
+        "Guarda este archivo en un lugar seguro.\n\n"
+        "Si no solicitaste esta cuenta, ignora este correo.\n\n"
+        "— Equipo PhysioScan · UniEspinal"
+    )
+    msg.attach(
+        filename=f"physioscan_codigos_{codigo_usuario}.pdf",
+        content_type="application/pdf",
+        data=pdf_bytes,
+    )
+    mail.send(msg)
 
 _POR_PAGINA = 20
 
@@ -149,14 +175,15 @@ def crear_usuario():
             hash_contrasena  = nuevo_hash,
         )
 
-        # Generar lote de recuperación inicial para el nuevo usuario
+        fila_nueva = ur.buscar_por_id(id_nuevo)
+        codigo_usuario_nuevo = fila_nueva["codigo_usuario"] if fila_nueva else str(id_nuevo)
+        email_enviado = False
         try:
-            _, contenido_txt, nombre_archivo, pdf_bytes = ras.generar_lote(id_nuevo, int(current_user.get_id()))
+            _, _, _, pdf_bytes = ras.generar_lote(id_nuevo, int(current_user.get_id()))
+            _enviar_codigos_pdf(form["email"], form["primer_nombre"], codigo_usuario_nuevo, pdf_bytes)
+            email_enviado = True
         except Exception as exc:
-            current_app.logger.warning("Lote recuperación no generado para %s: %s", id_nuevo, exc)
-            contenido_txt  = None
-            nombre_archivo = None
-            pdf_bytes      = None
+            current_app.logger.warning("Lote/PDF códigos no enviado para usuario %s: %s", id_nuevo, exc)
 
         audit(
             "USUARIO_CREADO_ADMIN",
@@ -165,16 +192,21 @@ def crear_usuario():
             detalle={"id_nuevo": id_nuevo, "email": form["email"]},
         )
 
-        flash(f"Usuario creado correctamente (id={id_nuevo}).", "success")
+        if email_enviado:
+            flash(
+                f'Usuario {form["primer_nombre"]} {form["primer_apellido"]} creado correctamente. '
+                f'El archivo de códigos de recuperación fue enviado a {form["email"]}.',
+                "success",
+            )
+        else:
+            flash(
+                f'Usuario creado. ADVERTENCIA: No se pudo enviar el archivo de códigos '
+                f'al correo {form["email"]}. Genera el archivo manualmente desde '
+                "el detalle del usuario.",
+                "warning",
+            )
 
-        if pdf_bytes:
-            resp = make_response(pdf_bytes)
-            resp.headers["Content-Type"]        = "application/pdf"
-            resp.headers["Content-Disposition"] = f'inline; filename="{nombre_archivo}.pdf"'
-            resp.headers["Cache-Control"]       = "no-store"
-            return resp
-
-        return redirect(url_for("admin.usuario_detalle", id=id_nuevo))
+        return redirect(url_for("admin.usuarios"))
 
     return render_template("admin/crear_usuario.html", roles=roles, form={})
 
@@ -292,7 +324,7 @@ def reemitir_recuperacion(id: int):
     if request.method == "POST":
         id_admin = int(current_user.get_id())
         try:
-            _, contenido_txt, nombre_archivo, pdf_bytes = ras.generar_lote(id, generado_por=id_admin)
+            _, _, _, pdf_bytes = ras.generar_lote(id, generado_por=id_admin)
         except ValidacionError as exc:
             flash(str(exc), "error")
             return redirect(url_for("admin.usuario_detalle", id=id))
@@ -304,11 +336,23 @@ def reemitir_recuperacion(id: int):
             detalle={"id_usuario_objetivo": id, "lote_anterior": lote_actual["id_lote"] if lote_actual else None},
         )
 
-        resp = make_response(pdf_bytes)
-        resp.headers["Content-Type"]        = "application/pdf"
-        resp.headers["Content-Disposition"] = f'inline; filename="{nombre_archivo}.pdf"'
-        resp.headers["Cache-Control"]       = "no-store"
-        return resp
+        try:
+            _enviar_codigos_pdf(
+                usuario["email"],
+                usuario["primer_nombre"],
+                usuario["codigo_usuario"],
+                pdf_bytes,
+            )
+            flash("Archivo reemitido y enviado al correo del usuario.", "success")
+        except Exception as exc:
+            current_app.logger.error("Error reemitiendo PDF: %s", exc)
+            flash(
+                "Lote generado pero no se pudo enviar el correo. "
+                "Verifica la configuración de correo.",
+                "warning",
+            )
+
+        return redirect(url_for("admin.usuario_detalle", id=id))
 
     return render_template(
         "admin/reemitir_recuperacion.html",
