@@ -11,10 +11,16 @@
   <section class="athlete reveal">
     <div class="athlete-id">
       <div>
-        <a href="{{ url_for('deportista.sesion_detalle', id_sesion=sesion.id_sesion) }}" class="btn btn-ghost btn--sm">
-          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-arrow-left"></use></svg>
-          Detalle
-        </a>
+        <div class="row gap-1">
+          <a href="{{ url_for('deportista.sesion_detalle', id_sesion=sesion.id_sesion) }}" class="btn btn-ghost btn--sm">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-arrow-left"></use></svg>
+            Detalle
+          </a>
+          <a href="#modal-finalizar-env" class="btn btn-danger btn--sm">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-x-circle"></use></svg>
+            Finalizar entrenamiento
+          </a>
+        </div>
         <h1>{{ sesion.titulo or ('Sesión #' ~ sesion.id_sesion) }}</h1>
         <div class="athlete-meta">
           <span class="badge badge-success">
@@ -114,6 +120,21 @@
 
 </div>
 {% endblock %}
+
+<div class="logout-confirm" id="modal-finalizar-env" role="dialog" aria-modal="true" aria-labelledby="modal-fin-env-titulo">
+  <div class="logout-confirm-panel">
+    <h3 id="modal-fin-env-titulo" class="logout-confirm-titulo">¿Finalizar entrenamiento?</h3>
+    <p class="logout-confirm-texto">Se detendrá la captura de datos y se calcularán las métricas finales de la sesión.</p>
+    <div class="logout-confirm-acciones">
+      <a href="#" class="btn btn-ghost btn--sm">Cancelar</a>
+      <form action="{{ url_for('deportista.finalizar_sesion', id_sesion=sesion.id_sesion) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ url_for('deportista.sesion_detalle', id_sesion=sesion.id_sesion) }}">
+        <button type="submit" class="btn btn-danger btn--sm">Sí, finalizar</button>
+      </form>
+    </div>
+  </div>
+</div>
 
 {% block page_js %}
 <script src="{{ url_for('static', filename='js/vendor/leaflet.min.js') }}" defer></script>

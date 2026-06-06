@@ -58,7 +58,7 @@
             <td class="mono">{{ s.inicio.strftime('%d/%m/%Y %H:%M') if s.inicio else '—' }}</td>
             <td class="mono">
               {% if s.duracion_seg %}
-                {{ '%d:%02d'|format(s.duracion_seg // 60, s.duracion_seg % 60) }}
+                {% if s.duracion_seg >= 3600 %}{{ '%d:%02d:%02d'|format(s.duracion_seg // 3600, (s.duracion_seg % 3600) // 60, s.duracion_seg % 60) }}{% else %}{{ '%d:%02d'|format(s.duracion_seg // 60, s.duracion_seg % 60) }}{% endif %}
               {% else %}—{% endif %}
             </td>
             <td class="mono">{{ (s.fc_promedio|string ~ ' bpm') if s.fc_promedio else '—' }}</td>
@@ -76,6 +76,10 @@
                 <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ecg"></use></svg>
                 En vivo
               </a>
+              <a href="#modal-finalizar-{{ s.id_sesion }}" class="btn btn-secondary btn--sm">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-x-circle"></use></svg>
+                Finalizar
+              </a>
               {% endif %}
             </td>
           </tr>
@@ -92,4 +96,20 @@
   </section>
 
 </div>
+
+{% for s in sesiones if s.estado == 'en_curso' %}
+<div class="logout-confirm" id="modal-finalizar-{{ s.id_sesion }}" role="dialog" aria-modal="true" aria-labelledby="modal-fin-titulo-{{ s.id_sesion }}">
+  <div class="logout-confirm-panel">
+    <h3 id="modal-fin-titulo-{{ s.id_sesion }}" class="logout-confirm-titulo">¿Finalizar sesión?</h3>
+    <p class="logout-confirm-texto">¿Deseas finalizar "{{ s.titulo or ('Sesión #' ~ s.id_sesion) }}"? Se calcularán las métricas finales.</p>
+    <div class="logout-confirm-acciones">
+      <a href="#" class="btn btn-ghost btn--sm">Cancelar</a>
+      <form action="{{ url_for('deportista.finalizar_sesion', id_sesion=s.id_sesion) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn--sm">Sí, finalizar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
 {% endblock %}

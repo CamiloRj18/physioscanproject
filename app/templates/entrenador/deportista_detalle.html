@@ -110,7 +110,7 @@
             <td>{{ s.inicio.strftime('%d/%m/%Y %H:%M') if s.inicio else '—' }}</td>
             <td>
               {% if s.duracion_seg %}
-                {{ '%d:%02d'|format(s.duracion_seg // 60, s.duracion_seg % 60) }}
+                {% if s.duracion_seg >= 3600 %}{{ '%d:%02d:%02d'|format(s.duracion_seg // 3600, (s.duracion_seg % 3600) // 60, s.duracion_seg % 60) }}{% else %}{{ '%d:%02d'|format(s.duracion_seg // 60, s.duracion_seg % 60) }}{% endif %}
               {% else %}—{% endif %}
             </td>
             <td>{{ (s.fc_promedio|string ~ ' bpm') if s.fc_promedio else '—' }}</td>

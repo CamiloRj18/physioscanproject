@@ -45,13 +45,10 @@
               Mi perfil
             </a>
             <div class="menu-sep"></div>
-            <form action="{{ url_for('auth.logout') }}" method="post">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="menu-item-btn">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-logout"></use></svg>
-                Cerrar sesión
-              </button>
-            </form>
+            <a href="#modal-logout" class="menu-item-btn">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-logout"></use></svg>
+              Cerrar sesión
+            </a>
           </div>
         </div>
       {% else %}
@@ -112,12 +109,23 @@
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-user"></use></svg>
       Mi perfil
     </a>
-    <form action="{{ url_for('auth.logout') }}" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="menu-item-btn">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-logout"></use></svg>
-        Cerrar sesión
-      </button>
-    </form>
+    <a href="#modal-logout" class="menu-item-btn">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-logout"></use></svg>
+      Cerrar sesión
+    </a>
   </aside>
+
+  <div class="logout-confirm" id="modal-logout" role="dialog" aria-modal="true" aria-labelledby="modal-logout-titulo">
+    <div class="logout-confirm-panel">
+      <h3 id="modal-logout-titulo" class="logout-confirm-titulo">¿Cerrar sesión?</h3>
+      <p class="logout-confirm-texto">¿Estás seguro que deseas salir de tu cuenta?</p>
+      <div class="logout-confirm-acciones">
+        <a href="#" class="btn btn-ghost btn--sm">Cancelar</a>
+        <form action="{{ url_for('auth.logout') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn--sm">Sí, cerrar sesión</button>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endif %}

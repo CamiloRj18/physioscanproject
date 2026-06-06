@@ -57,8 +57,7 @@
       </div>
       <div class="kpi-val">
         {% if metrica.duracion_seg %}
-          <span>{{ '%d:%02d'|format(metrica.duracion_seg // 60, metrica.duracion_seg % 60) }}</span>
-          <span class="u">min</span>
+          {% if metrica.duracion_seg >= 3600 %}<span>{{ '%d:%02d:%02d'|format(metrica.duracion_seg // 3600, (metrica.duracion_seg % 3600) // 60, metrica.duracion_seg % 60) }}</span><span class="u">h:mm:ss</span>{% else %}<span>{{ '%d:%02d'|format(metrica.duracion_seg // 60, metrica.duracion_seg % 60) }}</span><span class="u">mm:ss</span>{% endif %}
         {% else %}
           <span>—</span>
         {% endif %}

@@ -282,3 +282,30 @@ table.data tbody tr:last-child td{border-bottom:none;}
 .tabs .tab.active{color:var(--accent);}
 .tabs .tab::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;border-radius:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform var(--t-med);}
 .tabs .tab.active::after{transform:scaleX(1);}
+
+/* ───────── modal confirmación logout (CSS :target, sin JS) ───────── */
+.logout-confirm{
+  display:none;position:fixed;inset:0;
+  background:rgba(2,8,19,.72);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  z-index:9999;place-items:center;padding:20px;
+}
+.logout-confirm:target{display:grid;}
+.logout-confirm-panel{
+  width:min(400px,100%);
+  background:var(--bg-surface);
+  border:1px solid var(--border-strong);
+  border-radius:var(--r-panel);
+  box-shadow:var(--shadow-pop);
+  padding:var(--s-3);
+}
+.logout-confirm-titulo{
+  font-family:var(--font-title);font-size:18px;font-weight:600;
+  color:var(--text-primary);margin-bottom:10px;
+}
+.logout-confirm-texto{
+  color:var(--text-secondary);font-size:14px;line-height:1.55;margin-bottom:22px;
+}
+.logout-confirm-acciones{
+  display:flex;gap:12px;justify-content:flex-end;align-items:center;
+}

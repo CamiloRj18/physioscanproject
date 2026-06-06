@@ -146,7 +146,7 @@ def verificar_correo():
 
     try:
         auth_servicio.verificar_email(token, request.remote_addr)
-        flash("¡Correo verificado! Ya puedes iniciar sesión.", "success")
+        flash("Correo verificado. Inicia sesión.", "success")
     except AutenticacionError as exc:
         flash(str(exc), "error")
 

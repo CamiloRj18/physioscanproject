@@ -9,6 +9,10 @@ from app.datos import deportista_repositorio as deprep
 from app.datos import lectura_repositorio as lr
 from app.datos import sesion_repositorio as sr
 
+# Sesiones de más de 5 h tienen timestamps incorrectos (datos de prueba, errores de hardware).
+# No calcular calorías en ese caso para evitar valores absurdos.
+_MAX_DURACION_SEG = 18_000
+
 
 def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Distancia en metros entre dos coordenadas (fórmula de Haversine)."""
@@ -24,6 +28,8 @@ def _calorias(fc_prom: float, duracion_seg: int,
               deportista: dict[str, Any] | None) -> float | None:
     """Estimación calórica. Usa fórmula Keytel (2005) si hay datos demográficos."""
     if not fc_prom or not duracion_seg or duracion_seg <= 0:
+        return None
+    if duracion_seg > _MAX_DURACION_SEG:
         return None
     dur_min = duracion_seg / 60.0
     if deportista:

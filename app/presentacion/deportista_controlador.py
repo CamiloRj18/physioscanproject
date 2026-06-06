@@ -1,7 +1,7 @@
 """Controlador de deportista: lista de sesiones, detalle y panel en vivo."""
 from __future__ import annotations
 
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from app.comun.decoradores import doble_factor_verificado, rol_requerido
@@ -9,6 +9,7 @@ from app.datos import alerta_repositorio as ar
 from app.datos import deportista_repositorio as dr
 from app.datos import lectura_repositorio as lr
 from app.datos import sesion_repositorio as sr
+from app.negocio import metricas_servicio
 
 bp_deportista = Blueprint("deportista", __name__, url_prefix="/deportista")
 
@@ -82,3 +83,28 @@ def en_vivo(id_sesion: int):
         alertas=alertas,
         ultimo_bpm=ultimo_bpm,
     )
+
+
+# ── POST /deportista/sesiones/<id>/finalizar ─────────────────────────────────
+
+@bp_deportista.post("/sesiones/<int:id_sesion>/finalizar")
+@rol_requerido("deportista")
+@doble_factor_verificado
+def finalizar_sesion(id_sesion: int):
+    dep = _get_deportista_o_404()
+    sesion = sr.buscar_por_id(id_sesion)
+    if not sesion or sesion["id_deportista"] != dep["id_deportista"]:
+        abort(403)
+    if sesion["estado"] != "en_curso":
+        flash("La sesión ya no está en curso.", "info")
+    else:
+        sr.finalizar_sesion(id_sesion)
+        try:
+            metricas_servicio.calcular_metricas(id_sesion)
+        except Exception:
+            pass
+        flash("Sesión finalizada correctamente.", "success")
+    next_url = request.form.get("next", "")
+    if next_url and next_url.startswith("/") and not next_url.startswith("//"):
+        return redirect(next_url)
+    return redirect(url_for("deportista.sesiones"))
