@@ -17,6 +17,7 @@
 #include <HardwareSerial.h>
 #include <TinyGPSPlus.h>
 #include <WiFi.h>
+#include <WiFiManager.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <mbedtls/md.h>
@@ -65,7 +66,7 @@ void reconectarWiFi() {
 
   Serial.print("[WiFi] Reconectando");
   WiFi.disconnect();
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.reconnect();
 
   unsigned long inicio = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - inicio < 10000) {
@@ -169,40 +170,49 @@ void setup() {
   pinMode(LO_MINUS, INPUT);
   Serial.println("[ECG] AD8232 configurado (OUTPUT=34, LO+=32, LO-=33)");
 
-  // WiFi — esperar máximo 20 s
-  Serial.print("[WiFi] Conectando a '" + String(WIFI_SSID) + "'");
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  // WiFi — limpiar credenciales nativas para que WiFiManager tome control
+  WiFi.disconnect(true, true);
+  delay(1000);
 
-  unsigned long inicio = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - inicio < 20000) {
-    delay(400);
+  // WiFi — reset por GPIO0 (BOOT): mantener presionado 3 s al arrancar borra credenciales
+  WiFiManager wifiManager;
+  pinMode(0, INPUT_PULLUP);
+  delay(100);
+  if (digitalRead(0) == LOW) {
+    Serial.println("[WiFi] Reset de credenciales WiFi...");
+    wifiManager.resetSettings();
+    ESP.restart();
+  }
+
+  wifiManager.setConfigPortalTimeout(180);
+  wifiManager.setAPCallback([](WiFiManager* wm) {
+    Serial.println("[WiFi] Sin credenciales guardadas.");
+    Serial.println("[WiFi] Conéctate a 'PhysioScan-Setup' (pass: physioscan123)");
+    Serial.println("[WiFi] Luego abre 192.168.4.1 en tu navegador");
+  });
+  if (!wifiManager.autoConnect("PhysioScan-Setup", "physioscan123")) {
+    Serial.println("[WiFi] Timeout — reiniciando...");
+    ESP.restart();
+  }
+  Serial.println("[WiFi] Conectado! IP: " + WiFi.localIP().toString());
+
+  // Sincronizar hora via NTP (UTC)
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.print("[NTP] Sincronizando hora");
+  struct tm timeinfo;
+  int intentos = 0;
+  while (!getLocalTime(&timeinfo) && intentos < 20) {
+    delay(500);
     Serial.print(".");
+    intentos++;
   }
-
-  if (WiFi.status() == WL_CONNECTED) {
+  if (getLocalTime(&timeinfo)) {
     Serial.println(" OK");
-    Serial.println("[WiFi] IP: " + WiFi.localIP().toString());
-
-    // Sincronizar hora via NTP (UTC)
-    configTime(0, 0, "pool.ntp.org", "time.nist.gov");
-    Serial.print("[NTP] Sincronizando hora");
-    struct tm timeinfo;
-    int intentos = 0;
-    while (!getLocalTime(&timeinfo) && intentos < 20) {
-      delay(500);
-      Serial.print(".");
-      intentos++;
-    }
-    if (getLocalTime(&timeinfo)) {
-      Serial.println(" OK");
-    } else {
-      Serial.println(" FALLO (usando millis)");
-    }
-
-    iniciarSesion();
   } else {
-    Serial.println(" SIN CONEXION (continuando sin enviar)");
+    Serial.println(" FALLO (usando millis)");
   }
+
+  iniciarSesion();
 
   Serial.println("[PhysioScan] Setup completo\n");
 }
