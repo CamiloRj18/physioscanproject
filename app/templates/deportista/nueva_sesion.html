@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Nueva sesión — PhysioScan{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/page-dashboard.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container dash">
+
+  <section class="athlete reveal">
+    <div class="athlete-id">
+      <span class="avatar avatar-lg">{{ deportista['primer_nombre'][0]|upper }}{{ deportista['primer_apellido'][0]|upper }}</span>
+      <div>
+        <h1>{{ deportista['primer_nombre'] }} {{ deportista['primer_apellido'] }}</h1>
+        <div class="athlete-meta">
+          <span class="badge">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-user"></use></svg>
+            {{ deportista.get('codigo_usuario', '') }}
+          </span>
+          <span class="badge badge-muted">{{ deportista.get('nombre_rol', '')|title }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <div class="between">
+      <h2>Nueva sesión de entrenamiento</h2>
+    </div>
+
+    <div class="card" style="max-width:520px;margin:2rem auto 0;">
+
+      <div style="margin-bottom:1.5rem;">
+        {% if dispositivo %}
+        <span class="badge badge--en_curso">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-check"></use></svg>
+          Dispositivo {{ dispositivo['codigo_dispositivo'] }} activo
+        </span>
+        {% else %}
+        <span class="badge badge-muted">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-alert"></use></svg>
+          Sin dispositivo — sesión manual
+        </span>
+        {% endif %}
+      </div>
+
+      <form method="post" action="{{ url_for('deportista.nueva_sesion') }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="field" style="margin-bottom:1.5rem;">
+          <input id="titulo" name="titulo" type="text" placeholder=" "
+                 maxlength="80" autocomplete="off" spellcheck="false">
+          <label for="titulo">Título (opcional) — Ej: Fútbol mañana</label>
+          <svg class="icon field-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-edit"></use></svg>
+        </div>
+
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ecg"></use></svg>
+            Iniciar entrenamiento
+          </button>
+          <a href="{{ url_for('deportista.sesiones') }}" class="btn btn-ghost">Cancelar</a>
+        </div>
+      </form>
+
+    </div>
+  </section>
+
+</div>
+{% endblock %}

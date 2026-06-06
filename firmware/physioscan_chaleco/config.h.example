@@ -3,8 +3,14 @@
  *
  * INSTRUCCIONES:
  *   1. Copia este archivo como config.h (mismo directorio).
- *   2. Completa los valores con los de tu red y los del panel de admin.
+ *   2. Completa los valores con los del panel de admin.
  *   3. NUNCA subas config.h al repositorio (está en .gitignore).
+ *
+ * WiFi: el firmware usa WiFiManager — la primera vez que arranque
+ *   sin credenciales, creará un AP llamado 'PhysioScan-Setup'.
+ *   Conéctate a ese AP (pass: physioscan123) y abre 192.168.4.1
+ *   para configurar tu red. Las credenciales quedan guardadas en flash.
+ *   Para borrarlas: mantén GPIO0 (BOOT) presionado 3 s al encender.
  *
  * SERVER_URL: usa la IP LAN del PC que corre Flask.
  *   - Encuentra tu IP con: ipconfig (Windows) / ip addr (Linux)
@@ -14,23 +20,19 @@
  *   - En producción: https://tu-dominio.com
  *
  * EPOCH_OFFSET: segundos desde 1970-01-01 al momento de cargar el firmware.
- *   Usa https://www.epochconverter.com/ o el valor de `time.time()` en Python.
+ *   Obtén el valor con: python -c "import time; print(int(time.time()))"
  *   Se suma a millis()/1000 para aproximar timestamps UTC.
  *   Actualízalo cada vez que cargues firmware en un momento diferente.
  */
 
 #pragma once
 
-// ─── Red WiFi ────────────────────────────────────────────────────────────────
-#define WIFI_SSID    "TU_RED_WIFI"
-#define WIFI_PASS    "TU_CONTRASENA_WIFI"
-
 // ─── Servidor Flask (IP LAN — nunca 127.0.0.1) ───────────────────────────────
 #define SERVER_URL   "http://192.168.1.XX:5000"
 
 // ─── Credenciales del dispositivo (panel Admin → Dispositivos → Crear) ───────
 #define DEVICE_CODE  "CHAL0001"
-#define DEVICE_KEY   "PEGA_AQUI_LA_API_KEY_GENERADA_EN_EL_PANEL"
+#define API_KEY      "PEGA_AQUI_LA_API_KEY_GENERADA_EN_EL_PANEL"
 
 // ─── Offset de tiempo (segundos Unix cuando se carga el firmware) ─────────────
 // Obtén el valor actual con: python -c "import time; print(int(time.time()))"

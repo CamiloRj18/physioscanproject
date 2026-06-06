@@ -7,6 +7,7 @@ from flask_login import current_user
 from app.comun.decoradores import doble_factor_verificado, rol_requerido
 from app.datos import alerta_repositorio as ar
 from app.datos import deportista_repositorio as dr
+from app.datos import dispositivo_repositorio as disp_r
 from app.datos import lectura_repositorio as lr
 from app.datos import sesion_repositorio as sr
 from app.negocio import metricas_servicio
@@ -37,6 +38,29 @@ def sesiones():
         "deportista/sesiones.html",
         deportista=dep,
         sesiones=sesiones_lista,
+    )
+
+
+# ── GET/POST /deportista/sesiones/nueva ─────────────────────────────────────
+
+@bp_deportista.route("/sesiones/nueva", methods=["GET", "POST"])
+@rol_requerido("deportista")
+@doble_factor_verificado
+def nueva_sesion():
+    dep = _get_deportista_o_404()
+    dispositivo = disp_r.buscar_por_id_deportista(dep["id_deportista"])
+
+    if request.method == "POST":
+        titulo = request.form.get("titulo", "").strip() or None
+        id_dispositivo = dispositivo["id_dispositivo"] if dispositivo else None
+        nueva = sr.crear_sesion(dep["id_deportista"], id_dispositivo, titulo)
+        flash("Sesión iniciada. ¡Comienza tu entrenamiento!", "success")
+        return redirect(url_for("deportista.en_vivo", id_sesion=nueva["id_sesion"]))
+
+    return render_template(
+        "deportista/nueva_sesion.html",
+        deportista=dep,
+        dispositivo=dispositivo,
     )
 
 

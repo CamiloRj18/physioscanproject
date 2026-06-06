@@ -30,6 +30,10 @@
   <section class="reveal">
     <div class="between hist-head">
       <h3>Historial de sesiones</h3>
+      <a href="{{ url_for('deportista.nueva_sesion') }}" class="btn btn-primary btn--sm">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-plus"></use></svg>
+        Nueva sesión
+      </a>
     </div>
 
     {% if sesiones %}

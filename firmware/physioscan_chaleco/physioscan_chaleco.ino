@@ -6,6 +6,7 @@
  */
 
 #include <WiFi.h>
+#include <WiFiManager.h>
 #include <HTTPClient.h>
 #include <Wire.h>
 #include <MPU6050.h>
@@ -63,11 +64,11 @@ String hmacSha256(const String& key, const String& msg) {
 // ─── Cabeceras de autenticación ───────────────────────────────────────────────
 void agregarCabeceras(HTTPClient& http, const String& body) {
   String ts = String(millis() / 1000 + EPOCH_OFFSET);
-  String firma = hmacSha256(String(DEVICE_KEY),
+  String firma = hmacSha256(String(API_KEY),
                              String(DEVICE_CODE) + ts + body);
   http.addHeader("Content-Type",  "application/json");
   http.addHeader("X-Device-Code", DEVICE_CODE);
-  http.addHeader("X-Device-Key",  DEVICE_KEY);
+  http.addHeader("X-Device-Key",  API_KEY);
   http.addHeader("X-Timestamp",   ts);
   http.addHeader("X-Signature",   firma);
 }
@@ -195,11 +196,27 @@ void setup() {
   gpsSerial.begin(9600, SERIAL_8N1, GPS_RX2, GPS_TX2);
   Serial.println("[GPS] NEO-7M en UART2");
 
-  // WiFi
-  Serial.printf("[WiFi] Conectando a %s", WIFI_SSID);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) { delay(400); Serial.print("."); }
-  Serial.printf("\n[WiFi] IP: %s\n", WiFi.localIP().toString().c_str());
+  // WiFi — reset por GPIO0 (BOOT): mantener presionado 3 s al arrancar borra credenciales
+  WiFiManager wifiManager;
+  pinMode(0, INPUT_PULLUP);
+  delay(100);
+  if (digitalRead(0) == LOW) {
+    Serial.println("[WiFi] Reset de credenciales WiFi...");
+    wifiManager.resetSettings();
+    ESP.restart();
+  }
+
+  wifiManager.setConfigPortalTimeout(180);
+  wifiManager.setAPCallback([](WiFiManager* wm) {
+    Serial.println("[WiFi] Sin credenciales guardadas.");
+    Serial.println("[WiFi] Conéctate a 'PhysioScan-Setup' (pass: physioscan123)");
+    Serial.println("[WiFi] Luego abre 192.168.4.1 en tu navegador");
+  });
+  if (!wifiManager.autoConnect("PhysioScan-Setup", "physioscan123")) {
+    Serial.println("[WiFi] Timeout — reiniciando...");
+    ESP.restart();
+  }
+  Serial.println("[WiFi] Conectado! IP: " + WiFi.localIP().toString());
 
   // Iniciar sesión en el servidor
   idSesion = iniciarSesion();

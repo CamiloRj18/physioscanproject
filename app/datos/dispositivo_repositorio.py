@@ -111,6 +111,19 @@ def listar_sensores(id_dispositivo: int) -> list[dict[str, Any]]:
     )
 
 
+def buscar_por_id_deportista(id_deportista: int) -> dict[str, Any] | None:
+    """Devuelve el dispositivo activo asignado al deportista, o None."""
+    return uno(
+        """
+        SELECT id_dispositivo, codigo_dispositivo, nombre, estado
+        FROM dispositivo
+        WHERE id_deportista = %s AND estado = 'activo'
+        LIMIT 1
+        """,
+        (id_deportista,),
+    )
+
+
 def actualizar_estado(id_dispositivo: int, estado: str) -> None:
     ejecutar(
         "UPDATE dispositivo SET estado = %s WHERE id_dispositivo = %s",
