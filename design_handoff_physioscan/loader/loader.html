@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhysioScan — Loader</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:#020813;
+    font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    color:#79DBFF;
+    overflow:hidden;
+  }
+
+  /* dim app placeholder revealed after fade-out */
+  .app-bg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 40%,#071C34 0%,#020813 70%);}
+  .app-bg .ghost{font-size:12px;letter-spacing:.34em;color:rgba(121,219,255,.32);}
+
+  /* ---- loader overlay ---- */
+  #loader{position:fixed;inset:0;z-index:50;background:#020813;
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .7s ease;}
+  #loader.done{opacity:0;}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:26px;width:340px;}
+
+  /* heart */
+  .heart-wrap{width:118px;height:118px;filter:drop-shadow(0 0 12px rgba(121,219,255,.55));}
+  .heart-wrap svg{width:100%;height:100%;display:block;transform-origin:50% 54%;}
+  .ecg-heart{
+    fill:none;stroke:#79DBFF;stroke-width:3.2;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  /* beat pulse begins after the JS-driven ECG draw-in completes */
+  .play .heart-wrap svg{animation:beat 1.05s ease-in-out 2.2s infinite;}
+  @keyframes beat{
+    0%,100%{transform:scale(1);}
+    14%{transform:scale(1.13);}
+    28%{transform:scale(1.0);}
+    42%{transform:scale(1.07);}
+    56%{transform:scale(1.0);}
+  }
+
+  /* brand text + cursor */
+  .brand{font-size:22px;letter-spacing:.46em;font-weight:600;
+    text-shadow:0 0 16px rgba(121,219,255,.5);padding-left:.46em;}
+  .cursor{display:inline-block;width:.62em;height:1.05em;background:#79DBFF;
+    margin-left:.12em;vertical-align:-0.16em;box-shadow:0 0 8px rgba(121,219,255,.7);}
+  .play .cursor{animation:caret 1s steps(1,end) infinite;}
+  @keyframes caret{0%,50%{opacity:1;}51%,100%{opacity:0;}}
+
+  /* ecg wave strip */
+  .wave{width:320px;height:62px;position:relative;overflow:hidden;
+    border-top:1px solid rgba(121,219,255,.14);border-bottom:1px solid rgba(121,219,255,.14);}
+  .wave::before,.wave::after{content:"";position:absolute;top:0;bottom:0;width:44px;z-index:2;pointer-events:none;}
+  .wave::before{left:0;background:linear-gradient(to right,#020813,transparent);}
+  .wave::after{right:0;background:linear-gradient(to left,#020813,transparent);}
+  .wave svg{position:absolute;top:0;left:0;height:62px;width:960px;}
+  .wave-line{fill:none;stroke:#79DBFF;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+    filter:drop-shadow(0 0 6px rgba(121,219,255,.6));}
+  .play .wave svg{animation:slide 2.6s linear infinite;}
+  @keyframes slide{from{transform:translateX(0);}to{transform:translateX(-480px);}}
+
+  .status{font-size:10px;letter-spacing:.32em;color:rgba(121,219,255,.5);}
+
+  /* ---- reduced motion: static, legible, no animation ---- */
+  @media (prefers-reduced-motion:reduce){
+    .play .heart-wrap svg{animation:none;}
+    .play .cursor{animation:none;opacity:1;}
+    .play .wave svg{animation:none;transform:translateX(-240px);}
+    #loader{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app-bg"><div class="ghost">PHYSIOSCAN · BIOMETRIC DASHBOARD</div></div>
+
+<div id="loader">
+  <div class="stage">
+    <div class="heart-wrap">
+      <svg viewBox="0 0 118 118" aria-hidden="true">
+        <path class="ecg-heart" d="M59 103
+          C 16 73, 11 40, 35 25
+          C 51 15, 59 27, 59 35
+          C 59 27, 67 15, 83 25
+          C 107 40, 102 73, 59 103 Z"/>
+      </svg>
+    </div>
+    <div class="brand">PHYSIOSCAN<span class="cursor"></span></div>
+    <div class="wave">
+      <svg viewBox="0 0 960 62" preserveAspectRatio="none" aria-hidden="true">
+        <path class="wave-line" d="M0 31 L70 31 L84 31 L92 14 L100 50 L110 22 L120 31 L240 31
+          L310 31 L324 31 L332 14 L340 50 L350 22 L360 31 L480 31
+          L550 31 L564 31 L572 14 L580 50 L590 22 L600 31 L720 31
+          L790 31 L804 31 L812 14 L820 50 L830 22 L840 31 L960 31"/>
+      </svg>
+    </div>
+    <div class="status">INITIALIZING BIOMETRIC CORE…</div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var loader = document.getElementById('loader');
+    var stage = loader.querySelector('.stage');
+    var heart = stage.querySelector('.ecg-heart');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // start the animation sequence
+    stage.classList.add('play');
+
+    // ECG draw-in via CSSOM transition (CSP-safe; not an inline HTML style).
+    // Heart is fully visible by default, so any failure leaves it shown.
+    if (heart && !reduce) {
+      try {
+        var L = heart.getTotalLength();
+        heart.style.strokeDasharray = L;
+        heart.style.strokeDashoffset = L;
+        heart.getBoundingClientRect();            // force reflow at hidden state
+        heart.style.transition = 'stroke-dashoffset 2s ease';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { heart.style.strokeDashoffset = '0'; });
+        });
+        // after the draw, drop the dash entirely → guaranteed solid heart
+        setTimeout(function () {
+          heart.style.transition = 'none';
+          heart.style.strokeDasharray = 'none';
+          heart.style.strokeDashoffset = '0';
+        }, 2250);
+      } catch (e) { heart.style.strokeDasharray = 'none'; }
+    }
+
+    var MIN_VISIBLE = 3800;       // keep loader on screen long enough to be seen
+    var start = Date.now();
+
+    function finish() {
+      var wait = Math.max(0, MIN_VISIBLE - (Date.now() - start));
+      setTimeout(function () {
+        loader.classList.add('done');
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        setTimeout(function () {
+          if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+        }, reduce ? 0 : 750);
+      }, wait);
+    }
+
+    if (document.readyState === 'complete') finish();
+    else window.addEventListener('load', finish);
+  })();
+</script>
+</body>
+</html>

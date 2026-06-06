@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhysioScan — Biometric Hologram</title>
+<style>
+  :root{
+    --bg:#020813;
+    --cyan:#79DBFF;
+    --cyan-dim:rgba(121,219,255,0.55);
+    --cyan-faint:rgba(121,219,255,0.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--cyan);
+    font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    overflow:hidden;
+  }
+  #app{position:fixed;inset:0;}
+  canvas{display:block;}
+
+  /* ---- HUD overlay (non-interactive except buttons) ---- */
+  .hud{position:fixed;inset:0;pointer-events:none;z-index:10;}
+  .corner{position:absolute;width:46px;height:46px;border:1.5px solid var(--cyan-dim);}
+  .corner.tl{top:22px;left:22px;border-right:none;border-bottom:none;}
+  .corner.tr{top:22px;right:22px;border-left:none;border-bottom:none;}
+  .corner.bl{bottom:22px;left:22px;border-right:none;border-top:none;}
+  .corner.br{bottom:22px;right:22px;border-left:none;border-top:none;}
+
+  .brand{position:absolute;top:30px;left:42px;}
+  .brand h1{
+    font-size:15px;letter-spacing:.42em;font-weight:600;
+    text-shadow:0 0 14px rgba(121,219,255,.55);
+  }
+  .brand .sub{
+    margin-top:7px;font-size:10px;letter-spacing:.28em;
+    color:var(--cyan-dim);
+  }
+  .tick{display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--cyan);box-shadow:0 0 8px var(--cyan);
+    margin-right:8px;vertical-align:middle;
+    animation:blink 1.8s steps(1,end) infinite;}
+  @keyframes blink{0%,70%{opacity:1}71%,100%{opacity:.25}}
+
+  /* readouts */
+  .readouts{position:absolute;top:30px;right:42px;text-align:right;}
+  .readouts .row{font-size:10px;letter-spacing:.18em;color:var(--cyan-dim);
+    margin-bottom:6px;}
+  .readouts .row b{color:var(--cyan);font-weight:600;letter-spacing:.1em;}
+
+  .footer{position:absolute;bottom:32px;left:42px;
+    font-size:10px;letter-spacing:.26em;color:var(--cyan-dim);}
+  .footer .key{color:var(--cyan);}
+
+  .actions{position:absolute;bottom:28px;right:38px;pointer-events:auto;
+    display:flex;gap:12px;align-items:center;}
+  button.hudbtn{
+    pointer-events:auto;cursor:pointer;
+    background:rgba(121,219,255,0.06);
+    border:1px solid var(--cyan-dim);
+    color:var(--cyan);
+    font-family:inherit;font-size:11px;letter-spacing:.2em;
+    padding:11px 18px;border-radius:2px;
+    text-transform:uppercase;
+    transition:background .18s ease,box-shadow .18s ease,transform .12s ease;
+  }
+  button.hudbtn:hover{
+    background:rgba(121,219,255,0.16);
+    box-shadow:0 0 18px rgba(121,219,255,.35);
+  }
+  button.hudbtn:active{transform:translateY(1px);}
+  button.hudbtn.ghost{border-color:var(--cyan-faint);color:var(--cyan-dim);}
+
+  /* scanline + vignette */
+  .fx{position:fixed;inset:0;pointer-events:none;z-index:9;}
+  .fx.vignette{
+    background:radial-gradient(ellipse at center,transparent 52%,rgba(2,8,19,0.85) 100%);
+  }
+  .fx.scan{
+    background:repeating-linear-gradient(to bottom,
+      rgba(121,219,255,0.035) 0px,
+      rgba(121,219,255,0.035) 1px,
+      transparent 1px,transparent 3px);
+    mix-blend-mode:screen;opacity:.5;
+  }
+  .sweep{position:fixed;left:0;right:0;height:140px;z-index:9;pointer-events:none;
+    background:linear-gradient(to bottom,transparent,rgba(121,219,255,0.10),transparent);
+    animation:sweep 6.5s linear infinite;}
+  @keyframes sweep{0%{transform:translateY(-160px)}100%{transform:translateY(100vh)}}
+
+  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    z-index:20;font-size:11px;letter-spacing:.3em;color:var(--cyan-dim);background:var(--bg);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div class="fx vignette"></div>
+<div class="fx scan"></div>
+<div class="sweep"></div>
+
+<div class="hud">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="brand">
+    <h1>PHYSIOSCAN</h1>
+    <div class="sub"><span class="tick"></span>BIOMETRIC HOLOGRAM // SUBJECT&nbsp;01</div>
+  </div>
+
+  <div class="readouts">
+    <div class="row">HEIGHT&nbsp;&nbsp;<b id="r-height">1.80 u</b></div>
+    <div class="row">MESH&nbsp;&nbsp;<b id="r-tris">— tris</b></div>
+    <div class="row">FORMAT&nbsp;&nbsp;<b>GLB / GLTF</b></div>
+    <div class="row">STATUS&nbsp;&nbsp;<b>NOMINAL</b></div>
+  </div>
+
+  <div class="footer">
+    <span class="key">DRAG</span> ROTATE &nbsp;·&nbsp; <span class="key">SCROLL</span> ZOOM
+  </div>
+
+  <div class="actions">
+    <button class="hudbtn ghost" id="btn-rotate">PAUSE&nbsp;SPIN</button>
+    <button class="hudbtn" id="btn-export">↓ DOWNLOAD GLB</button>
+  </div>
+</div>
+
+<div id="loading">INITIALIZING HOLOGRAM…</div>
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+
+<script src="body-model.js"></script>
+<script src="scene.js"></script>
+</body>
+</html>

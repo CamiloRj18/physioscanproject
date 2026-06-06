@@ -17,6 +17,9 @@ class Config:
 
     # Flask
     SECRET_KEY: str = os.environ.get("SECRET_KEY", "dev-clave-insegura-CAMBIAR")
+    SERVER_NAME: str | None = os.environ.get("SERVER_NAME")
+    PREFERRED_URL_SCHEME: str = os.environ.get("PREFERRED_URL_SCHEME", "http")
+    APPLICATION_ROOT: str = os.environ.get("APPLICATION_ROOT", "/")
     MAX_CONTENT_LENGTH: int = 2 * 1024 * 1024  # 2 MB
 
     # Sesiones y cookies

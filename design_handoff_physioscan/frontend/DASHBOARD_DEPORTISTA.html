@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhysioScan · Panel del Deportista</title>
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/page-dashboard.css">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+  
+  <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9.3-9C1 7.5 4 4 7.5 4 9.6 4 11 5.6 12 7c1-1.4 2.4-3 4.5-3C20 4 23 7.5 21.3 11 19 15.5 12 20 12 20z"></path></symbol>
+  <symbol id="ic-ecg" viewBox="0 0 24 24"><path d="M2 12h4l2-6 4 14 3-10 1.6 2H22"></path></symbol>
+  <symbol id="ic-gps" viewBox="0 0 24 24"><path d="M12 21s-6.5-5-6.5-10A6.5 6.5 0 0 1 18.5 11c0 5-6.5 10-6.5 10z"></path><circle cx="12" cy="11" r="2.4"></circle></symbol>
+  <symbol id="ic-gyro" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><ellipse cx="12" cy="12" rx="9" ry="3.6"></ellipse><ellipse cx="12" cy="12" rx="3.6" ry="9"></ellipse></symbol>
+  <symbol id="ic-speed" viewBox="0 0 24 24"><path d="M3.6 18a9 9 0 1 1 16.8 0"></path><path d="M12 17l4-5.5"></path><circle cx="12" cy="18" r="1.1" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="ic-thermo" viewBox="0 0 24 24"><path d="M10 13.6V5a2 2 0 1 1 4 0v8.6a4 4 0 1 1-4 0z"></path><circle cx="12" cy="17" r="1.4" fill="currentColor" stroke="none"></circle></symbol>
+
+  
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"></circle><path d="M5.5 19a6.5 6.5 0 0 1 13 0"></path></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3 19a6 6 0 0 1 12 0"></path><path d="M16 5.2a3 3 0 0 1 0 5.6"></path><path d="M16.8 13.6A6 6 0 0 1 21 19"></path></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></symbol>
+  <symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></symbol>
+  <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"></path></symbol>
+  <symbol id="ic-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></symbol>
+  <symbol id="ic-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></symbol>
+  <symbol id="ic-chevron-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"></path></symbol>
+  <symbol id="ic-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></symbol>
+
+  
+  <symbol id="ic-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.4 2.4 4.6-5"></path></symbol>
+  <symbol id="ic-alert-triangle" viewBox="0 0 24 24"><path d="M12 3.2l9.4 16.3a1 1 0 0 1-.9 1.5H3.5a1 1 0 0 1-.9-1.5z"></path><path d="M12 10v4"></path><path d="M12 17.4h.01"></path></symbol>
+  <symbol id="ic-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M9 9l6 6M15 9l-6 6"></path></symbol>
+  <symbol id="ic-info-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></symbol>
+  <symbol id="ic-lock-open" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 7.7-2"></path></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z"></path><path d="M9 12l2 2 4-4"></path></symbol>
+  <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+  <symbol id="ic-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"></path><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"></path><path d="M9.4 5.2A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.3 4"></path><path d="M6.3 6.3A17 17 0 0 0 2 12s3.5 7 10 7a10 10 0 0 0 2.6-.34"></path></symbol>
+
+  
+  <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.2"></rect><rect x="13" y="4" width="7" height="7" rx="1.2"></rect><rect x="4" y="13" width="7" height="7" rx="1.2"></rect><rect x="13" y="13" width="7" height="7" rx="1.2"></rect></symbol>
+  <symbol id="ic-device" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2.4"></rect><path d="M11 18h2"></path></symbol>
+  <symbol id="ic-log" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></symbol>
+  <symbol id="ic-user-plus" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 19a6 6 0 0 1 12 0"></path><path d="M18 8v6M21 11h-6"></path></symbol>
+  <symbol id="ic-user-x" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 19a6 6 0 0 1 12 0"></path><path d="M17 9l4 4M21 9l-4 4"></path></symbol>
+  <symbol id="ic-user-edit" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 19a6 6 0 0 1 11.5-.4"></path><path d="M19 12.5l2.5 2.5-4.5 1.3 1.3-4.5z"></path></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 1 1-2.4-5.9"></path><path d="M20.5 4v5h-5"></path></symbol>
+
+  
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+  <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M14 4l6 6-11 11H3v-6z"></path><path d="M13 5l6 6"></path></symbol>
+  <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"></path><path d="M9 7V4h6v3"></path></symbol>
+  <symbol id="ic-download" viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="M7 11l5 5 5-5"></path><path d="M5 21h14"></path></symbol>
+  <symbol id="ic-upload" viewBox="0 0 24 24"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M5 20h14"></path></symbol>
+  <symbol id="ic-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8z"></path></symbol>
+  <symbol id="ic-external" viewBox="0 0 24 24"><path d="M14 4h6v6"></path><path d="M20 4l-9 9"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path></symbol>
+  <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"></path></symbol>
+
+  
+  <symbol id="ic-logo" viewBox="0 0 24 24"><path d="M2 12h4l2-6 4 14 3-9 1.6 1H22"></path></symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"></path></symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.4v2.6M12 19v2.6M4.2 4.2l1.9 1.9M17.9 17.9l1.9 1.9M2.4 12H5M19 12h2.6M4.2 19.8l1.9-1.9M17.9 6.1l1.9-1.9"></path></symbol>
+</svg>
+  <!-- navbar -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a class="nav-brand" href="#"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-logo"></use></svg> Physio<b>Scan</b></a>
+      <nav class="nav-links"><a class="nav-link active" href="#">Panel</a><a class="nav-link" href="#">Sesiones</a><a class="nav-link" href="#">Métricas</a></nav>
+      <span class="nav-spacer"></span>
+      <div class="nav-actions">
+        <button class="icon-btn tip" data-tip="Notificaciones" aria-label="Notificaciones"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-bell"></use></svg></button>
+        <button class="icon-btn" data-theme-toggle aria-label="Tema"><svg class="icon th-moon" viewBox="0 0 24 24"><use href="#ic-moon"></use></svg><svg class="icon th-sun" viewBox="0 0 24 24"><use href="#ic-sun"></use></svg></button>
+        <span class="avatar avatar-sm">CR</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container dash">
+    <!-- header del atleta -->
+    <section class="athlete reveal">
+      <div class="athlete-id">
+        <span class="avatar avatar-lg">CR</span>
+        <div>
+          <h1>Camilo Ramírez</h1>
+          <div class="athlete-meta">
+            <span class="badge"><svg class="icon icon-sm" viewBox="0 0 24 24"><use href="#ic-user"></use></svg> 10001CR</span>
+            <span class="badge badge-muted">Atletismo · Fondo</span>
+            <span class="badge badge-success"><span class="live-dot success"></span> Sesión activa</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary pulse-attn"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-ecg"></use></svg> Ver en vivo</button>
+    </section>
+
+    <!-- métricas -->
+    <section class="metrics-grid stagger">
+      <!-- BPM -->
+      <article class="card metric-card">
+        <div class="kpi-top"><span class="m-ic" data-bpm="148"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-heart"></use></svg></span><span class="live-dot"></span></div>
+        <div class="kpi-val"><span data-count="148">0</span><span class="u">bpm</span></div>
+        <div class="kpi-lab">Frecuencia cardíaca</div>
+        <svg class="mini-ecg" viewBox="0 0 240 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 H60 l6 0 4-13 5 26 4-13 H120 l40 0 6 0 4-13 5 26 4-13 H240"/></svg>
+      </article>
+      <!-- Distancia -->
+      <article class="card metric-card">
+        <div class="kpi-top"><span class="m-ic"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-gps"></use></svg></span></div>
+        <div class="kpi-val"><span data-count="12.4">0</span><span class="u">km</span></div>
+        <div class="kpi-lab">Distancia recorrida</div>
+        <div class="m-foot mono">vel. prom. 9.8 km/h</div>
+      </article>
+      <!-- Inclinación (velocímetro) -->
+      <article class="card metric-card">
+        <div class="kpi-top"><span class="m-ic"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-gyro"></use></svg></span></div>
+        <div class="gauge">
+          <svg viewBox="0 0 120 72" aria-hidden="true">
+            <path d="M10 66 A50 50 0 0 1 110 66" class="g-track"/>
+            <path d="M10 66 A50 50 0 0 1 110 66" class="g-fill" pathLength="100"/>
+            <g class="g-needle" data-needle="20"><line x1="60" y1="66" x2="60" y2="24"/></g>
+            <circle cx="60" cy="66" r="4" class="g-hub"/>
+          </svg>
+        </div>
+        <div class="kpi-val"><span data-count="6.2">0</span><span class="u">°</span></div>
+        <div class="kpi-lab">Inclinación corporal</div>
+      </article>
+      <!-- Duración (cronómetro) -->
+      <article class="card metric-card">
+        <div class="kpi-top"><span class="m-ic"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-speed"></use></svg></span></div>
+        <div class="chrono mono" id="chrono">01:24:36</div>
+        <div class="kpi-lab">Duración de la sesión</div>
+        <div class="m-foot mono">CHAL0001 · firmware 1.3</div>
+      </article>
+    </section>
+
+    <!-- semáforo + mini mapa -->
+    <section class="two-col">
+      <div class="card reveal">
+        <div class="section-title"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-alert-triangle"></use></svg><h3>Estado heurístico</h3></div>
+        <div class="sem-list">
+          <div class="sem-row"><span class="semaphore amarillo"><span class="s-dot"></span> Atención</span><p class="muted t-sm">Frecuencia cardíaca al 84% de FCmáx — esfuerzo alto sostenido.</p></div>
+          <div class="sem-row"><span class="semaphore verde"><span class="s-dot"></span> Normal</span><p class="muted t-sm">Inclinación y postura dentro de rango seguro.</p></div>
+          <div class="sem-row"><span class="semaphore verde"><span class="s-dot"></span> Señal</span><p class="muted t-sm">Electrodo ECG con buen contacto · GPS 9 satélites.</p></div>
+        </div>
+      </div>
+      <div class="card reveal map-card">
+        <div class="section-title"><svg class="icon" viewBox="0 0 24 24"><use href="#ic-gps"></use></svg><h3>Recorrido</h3></div>
+        <div class="map-ph">
+          <svg viewBox="0 0 300 180" preserveAspectRatio="none" aria-hidden="true"><path d="M20 150 C70 60 120 170 160 90 S250 30 285 70" class="route"/></svg>
+          <span class="map-tag mono">mini-mapa · NEO-7M</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- historial -->
+    <section class="reveal">
+      <div class="between hist-head"><h3>Historial de sesiones</h3><button class="btn btn-soft"><svg class="icon icon-sm" viewBox="0 0 24 24"><use href="#ic-filter"></use></svg> Filtrar</button></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Sesión</th><th>Fecha</th><th>Duración</th><th>FC prom.</th><th>Distancia</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">#1248</td><td>03 jun 2026</td><td class="mono">01:24:36</td><td class="mono">148 bpm</td><td class="mono">12.4 km</td><td><span class="badge badge-warning"><span class="dot"></span> Esfuerzo alto</span></td></tr>
+            <tr><td class="mono">#1247</td><td>01 jun 2026</td><td class="mono">00:52:10</td><td class="mono">132 bpm</td><td class="mono">8.1 km</td><td><span class="badge badge-success"><span class="dot"></span> Óptima</span></td></tr>
+            <tr><td class="mono">#1246</td><td>29 may 2026</td><td class="mono">01:05:44</td><td class="mono">139 bpm</td><td class="mono">10.2 km</td><td><span class="badge badge-success"><span class="dot"></span> Óptima</span></td></tr>
+            <tr><td class="mono">#1245</td><td>27 may 2026</td><td class="mono">00:38:02</td><td class="mono">126 bpm</td><td class="mono">5.6 km</td><td><span class="badge badge-muted"><span class="dot"></span> Descartada</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/ui.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

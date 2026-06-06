@@ -5,7 +5,7 @@ El controlador siempre muestra el mismo mensaje genérico.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from app.comun.errores import AutenticacionError, ValidacionError
@@ -47,7 +47,7 @@ def solicitar_reset(email: str, ip: str | None = None) -> tuple[str, str, str] |
 
     token_claro = generar_token_url(32)
     token_hash  = sha256_hex(token_claro)
-    expira_en   = datetime.utcnow() + timedelta(minutes=30)
+    expira_en   = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=30)
 
     sr.crear_token(id_usuario, token_hash, "reset_password", expira_en, ip)
     audit("RESET_SOLICITADO", id_usuario, ip, detalle={"email": email})

@@ -12,11 +12,11 @@
 .auth-page #main-content{padding:0;}
 
 /* ---------- NAVBAR ---------- */
-/* swap de íconos de tema (global) */
-.th-sun{display:none;}
-.th-moon{display:block;}
-:root[data-theme="light"] .th-sun{display:block;}
-:root[data-theme="light"] .th-moon{display:none;}
+/* swap de íconos de tema — [data-theme] gana sobre svg:not([hidden]) de base.css */
+:root[data-theme="dark"]  .th-sun  { display: none; }
+:root[data-theme="dark"]  .th-moon { display: block; }
+:root[data-theme="light"] .th-sun  { display: block; }
+:root[data-theme="light"] .th-moon { display: none; }
 
 .nav{position:sticky;top:0;z-index:60;transition:background .3s ease,border-color .3s ease,backdrop-filter .3s ease;border-bottom:1px solid transparent;}
 .nav.scrolled{background:var(--bg-glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom-color:var(--border-soft);}
@@ -489,6 +489,12 @@ select option { background: var(--bg-surface); color: var(--text-primary); }
 :root[data-theme="light"] select,
 :root[data-theme="light"] .field-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230077B6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* .form-input (definido en base.css con rgba oscuro) — override para tema claro */
+:root[data-theme="light"] .form-input {
+  background: var(--bg-surface);
+  border-color: var(--border-soft);
 }
 
 /* ── SWATCH hover + panel-frost ──────────────────────────────── */

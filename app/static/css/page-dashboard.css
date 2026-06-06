@@ -1,0 +1,73 @@
+/* PhysioScan — Panel del deportista */
+.dash{padding:26px 0 70px;display:flex;flex-direction:column;gap:24px;}
+
+.athlete{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.athlete-id{display:flex;align-items:center;gap:18px;}
+.athlete-id h1{font-size:clamp(22px,2.6vw,30px);margin-bottom:8px;}
+.athlete-meta{display:flex;flex-wrap:wrap;gap:8px;}
+.athlete-meta .icon{width:14px;height:14px;}
+.pulse-attn{animation:ps-live 1.8s ease-out infinite;}
+
+/* métricas */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media (max-width:1040px){.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:520px){.metrics-grid{grid-template-columns:1fr;}}
+.metric-card{display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden;}
+.metric-card .kpi-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.m-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--tint-accent);color:var(--accent);}
+.m-ic .icon{width:22px;height:22px;}
+.metric-card .kpi-val{font-family:var(--font-data);font-size:30px;font-weight:600;line-height:1;color:var(--text-primary);}
+.metric-card .kpi-val .u{font-size:13px;color:var(--text-secondary);margin-left:4px;}
+.metric-card .kpi-lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary);}
+.m-foot{font-size:11px;color:var(--text-secondary);}
+
+.mini-ecg{width:100%;height:34px;margin-top:4px;color:var(--accent);}
+.mini-ecg path{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--accent) 50%,transparent));
+  stroke-dasharray:480;stroke-dashoffset:480;animation:ps-ecg-draw 2.4s linear infinite;}
+@keyframes ps-ecg-draw{to{stroke-dashoffset:0;}}
+
+/* velocímetro */
+.gauge{display:flex;justify-content:center;}
+.gauge svg{width:128px;height:auto;}
+.gauge .g-track{fill:none;stroke:var(--border-soft);stroke-width:7;stroke-linecap:round;}
+.gauge .g-fill{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;
+  stroke-dasharray:100;stroke-dashoffset:78;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--accent) 50%,transparent));}
+.gauge .g-needle{transform-origin:60px 66px;transform:rotate(-60deg);}
+.gauge .g-needle line{stroke:var(--accent-strong);stroke-width:2.4;stroke-linecap:round;}
+.gauge .g-hub{fill:var(--accent);}
+
+/* cronómetro */
+.chrono{font-size:30px;font-weight:600;letter-spacing:.04em;color:var(--text-primary);}
+
+/* semáforo list */
+.sem-list{display:flex;flex-direction:column;gap:14px;margin-top:14px;}
+.sem-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.sem-row .semaphore{flex:0 0 auto;min-width:126px;}
+.sem-row p{flex:1;min-width:180px;margin:0;}
+
+/* mini mapa */
+.map-card{display:flex;flex-direction:column;}
+.map-ph{position:relative;margin-top:14px;flex:1;min-height:220px;border-radius:var(--r-card);overflow:hidden;
+  background:#041425 !important;border:1px solid var(--border-soft);}
+#live-map{position:absolute;inset:0;width:100%;height:100%;background:#041425;}
+.map-tag{position:absolute;left:12px;bottom:10px;font-size:10px;color:#79DBFF;z-index:1000;
+  background:rgba(4,20,37,.80);padding:4px 8px;border-radius:6px;border:1px solid rgba(121,219,255,.25);}
+
+.hist-head{margin-bottom:14px;}
+
+/* alertas dinámicas (generadas por tiempo_real.js) */
+.alerts-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.alert-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--r-card);border:1px solid transparent;font-size:13px;}
+.alert-item--verde{background:rgba(47,214,158,.08);border-color:rgba(47,214,158,.20);}
+.alert-item--amarillo{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.20);}
+.alert-item--rojo{background:rgba(255,114,133,.10);border-color:rgba(255,114,133,.25);}
+.alert-item .icon,.alert-item .icon-sm{flex-shrink:0;margin-top:2px;}
+.alert-item__text{line-height:1.4;}
+.alert-item__tipo{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+
+@media (prefers-reduced-motion:reduce){
+  .mini-ecg path{stroke-dashoffset:0;animation:none;}
+  .map-ph .route{stroke-dashoffset:0;animation:none;}
+  .pulse-attn{animation:none;}
+}

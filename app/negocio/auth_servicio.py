@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import secrets
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from app.comun.errores import (
@@ -69,7 +69,7 @@ def registrar_usuario(
 
     token_claro = generar_token_url(32)
     token_hash  = sha256_hex(token_claro)
-    token_expira = datetime.utcnow() + timedelta(hours=24)
+    token_expira = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=24)
 
     codigos_planos  = _generar_codigos(12)
     hashes_codigos  = [hash_codigo(c) for c in codigos_planos]
@@ -137,7 +137,7 @@ def autenticar(
 
     # Bloqueo temporal activo
     bloqueado_hasta = usuario.get("bloqueado_hasta")
-    if bloqueado_hasta and bloqueado_hasta > datetime.utcnow():
+    if bloqueado_hasta and bloqueado_hasta > datetime.now(timezone.utc).replace(tzinfo=None):
         raise BloqueadoError(
             "Cuenta bloqueada temporalmente. "
             f"Inténtalo de nuevo después de las {bloqueado_hasta.strftime('%H:%M')}."
@@ -155,7 +155,7 @@ def autenticar(
         intentos    = fila_actual["intentos_fallidos"] if fila_actual else 0
 
         if intentos >= lockout_intentos:
-            bloqueado_hasta = datetime.utcnow() + timedelta(minutes=lockout_minutos)
+            bloqueado_hasta = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=lockout_minutos)
             ur.bloquear(usuario["id_usuario"], bloqueado_hasta)
             audit("CUENTA_BLOQUEADA", usuario["id_usuario"], ip, user_agent)
             raise BloqueadoError("Cuenta bloqueada por demasiados intentos fallidos.")
@@ -182,7 +182,7 @@ def crear_sesion_servidor(
     """Crea una sesión del lado servidor (revocable). Devuelve el token en claro."""
     token_claro = generar_token_url(32)
     token_hash  = sha256_hex(token_claro)
-    expira_en   = datetime.utcnow() + timedelta(hours=expira_horas)
+    expira_en   = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=expira_horas)
     sr.crear_sesion(id_usuario, token_hash, ip, user_agent, expira_en)
     return token_claro
 

@@ -1,94 +1,77 @@
-/* PhysioScan — Loader de arranque: corazón SVG + traza ECG */
+/* PhysioScan — Loader de arranque: corazón SVG + traza ECG
+   Extraído y adaptado de design_handoff_physioscan/loader/loader.html
+   Usa #page-loader como ID raíz (CSP-safe, sin estilos inline). */
 
-#page-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: var(--deep-space, #020813);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.75rem;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+#page-loader{
+  position:fixed;inset:0;z-index:9999;background:#020813;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .7s ease;
+}
+#page-loader.done{opacity:0;pointer-events:none;}
+
+.page-loader-stage{
+  display:flex;flex-direction:column;align-items:center;gap:26px;width:340px;
 }
 
-#page-loader.loader--hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+/* corazón */
+.page-loader-heart{
+  width:118px;height:118px;
+  filter:drop-shadow(0 0 12px rgba(121,219,255,.55));
+}
+.page-loader-heart svg{width:100%;height:100%;display:block;transform-origin:50% 54%;}
+.ecg-heart{
+  fill:none;stroke:#79DBFF;stroke-width:3.2;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.page-loader-stage.play .page-loader-heart svg{
+  animation:pl-beat 1.05s ease-in-out 2.2s infinite;
+}
+@keyframes pl-beat{
+  0%,100%{transform:scale(1);}
+  14%{transform:scale(1.13);}
+  28%{transform:scale(1.0);}
+  42%{transform:scale(1.07);}
+  56%{transform:scale(1.0);}
 }
 
-/* ── Corazón ─────────────────────────────────────────────────────────────── */
-.loader-heart {
-  position: relative;
-  width: 68px;
-  height: 68px;
-  filter: drop-shadow(0 0 12px rgba(121, 219, 255, .65));
+/* marca de texto + cursor */
+.page-loader-brand{
+  font-family:"Cascadia Code","Cascadia Mono",Consolas,monospace;
+  font-size:22px;letter-spacing:.46em;font-weight:600;
+  color:#79DBFF;
+  text-shadow:0 0 16px rgba(121,219,255,.5);padding-left:.46em;
 }
-
-.loader-heart svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+.page-loader-cursor{
+  display:inline-block;width:.62em;height:1.05em;background:#79DBFF;
+  margin-left:.12em;vertical-align:-.16em;box-shadow:0 0 8px rgba(121,219,255,.7);
 }
+.page-loader-stage.play .page-loader-cursor{animation:pl-caret 1s steps(1,end) infinite;}
+@keyframes pl-caret{0%,50%{opacity:1;}51%,100%{opacity:0;}}
 
-.loader-heart__path {
-  fill: none;
-  stroke: var(--cyan-core, #79DBFF);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 220;
-  stroke-dashoffset: 220;
-  animation: loader-draw-heart 1.0s ease forwards;
+/* franja de onda ECG */
+.page-loader-wave{
+  width:320px;height:62px;position:relative;overflow:hidden;
+  border-top:1px solid rgba(121,219,255,.14);border-bottom:1px solid rgba(121,219,255,.14);
 }
-
-@keyframes loader-draw-heart {
-  to { stroke-dashoffset: 0; }
+.page-loader-wave::before,.page-loader-wave::after{
+  content:"";position:absolute;top:0;bottom:0;width:44px;z-index:2;pointer-events:none;
 }
-
-/* ── Línea ECG ───────────────────────────────────────────────────────────── */
-.loader-ecg {
-  width: 200px;
-  height: 42px;
-  overflow: visible;
+.page-loader-wave::before{left:0;background:linear-gradient(to right,#020813,transparent);}
+.page-loader-wave::after{right:0;background:linear-gradient(to left,#020813,transparent);}
+.page-loader-wave svg{position:absolute;top:0;left:0;height:62px;width:960px;}
+.page-loader-wave-line{
+  fill:none;stroke:#79DBFF;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 6px rgba(121,219,255,.6));
 }
+.page-loader-stage.play .page-loader-wave svg{animation:pl-slide 2.6s linear infinite;}
+@keyframes pl-slide{from{transform:translateX(0);}to{transform:translateX(-480px);}}
 
-.loader-ecg__line {
-  fill: none;
-  stroke: var(--cyan-core, #79DBFF);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 480;
-  stroke-dashoffset: 480;
-  animation: loader-draw-ecg 1.3s 0.35s ease forwards;
-}
+.page-loader-status{font-size:10px;letter-spacing:.32em;color:rgba(121,219,255,.5);}
 
-@keyframes loader-draw-ecg {
-  to { stroke-dashoffset: 0; }
-}
-
-/* ── Etiqueta ────────────────────────────────────────────────────────────── */
-.loader-label {
-  font-family: var(--fuente-datos, "Cascadia Code", Consolas, monospace);
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(121, 219, 255, .55);
-  animation: loader-blink 1.2s 1s infinite;
-}
-
-@keyframes loader-blink {
-  0%, 100% { opacity: .55; }
-  50%       { opacity: .15; }
-}
-
-/* ── prefers-reduced-motion ──────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .loader-heart__path,
-  .loader-ecg__line   { animation: none; stroke-dashoffset: 0; }
-  .loader-label       { animation: none; }
-  #page-loader        { transition: none; }
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion:reduce){
+  .page-loader-stage.play .page-loader-heart svg{animation:none;}
+  .page-loader-stage.play .page-loader-cursor{animation:none;opacity:1;}
+  .page-loader-stage.play .page-loader-wave svg{animation:none;transform:translateX(-240px);}
+  #page-loader{transition:none;}
 }

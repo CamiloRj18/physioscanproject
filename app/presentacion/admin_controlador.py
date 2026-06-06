@@ -36,6 +36,7 @@ from app.comun.validadores import validar_contrasena, validar_email
 from app.datos import deportista_repositorio as dr
 from app.datos import dispositivo_repositorio as dispr
 from app.datos import seguridad_repositorio as sr
+from app.datos import sesion_repositorio as sesionr
 from app.datos import usuario_repositorio as ur
 from app.negocio.seguridad import recuperacion_archivo_servicio as ras
 from app.negocio.seguridad.auditoria_servicio import registrar as audit
@@ -508,6 +509,43 @@ def asignar_dispositivo(id: int):
     )
     flash("Dispositivo asignado correctamente.", "success")
     return redirect(url_for("admin.dispositivo_detalle", id=id))
+
+
+# ── Crear sesión de entrenamiento ────────────────────────────────────────────
+
+@bp_admin.route("/sesiones/crear", methods=["GET", "POST"])
+@rol_requerido("administrador")
+def crear_sesion():
+    deportistas = dr.listar_todos()
+    dispositivos = [d for d in dispr.listar_todos() if d.get("estado") == "activo"]
+
+    if request.method == "POST":
+        id_deportista = request.form.get("id_deportista", type=int)
+        id_dispositivo = request.form.get("id_dispositivo", type=int) or None
+        titulo = request.form.get("titulo", "").strip() or None
+
+        if not id_deportista:
+            flash("Selecciona un deportista.", "error")
+            return render_template(
+                "admin/crear_sesion.html",
+                deportistas=deportistas,
+                dispositivos=dispositivos,
+            )
+
+        sesion = sesionr.crear_sesion(id_deportista, id_dispositivo, titulo)
+        audit(
+            "SESION_CREADA",
+            int(current_user.get_id()),
+            request.remote_addr,
+            detalle={"id_sesion": sesion["id_sesion"], "id_deportista": id_deportista},
+        )
+        return render_template("admin/sesion_creada.html", sesion=sesion)
+
+    return render_template(
+        "admin/crear_sesion.html",
+        deportistas=deportistas,
+        dispositivos=dispositivos,
+    )
 
 
 # ── Bitácora de auditoría ─────────────────────────────────────────────────────

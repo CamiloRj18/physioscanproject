@@ -1,53 +1,34 @@
-/* PhysioScan — Toggle dark/light mode
-   Ejecutado en <head> (sin defer) para aplicar el tema antes del primer render
-   y evitar el flash de modo incorrecto.
-*/
+/* ============================================================
+   PhysioScan — theme.js
+   Cárgalo en <head> SIN defer para evitar el flash de tema.
+   Aplica data-theme antes del primer pintado.
+   ============================================================ */
 (function () {
-  "use strict";
+  var KEY = 'physioscan-theme';
+  var stored;
+  try { stored = localStorage.getItem(KEY); } catch (e) {}
+  var theme = (stored === 'light' || stored === 'dark') ? stored : 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
 
-  var STORAGE_KEY = "physioscan-theme";
-  var DEFAULT     = "dark";
-
-  function leerTema() {
-    try { return localStorage.getItem(STORAGE_KEY) || DEFAULT; }
-    catch (e) { return DEFAULT; }
+  function setTheme(next) {
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+    document.querySelectorAll('[data-theme-toggle]').forEach(syncBtn);
+  }
+  function current() { return document.documentElement.getAttribute('data-theme'); }
+  function syncBtn(btn) {
+    var isLight = current() === 'light';
+    btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+    btn.setAttribute('aria-label', isLight ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro');
+    var lbl = btn.querySelector('[data-theme-label]');
+    if (lbl) lbl.textContent = isLight ? 'Oscuro' : 'Claro';
   }
 
-  function guardarTema(tema) {
-    try { localStorage.setItem(STORAGE_KEY, tema); } catch (e) {}
-  }
-
-  function aplicarTema(tema) {
-    var html = document.documentElement;
-    html.setAttribute("data-theme", tema);
-
-    if (document.body) {
-      document.body.setAttribute("data-theme", tema);
-    }
-
-    var btn = document.getElementById("theme-toggle");
-    if (btn) {
-      btn.setAttribute("aria-pressed", tema === "light" ? "true" : "false");
-      btn.setAttribute("aria-label",
-        tema === "light" ? "Activar modo oscuro" : "Activar modo claro");
-    }
-  }
-
-  // Aplicar inmediatamente (antes del render del body)
-  var temaActual = leerTema();
-  document.documentElement.setAttribute("data-theme", temaActual);
-
-  // Conectar el botón una vez que el DOM esté listo
-  document.addEventListener("DOMContentLoaded", function () {
-    aplicarTema(temaActual);
-
-    var btn = document.getElementById("theme-toggle");
-    if (!btn) return;
-
-    btn.addEventListener("click", function () {
-      temaActual = temaActual === "dark" ? "light" : "dark";
-      aplicarTema(temaActual);
-      guardarTema(temaActual);
+  window.PhysioTheme = { set: setTheme, toggle: function () { setTheme(current() === 'light' ? 'dark' : 'light'); }, current: current };
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+      syncBtn(btn);
+      btn.addEventListener('click', function () { window.PhysioTheme.toggle(); });
     });
   });
 })();

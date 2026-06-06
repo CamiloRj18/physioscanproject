@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Recuperación con código — PhysioScan{% endblock %}
 {% block body_class %}auth-page{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
 
 {% block content %}
 <div class="auth-card auth-card--wide">
@@ -78,7 +78,7 @@
         required
         aria-required="true"
         placeholder="XXXX-XXXX-XXXX"
-        style="font-family: var(--fuente-datos); letter-spacing: 0.15em;"
+        class="mono"
       >
       <span class="form-hint">Formato: XXXX-XXXX-XXXX (mayúsculas y dígitos)</span>
     </div>

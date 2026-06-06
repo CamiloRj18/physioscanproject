@@ -3,36 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{ self.meta_description() if self.meta_description is defined else 'PhysioScan — Monitoreo del rendimiento deportivo mediante chaleco inteligente con sensores biométricos. UniEspinal.' }}">
+  <meta name="description" content="{% block meta_description %}PhysioScan — Monitoreo del rendimiento deportivo mediante chaleco inteligente con sensores biométricos. UniEspinal.{% endblock %}">
   <title>{% block title %}PhysioScan{% endblock %}</title>
 
-  <!-- Tema: carga síncrona en <head> para evitar flash de modo incorrecto -->
   <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 
-  <!-- Tokens primero (variables CSS disponibles para todos los sheets) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/loader.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/componentes.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/holograma.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
-  {% block extra_css %}{% endblock %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/loader.css') }}">
+  {% block page_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
-  <!-- Loader de arranque (corazón + ECG) — visible en todas las páginas -->
+  {% include 'componentes/_sprite.svg.html' %}
+
   <div id="page-loader" role="status" aria-label="Cargando PhysioScan">
-    <div class="loader-heart" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path class="loader-heart__path"
-          d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-      </svg>
+    <div class="page-loader-stage">
+      <div class="page-loader-heart">
+        <svg viewBox="0 0 118 118" aria-hidden="true">
+          <path class="ecg-heart" d="M59 103
+            C 16 73, 11 40, 35 25
+            C 51 15, 59 27, 59 35
+            C 59 27, 67 15, 83 25
+            C 107 40, 102 73, 59 103 Z"/>
+        </svg>
+      </div>
+      <div class="page-loader-brand">PHYSIOSCAN<span class="page-loader-cursor"></span></div>
+      <div class="page-loader-wave">
+        <svg viewBox="0 0 960 62" preserveAspectRatio="none" aria-hidden="true">
+          <path class="page-loader-wave-line" d="M0 31 L70 31 L84 31 L92 14 L100 50 L110 22 L120 31 L240 31
+            L310 31 L324 31 L332 14 L340 50 L350 22 L360 31 L480 31
+            L550 31 L564 31 L572 14 L580 50 L590 22 L600 31 L720 31
+            L790 31 L804 31 L812 14 L820 50 L830 22 L840 31 L960 31"/>
+        </svg>
+      </div>
+      <div class="page-loader-status">INITIALIZING BIOMETRIC CORE…</div>
     </div>
-    <svg class="loader-ecg" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <polyline class="loader-ecg__line"
-        points="0,21 28,21 35,21 42,6 49,36 56,10 63,32 70,21 100,21 108,21 115,5 122,37 129,12 136,30 143,21 172,21 200,21"/>
-    </svg>
-    <span class="loader-label">Iniciando PhysioScan</span>
   </div>
 
   <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
@@ -46,10 +55,8 @@
           {% for category, message in messages %}
             <div class="flash flash--{{ category }}" role="alert">
               <span>{{ message }}</span>
-              <button class="flash__close" aria-label="Cerrar aviso" onclick="this.parentElement.remove()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
+              <button class="flash__close" data-dismiss aria-label="Cerrar aviso">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-x"></use></svg>
               </button>
             </div>
           {% endfor %}
@@ -63,7 +70,8 @@
   {% include "componentes/footer.html" %}
 
   <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/nav.js') }}" defer></script>
   <script src="{{ url_for('static', filename='js/loader.js') }}" defer></script>
-  {% block extra_js %}{% endblock %}
+  {% block page_js %}{% endblock %}
 </body>
 </html>

@@ -1,144 +1,117 @@
 {% extends "base.html" %}
 {% block title %}Usuarios — Administración — PhysioScan{% endblock %}
-{% block body_class %}admin-page{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/page-admin.css') }}">{% endblock %}
 
 {% block content %}
-<div class="admin-layout">
+<div class="shell">
   {% include "admin/_sidebar.html" %}
 
-  <main class="admin-content" id="main-content">
-    <div class="admin-content__header">
-      <div>
-        <h1 class="admin-content__title">Usuarios</h1>
-        <p class="admin-content__subtitle">{{ total }} usuario(s) encontrado(s)</p>
+  <div class="main">
+    <header class="main-head">
+      <div class="block-title-row">
+        <h1>Usuarios</h1>
+        <p class="muted t-sm">{{ total }} usuario(s) encontrado(s)</p>
       </div>
-      <a href="{{ url_for('admin.crear_usuario') }}" class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M12 3a4 4 0 010 8 4 4 0 010-8zM20 8v6M23 11h-6"/>
-        </svg>
-        Nuevo usuario
-      </a>
-    </div>
+      <div class="row gap-1">
+        <form class="search-box" method="get" action="{{ url_for('admin.usuarios') }}" role="search">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-search"></use></svg>
+          <input type="search" name="q" value="{{ filtros.q }}" placeholder="Nombre o correo…" aria-label="Buscar usuario">
+        </form>
+        <a href="{{ url_for('admin.crear_usuario') }}" class="btn btn-primary">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-user-plus"></use></svg>
+          Nuevo usuario
+        </a>
+      </div>
+    </header>
 
-    <form class="filter-bar" method="get" action="{{ url_for('admin.usuarios') }}" role="search">
-      <label>
-        Buscar
-        <input type="search" name="q" value="{{ filtros.q }}" placeholder="Nombre o correo…">
-      </label>
-      <label>
-        Rol
-        <select name="rol">
+    <div class="main-body">
+      <form class="row gap-1" method="get" action="{{ url_for('admin.usuarios') }}" aria-label="Filtros">
+        <select name="rol" class="field-select" aria-label="Filtrar por rol">
           <option value="">Todos los roles</option>
           {% for r in roles %}
-            <option value="{{ r.nombre }}" {% if filtros.rol == r.nombre %}selected{% endif %}>{{ r.nombre | capitalize }}</option>
+            <option value="{{ r.nombre }}" {% if filtros.rol == r.nombre %}selected{% endif %}>{{ r.nombre|capitalize }}</option>
           {% endfor %}
         </select>
-      </label>
-      <label>
-        Estado
-        <select name="estado">
+        <select name="estado" class="field-select" aria-label="Filtrar por estado">
           <option value="">Todos los estados</option>
-          <option value="activo"              {% if filtros.estado == 'activo' %}selected{% endif %}>Activo</option>
-          <option value="inactivo"            {% if filtros.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
-          <option value="bloqueado"           {% if filtros.estado == 'bloqueado' %}selected{% endif %}>Bloqueado</option>
+          <option value="activo" {% if filtros.estado == 'activo' %}selected{% endif %}>Activo</option>
+          <option value="inactivo" {% if filtros.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+          <option value="bloqueado" {% if filtros.estado == 'bloqueado' %}selected{% endif %}>Bloqueado</option>
           <option value="pendiente_verificacion" {% if filtros.estado == 'pendiente_verificacion' %}selected{% endif %}>Pendiente</option>
         </select>
-      </label>
-      <button type="submit" class="btn btn-secondary btn-xs" style="align-self: flex-end;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        Filtrar
-      </button>
-      {% if filtros.q or filtros.rol or filtros.estado %}
-        <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary btn-xs" style="align-self: flex-end;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
+        <button type="submit" class="btn btn-soft btn--sm">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-filter"></use></svg>
+          Filtrar
+        </button>
+        {% if filtros.q or filtros.rol or filtros.estado %}
+        <a href="{{ url_for('admin.usuarios') }}" class="btn btn-ghost btn--sm">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-x"></use></svg>
           Limpiar
         </a>
+        {% endif %}
+      </form>
+
+      <div class="table-wrap">
+        <table class="data" aria-label="Lista de usuarios">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Registro</th>
+              <th scope="col" class="ta-r">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if usuarios %}
+              {% for u in usuarios %}
+              <tr>
+                <td class="mono">{{ u.codigo_usuario or '—' }}</td>
+                <td>{{ u.primer_nombre }} {{ u.primer_apellido }}</td>
+                <td class="muted">{{ u.email }}</td>
+                <td><span class="badge badge--{{ u.nombre_rol }}">{{ u.nombre_rol|capitalize }}</span></td>
+                <td><span class="badge badge--{{ u.estado }}">{{ u.estado.replace('_', ' ')|capitalize }}</span></td>
+                <td class="mono muted">{{ u.fecha_creacion.strftime('%Y-%m-%d') if u.fecha_creacion else '—' }}</td>
+                <td class="ta-r">
+                  <div class="actions">
+                    <a href="{{ url_for('admin.usuario_detalle', id=u.id_usuario) }}" class="icon-btn tip" aria-label="Ver detalle de {{ u.primer_nombre }}">
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-eye"></use></svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="7" class="empty">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-users"></use></svg>
+                  <p class="muted">No se encontraron usuarios con los filtros aplicados.</p>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if paginas > 1 %}
+      <nav class="row gap-1" aria-label="Paginación">
+        <span class="muted t-sm">Página {{ pagina }} de {{ paginas }}</span>
+        <a href="{{ url_for('admin.usuarios', p=pagina-1, rol=filtros.rol, estado=filtros.estado, q=filtros.q) if pagina > 1 else '#' }}"
+           class="btn btn-ghost btn--sm{% if pagina <= 1 %} disabled{% endif %}" aria-label="Anterior">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-arrow-left"></use></svg>
+          Anterior
+        </a>
+        <a href="{{ url_for('admin.usuarios', p=pagina+1, rol=filtros.rol, estado=filtros.estado, q=filtros.q) if pagina < paginas else '#' }}"
+           class="btn btn-ghost btn--sm{% if pagina >= paginas %} disabled{% endif %}" aria-label="Siguiente">
+          Siguiente
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-arrow-right"></use></svg>
+        </a>
+      </nav>
       {% endif %}
-    </form>
 
-    <div class="data-table-wrap">
-      <table class="data-table" aria-label="Lista de usuarios">
-        <thead>
-          <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Correo</th>
-            <th scope="col">Rol</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Registro</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if usuarios %}
-            {% for u in usuarios %}
-            <tr>
-              <td>
-                <code style="font-size:0.8rem; color:var(--slate-blue);">{{ u.codigo_usuario or '—' }}</code>
-              </td>
-              <td>{{ u.primer_nombre }} {{ u.primer_apellido }}</td>
-              <td style="color:var(--slate-blue);">{{ u.email }}</td>
-              <td>
-                <span class="badge badge--{{ u.nombre_rol }}">{{ u.nombre_rol | capitalize }}</span>
-              </td>
-              <td>
-                <span class="badge badge--{{ u.estado }}">{{ u.estado | replace('_', ' ') | capitalize }}</span>
-              </td>
-              <td style="color:var(--slate-blue); font-size:0.8rem; white-space:nowrap;">
-                {{ u.fecha_creacion.strftime('%Y-%m-%d') if u.fecha_creacion else '—' }}
-              </td>
-              <td>
-                <a href="{{ url_for('admin.usuario_detalle', id=u.id_usuario) }}"
-                   class="btn btn-secondary btn-xs"
-                   aria-label="Ver detalle de {{ u.primer_nombre }}">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                  </svg>
-                  Ver
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="7" style="text-align:center; color:var(--slate-blue); padding: var(--space-xl);">
-                No se encontraron usuarios con los filtros aplicados.
-              </td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
     </div>
-
-    {% if paginas > 1 %}
-    <nav class="pagination" aria-label="Paginación">
-      <span class="pagination__info">Página {{ pagina }} de {{ paginas }}</span>
-
-      <a href="{{ url_for('admin.usuarios', p=pagina-1, rol=filtros.rol, estado=filtros.estado, q=filtros.q) if pagina > 1 else '#' }}"
-         class="pagination__btn{% if pagina <= 1 %} pagination__btn--disabled{% endif %}"
-         aria-label="Página anterior" {% if pagina <= 1 %}aria-disabled="true"{% endif %}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-        Anterior
-      </a>
-
-      <a href="{{ url_for('admin.usuarios', p=pagina+1, rol=filtros.rol, estado=filtros.estado, q=filtros.q) if pagina < paginas else '#' }}"
-         class="pagination__btn{% if pagina >= paginas %} pagination__btn--disabled{% endif %}"
-         aria-label="Página siguiente" {% if pagina >= paginas %}aria-disabled="true"{% endif %}>
-        Siguiente
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
-      </a>
-    </nav>
-    {% endif %}
-
-  </main>
+  </div>
 </div>
 {% endblock %}

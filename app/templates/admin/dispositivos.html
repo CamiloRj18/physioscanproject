@@ -1,78 +1,78 @@
 {% extends "base.html" %}
-{% block title %}Dispositivos — Administración{% endblock %}
-{% block body_class %}admin-page{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+{% block title %}Dispositivos — Administración — PhysioScan{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/page-admin.css') }}">{% endblock %}
 
 {% block content %}
-<div class="admin-layout">
+<div class="shell">
   {% include "admin/_sidebar.html" %}
 
-  <main class="admin-content" id="main-content">
-    <div class="admin-content__header">
-      <div>
-        <h1 class="admin-content__title">Dispositivos</h1>
-        <p class="admin-content__subtitle">Chalecos ESP32 registrados en el sistema.</p>
+  <div class="main">
+    <header class="main-head">
+      <div class="block-title-row">
+        <h1>Dispositivos</h1>
+        <p class="muted t-sm">Chalecos ESP32 registrados en el sistema</p>
       </div>
       <a href="{{ url_for('admin.crear_dispositivo') }}" class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-plus"></use></svg>
         Registrar dispositivo
       </a>
-    </div>
+    </header>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for cat, msg in messages %}
-        <div class="flash flash-{{ cat }}" role="alert">{{ msg }}</div>
-      {% endfor %}
-    {% endwith %}
-
-    <div class="info-card" style="padding:0; overflow:hidden;">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Deportista asignado</th>
-            <th>Estado</th>
-            <th>Firmware</th>
-            <th>Creado</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for d in dispositivos %}
-          <tr>
-            <td><code>{{ d.codigo_dispositivo }}</code></td>
-            <td>{{ d.nombre }}</td>
-            <td>
-              {% if d.primer_nombre %}
-                {{ d.primer_nombre }} {{ d.primer_apellido }}
-                <small style="color:var(--slate-blue)">({{ d.codigo_usuario }})</small>
-              {% else %}
-                <span style="color:var(--slate-blue)">Sin asignar</span>
-              {% endif %}
-            </td>
-            <td>
-              <span class="badge badge-{{ 'activo' if d.estado == 'activo' else 'inactivo' if d.estado == 'inactivo' else 'bloqueado' }}">
-                {{ d.estado }}
-              </span>
-            </td>
-            <td>{{ d.firmware_version or '—' }}</td>
-            <td>{{ d.creado_en.strftime('%d/%m/%Y') if d.creado_en else '—' }}</td>
-            <td>
-              <a href="{{ url_for('admin.dispositivo_detalle', id=d.id_dispositivo) }}"
-                 class="btn btn-secondary" style="padding:4px 10px; font-size:0.8rem;">
-                Ver
-              </a>
-            </td>
-          </tr>
-          {% else %}
-          <tr><td colspan="7" style="text-align:center; color:var(--slate-blue); padding:var(--space-lg);">
-            No hay dispositivos registrados.
-          </td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="main-body">
+      <div class="table-wrap">
+        <table class="data" aria-label="Lista de dispositivos">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Deportista asignado</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Firmware</th>
+              <th scope="col">Creado</th>
+              <th scope="col" class="ta-r">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if dispositivos %}
+              {% for d in dispositivos %}
+              <tr>
+                <td><code class="mono">{{ d.codigo_dispositivo }}</code></td>
+                <td>{{ d.nombre }}</td>
+                <td>
+                  {% if d.primer_nombre %}
+                    {{ d.primer_nombre }} {{ d.primer_apellido }}
+                    <span class="muted t-sm">({{ d.codigo_usuario }})</span>
+                  {% else %}
+                    <span class="muted">Sin asignar</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge badge--{{ d.estado }}">{{ d.estado }}</span>
+                </td>
+                <td class="mono muted">{{ d.firmware_version or '—' }}</td>
+                <td class="mono muted">{{ d.creado_en.strftime('%d/%m/%Y') if d.creado_en else '—' }}</td>
+                <td class="ta-r">
+                  <div class="actions">
+                    <a href="{{ url_for('admin.dispositivo_detalle', id=d.id_dispositivo) }}"
+                       class="icon-btn tip" aria-label="Ver detalle del dispositivo {{ d.nombre }}">
+                      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-eye"></use></svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="7" class="empty">
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-device"></use></svg>
+                  <p class="muted">No hay dispositivos registrados.</p>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </main>
+  </div>
 </div>
 {% endblock %}

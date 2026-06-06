@@ -5,7 +5,7 @@ El secreto TOTP se guarda cifrado con Fernet; el texto plano solo vive en memori
 from __future__ import annotations
 
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pyotp
 
@@ -98,7 +98,7 @@ def generar_otp_email(id_usuario: int, ip: str | None = None) -> str:
 
     codigo     = "".join(str(secrets.randbelow(10)) for _ in range(6))
     token_hash = sha256_hex(codigo)
-    expira_en  = datetime.utcnow() + timedelta(minutes=5)
+    expira_en  = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=5)
     sr.crear_token(id_usuario, token_hash, "2fa_email", expira_en, ip)
     return codigo
 

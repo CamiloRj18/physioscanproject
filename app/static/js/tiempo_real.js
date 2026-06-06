@@ -1,8 +1,8 @@
 /**
  * PhysioScan — tiempo_real.js
  * Polling cada 2 s al endpoint /api/v1/sesiones/{id}/tiempo-real.
- * Actualiza: BPM, inclinación, semáforo de alertas, mini-mapa GPS.
- * Sin librerías externas. Respeta prefers-reduced-motion.
+ * Actualiza: BPM, inclinación, semáforo de alertas, mapa GPS (Leaflet).
+ * Respeta prefers-reduced-motion.
  */
 
 (function () {
@@ -12,10 +12,9 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const COLORS = {
-    route: '#79DBFF',
+    route:      '#79DBFF',
     routeStart: '#2FD69E',
     routeEnd:   '#B4F8FF',
-    bg:         '#071C34',
   };
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
@@ -29,73 +28,63 @@
   const elIncBar   = document.getElementById('live-inc-bar');
   const elSemaforo = document.getElementById('live-semaforo');
   const elAlerts   = document.getElementById('live-alerts-list');
-  const elCanvas   = document.getElementById('live-map-canvas');
   const elStatus   = document.getElementById('live-status');
 
-  // ── Mini-mapa ────────────────────────────────────────────────────────────
+  // ── Mapa Leaflet ─────────────────────────────────────────────────────────
+  let _map      = null;
+  let _polyline = null;
+  let _startDot = null;
+  let _curDot   = null;
+  let _mapReady = false;
+
+  function initLeafletMap() {
+    if (_mapReady) return true;
+    const container = document.getElementById('live-map');
+    if (!container || typeof L === 'undefined') return false;
+
+    _map = L.map(container, { zoomControl: true, attributionControl: true })
+             .setView([4.15, -74.5], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(_map);
+
+    _polyline = L.polyline([], {
+      color: COLORS.route, weight: 3, opacity: 0.9,
+    }).addTo(_map);
+
+    _mapReady = true;
+    return true;
+  }
+
   function drawMap(puntos) {
-    if (!elCanvas) return;
-    const dpr  = window.devicePixelRatio || 1;
-    const rect = elCanvas.getBoundingClientRect();
-    elCanvas.width  = rect.width  * dpr;
-    elCanvas.height = rect.height * dpr;
-    const ctx = elCanvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    const W = rect.width, H = rect.height, pad = 14;
+    if (!_mapReady && !initLeafletMap()) return;
+    if (!puntos || puntos.length === 0) return;
 
-    ctx.fillStyle = COLORS.bg;
-    ctx.fillRect(0, 0, W, H);
+    const latlngs = puntos.map(p => [p[0], p[1]]);
+    _polyline.setLatLngs(latlngs);
 
-    if (!puntos || puntos.length < 2) {
-      ctx.fillStyle = '#9784C8';
-      ctx.font = '11px "Cascadia Code", Consolas, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('Esperando GPS…', W / 2, H / 2);
-      return;
+    // Punto de inicio (verde)
+    if (!_startDot) {
+      _startDot = L.circleMarker(latlngs[0], {
+        radius: 6, color: COLORS.routeStart, fillColor: COLORS.routeStart,
+        fillOpacity: 1, weight: 2,
+      }).bindTooltip('Inicio').addTo(_map);
     }
 
-    const lats = puntos.map(p => p[0]);
-    const lons = puntos.map(p => p[1]);
-    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-    const minLon = Math.min(...lons), maxLon = Math.max(...lons);
-    const ranLat = maxLat - minLat || 1e-5;
-    const ranLon = maxLon - minLon || 1e-5;
-    const scale  = Math.min((W - pad * 2) / ranLon, (H - pad * 2) / ranLat);
-
-    const ptX = lon => pad + (lon - minLon) * scale;
-    const ptY = lat => H - pad - (lat - minLat) * scale;
-
-    ctx.beginPath();
-    ctx.strokeStyle = COLORS.route;
-    ctx.lineWidth   = 2.5;
-    ctx.lineJoin    = 'round';
-    ctx.moveTo(ptX(puntos[0][1]), ptY(puntos[0][0]));
-    for (let i = 1; i < puntos.length; i++) {
-      ctx.lineTo(ptX(puntos[i][1]), ptY(puntos[i][0]));
+    // Posición actual (cian pulsante)
+    const last = latlngs[latlngs.length - 1];
+    if (!_curDot) {
+      _curDot = L.circleMarker(last, {
+        radius: 9, color: '#fff', weight: 2,
+        fillColor: COLORS.routeEnd, fillOpacity: 1,
+      }).addTo(_map);
+    } else {
+      _curDot.setLatLng(last);
     }
-    ctx.stroke();
 
-    // Inicio (verde)
-    ctx.beginPath();
-    ctx.arc(ptX(puntos[0][1]), ptY(puntos[0][0]), 5, 0, Math.PI * 2);
-    ctx.fillStyle = COLORS.routeStart;
-    ctx.fill();
-
-    // Posición actual (blanco-cian)
-    const last = puntos[puntos.length - 1];
-    ctx.beginPath();
-    ctx.arc(ptX(last[1]), ptY(last[0]), 5, 0, Math.PI * 2);
-    ctx.fillStyle = COLORS.routeEnd;
-    ctx.fill();
-
-    if (!reducedMotion) {
-      // Anillo pulsante alrededor de la posición actual
-      ctx.beginPath();
-      ctx.arc(ptX(last[1]), ptY(last[0]), 10, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(180, 248, 255, 0.35)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+    if (!reducedMotion) _map.setView(last, Math.max(_map.getZoom(), 16));
   }
 
   // ── Semáforo ─────────────────────────────────────────────────────────────
@@ -108,9 +97,9 @@
 
   function actualizarSemaforo(sev) {
     if (!elSemaforo) return;
-    elSemaforo.className = 'semaforo semaforo--' + sev;
+    elSemaforo.className = 'semaphore ' + sev;        // FIX: clase CSS correcta
     const textos = { verde: 'Normal', amarillo: 'Precaución', rojo: 'Alerta' };
-    const dotEl  = elSemaforo.querySelector('.semaforo__dot');
+    const dotEl  = elSemaforo.querySelector('.s-dot'); // FIX: selector correcto en HTML
     const txtEl  = elSemaforo.querySelector('.semaforo__text');
     if (txtEl) txtEl.textContent = textos[sev] || sev;
     if (dotEl) dotEl.setAttribute('aria-label', 'Estado: ' + (textos[sev] || sev));
@@ -126,7 +115,7 @@
 
   function alertIcon(sev) {
     const fill = { rojo: '#FF7285', amarillo: '#FBBF24', verde: '#2FD69E' }[sev] || '#9784C8';
-    return `<svg class="alert-item__icon" viewBox="0 0 24 24" fill="none" stroke="${fill}" stroke-width="2" aria-hidden="true">
+    return `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="${fill}" stroke-width="2" aria-hidden="true">
       <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
       <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
     </svg>`;
@@ -160,7 +149,7 @@
 
     elBpm.classList.remove('live-bpm__value--alto', 'live-bpm__value--critico');
     if (typeof bpm === 'number') {
-      if (bpm >= 180)     elBpm.classList.add('live-bpm__value--critico');
+      if (bpm >= 180)      elBpm.classList.add('live-bpm__value--critico');
       else if (bpm >= 150) elBpm.classList.add('live-bpm__value--alto');
     }
 
@@ -177,9 +166,7 @@
     if (elInc) elInc.textContent = inc !== null && inc !== undefined ? inc.toFixed(1) + '°' : '---';
     if (elIncBar) {
       const pct = Math.min(100, Math.max(0, (Math.abs(inc || 0) / 90) * 100));
-      if (!reducedMotion) {
-        elIncBar.style.transition = 'width 300ms ease';
-      }
+      if (!reducedMotion) elIncBar.style.transition = 'width 300ms ease';
       elIncBar.style.width = pct + '%';
     }
   }
@@ -203,7 +190,10 @@
         actualizarInclinacion(d.inclinacion);
         actualizarAlertas(d.alertas);
         actualizarSemaforo(severidadActual(d.alertas));
-        drawMap(d.recorrido);
+        if (d.recorrido) {
+          panel.dataset.lastRoute = JSON.stringify(d.recorrido);
+          drawMap(d.recorrido);
+        }
       })
       .catch(() => {
         consecutive_errors++;
@@ -213,6 +203,7 @@
   }
 
   let timer = setInterval(poll, POLL_MS);
+  initLeafletMap();
   poll();
 
   function stopPolling() {
@@ -222,11 +213,11 @@
     if (dotEl) dotEl.style.background = '#9784C8';
   }
 
-  // Redibujar mapa al redimensionar
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
+      if (_map) _map.invalidateSize();
       const lastRoute = panel.dataset.lastRoute;
       if (lastRoute) {
         try { drawMap(JSON.parse(lastRoute)); } catch (_) {}

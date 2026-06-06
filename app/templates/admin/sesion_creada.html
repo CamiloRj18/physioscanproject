@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Sesión creada — Administración — PhysioScan{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/page-admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="shell">
+  {% include "admin/_sidebar.html" %}
+
+  <div class="main">
+    <header class="main-head">
+      <div class="block-title-row">
+        <h1>Sesión creada</h1>
+      </div>
+    </header>
+
+    <div class="main-body">
+      <div class="card reveal">
+        <div class="row gap-2 align-center sc-header-row">
+          <svg class="icon sc-icon-success" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-check-circle"></use></svg>
+          <div>
+            <p class="t-sm muted">La sesión fue creada en estado <strong>en_curso</strong>.</p>
+          </div>
+        </div>
+
+        <div class="card sc-id-card">
+          <p class="t-sm muted sc-label">ID de sesión</p>
+          <span class="mono sc-id-num">{{ sesion.id_sesion }}</span>
+        </div>
+
+        <div class="card sc-info-card">
+          <p class="t-sm sc-info-lead">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-info-circle"></use></svg>
+            Actualiza <code class="mono">firmware/config.h</code> con este valor antes de cargar el firmware al chaleco:
+          </p>
+          <pre class="mono sc-code-block">#define ID_SESION    {{ sesion.id_sesion }}</pre>
+        </div>
+
+        <div class="row gap-1">
+          <a href="{{ url_for('admin.crear_sesion') }}" class="btn btn-primary">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-plus"></use></svg>
+            Nueva sesión
+          </a>
+          <a href="{{ url_for('admin.dispositivos') }}" class="btn btn-ghost">Ir a dispositivos</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

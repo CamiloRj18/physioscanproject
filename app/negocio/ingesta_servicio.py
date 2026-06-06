@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from app.comun.errores import AutenticacionError, ValidacionError
@@ -46,7 +46,8 @@ def autenticar_dispositivo(
     if abs(time.time() - ts_int) > _MAX_DESFASE_S:
         raise AutenticacionError("Timestamp fuera de ventana (anti-replay).")
 
-    if not verificar_password(api_key, dispositivo["api_key_hash"]):
+    argon2_ok = verificar_password(api_key, dispositivo["api_key_hash"])
+    if not argon2_ok:
         raise AutenticacionError("Dispositivo no autorizado.")
 
     mensaje = (codigo + timestamp).encode() + body_raw
@@ -91,7 +92,7 @@ def _validar_ecg(lecturas: list[dict]) -> list[dict]:
         if not (0 <= adc <= 4095):
             continue
         validas.append({
-            "capturado_en":    m.get("t", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
+            "capturado_en":    m.get("t", datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
             "valor_adc":       adc,
             "electrodo_suelto": bool(m.get("lo", False)),
         })
@@ -109,7 +110,7 @@ def _validar_gps(lecturas: list[dict]) -> list[dict]:
         if not (-90 <= lat <= 90 and -180 <= lon <= 180):
             continue
         validas.append({
-            "capturado_en": m.get("t", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
+            "capturado_en": m.get("t", datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
             "latitud":      lat,
             "longitud":     lon,
             "velocidad_kmh": float(m["vel"]) if "vel" in m else None,
@@ -127,7 +128,7 @@ def _validar_imu(lecturas: list[dict]) -> list[dict]:
         except (KeyError, ValueError, TypeError):
             continue
         validas.append({
-            "capturado_en":      m.get("t", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
+            "capturado_en":      m.get("t", datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]),
             "accel_x": ax, "accel_y": ay, "accel_z": az,
             "gyro_x":  gx, "gyro_y":  gy, "gyro_z":  gz,
             "inclinacion_grados": float(m["inc"]) if "inc" in m else None,

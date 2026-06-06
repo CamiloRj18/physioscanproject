@@ -1,0 +1,13 @@
+/* PhysioScan — estilos propios de la página Navbar (demo) */
+.demo{padding:40px 0 80px;display:flex;flex-direction:column;gap:28px;}
+.lead h1{margin:6px 0 10px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.chips .icon{width:14px;height:14px;}
+
+.state-card{border:1px solid var(--border-soft);border-radius:var(--r-panel);padding:22px;background:var(--bg-surface);display:flex;flex-direction:column;gap:12px;}
+.state-card h3{margin-bottom:2px;}
+.mini-nav{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r-card);}
+.mini-nav .nav-brand{font-size:16px;}
+
+.filler{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:6px;}
+.filler .card h3{font-size:16px;margin-bottom:6px;}

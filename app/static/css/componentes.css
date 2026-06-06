@@ -148,6 +148,42 @@
 .field .field-ic{position:absolute;right:13px;top:13px;color:var(--text-secondary);width:18px;height:18px;}
 .field .field-ic.clickable:hover{color:var(--accent);}
 
+/* ───────── select reset — appearance + background-image = none ───────── */
+select,
+select.form-control,
+select.field-select,
+.field select,
+.field-select select,
+[data-theme="light"] select,
+[data-theme="light"] .field select,
+[data-theme="light"] select.field-select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: none !important;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-soft) !important;
+}
+
+/* ───────── div.field-select: wrapper con label estático encima del select ───────── */
+div.field-select{position:relative;margin-top:8px;display:flex;flex-direction:column;}
+div.field-select select{
+  width:100%;font-family:var(--font-body);font-size:15px;cursor:pointer;
+  padding:12px 38px 12px 14px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2379DBFF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:right 13px center !important;
+}
+div.field-select select:focus{border-color:var(--accent) !important;box-shadow:var(--glow);outline:none;}
+:root[data-theme="light"] div.field-select select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230077B6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+}
+
+/* ───────── .form-grid y .form-actions ───────── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+.form-actions{margin-top:24px;}
+
 /* indicador de fortaleza de contraseña */
 .strength{display:flex;gap:6px;margin-top:8px;}
 .strength i{height:4px;flex:1;border-radius:999px;background:var(--border-soft);transition:background .25s ease;}

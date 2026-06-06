@@ -10,7 +10,7 @@ from __future__ import annotations
 import io
 import secrets
 import string
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from app.comun.errores import AutenticacionError, BloqueadoError, ValidacionError
 from app.comun.seguridad_utils import hash_codigo, verificar_codigo
@@ -333,7 +333,7 @@ def _construir_txt(
     codigos: list[str],
     generado_por: int | None,
 ) -> str:
-    ahora     = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    ahora     = datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M UTC")
     separador = "─" * 48
     quien     = "Sistema (registro)" if generado_por is None else f"Admin (id={generado_por})"
 

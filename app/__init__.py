@@ -19,8 +19,9 @@ _CSP: dict[str, str] = {
     "default-src":     "'self'",
     "script-src":      "'self'",
     "style-src":       "'self' 'unsafe-hashes'",
-    "img-src":         "'self' data:",
+    "img-src":         "'self' data: https://tile.openstreetmap.org",
     "font-src":        "'self'",
+    "connect-src":     "'self' https://tile.openstreetmap.org",
     "object-src":      "'none'",
     "base-uri":        "'self'",
     "form-action":     "'self'",
@@ -53,8 +54,8 @@ def create_app(config_name: str | None = None) -> Flask:
 
     @app.context_processor
     def _inject_globals():
-        from datetime import datetime
-        return {"now": datetime.utcnow()}
+        from datetime import datetime, timezone
+        return {"now": datetime.now(timezone.utc).replace(tzinfo=None)}
 
     from app.cli import registrar_comandos
     registrar_comandos(app)
@@ -108,6 +109,8 @@ def _init_pool(app: Flask) -> None:
 
 
 def _registrar_blueprints(app: Flask) -> None:
+    from flask import redirect, url_for
+
     from app.presentacion.publico_controlador      import bp_publico
     from app.presentacion.auth_controlador         import bp_auth
     from app.presentacion.recuperacion_controlador import bp_recuperacion
@@ -130,3 +133,11 @@ def _registrar_blueprints(app: Flask) -> None:
     app.register_blueprint(bp_api_ingesta)
 
     csrf.exempt(bp_api_ingesta)
+
+    @app.get("/recuperacion/solicitar")
+    def _recuperacion_solicitar_alias():
+        return redirect(url_for("recuperacion.inicio"))
+
+    @app.get("/recuperacion/archivo")
+    def _recuperacion_archivo_alias():
+        return redirect(url_for("recuperacion.archivo_form"))

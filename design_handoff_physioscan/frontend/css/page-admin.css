@@ -1,0 +1,23 @@
+/* PhysioScan — Panel admin */
+.search-box{display:flex;align-items:center;gap:9px;background:var(--bg-raised);border:1px solid var(--border-soft);
+  border-radius:var(--r-pill);padding:9px 14px;min-width:200px;transition:border-color var(--t-fast),box-shadow var(--t-fast);}
+.search-box:focus-within{border-color:var(--accent);box-shadow:var(--glow);}
+.search-box .icon{color:var(--text-secondary);flex:0 0 auto;}
+.search-box input{background:none;border:none;color:var(--text-primary);font-family:var(--font-body);font-size:14px;width:100%;}
+.search-box input:focus{outline:none;}
+@media (max-width:680px){.search-box{display:none;}}
+
+.block-title{font-size:16px;margin-bottom:14px;}
+.block-title-row{margin-bottom:14px;}
+.block-title-row .block-title{margin-bottom:0;}
+
+.kpi .m-ic{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--tint-accent);color:var(--accent);}
+.kpi .m-ic .icon{width:20px;height:20px;}
+.kpi .kpi-top{align-items:center;}
+.kpi .kpi-val{font-family:var(--font-data);font-size:30px;font-weight:600;}
+
+.ta-r{text-align:right;}
+.actions{display:inline-flex;gap:4px;justify-content:flex-end;}
+.actions .icon-btn{width:34px;height:34px;}
+
+.empty .icon{width:56px;height:56px;}

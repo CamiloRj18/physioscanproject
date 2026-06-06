@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}En vivo — Sesión {{ sesion.id_sesion }} — PhysioScan{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/page-dashboard.css') }}">{% endblock %}
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/page-dashboard.css') }}">
+{% endblock %}
 
 {% block content %}
 <div class="container dash">
@@ -22,9 +25,14 @@
         </div>
       </div>
     </div>
-    <span id="live-semaforo" class="semaphore {{ alertas[0].severidad if alertas else 'verde' }}" role="status" aria-live="polite">
+    {% set _sev = alertas[0].severidad if alertas else 'verde' %}
+    <span id="live-semaforo" class="semaphore {{ _sev }}" role="status" aria-live="polite">
       <span class="s-dot"></span>
-      <span class="semaforo__text">{{ alertas[0].severidad|title if alertas else 'Normal' }}</span>
+      <span class="semaforo__text">
+        {%- if _sev == 'rojo' %}Alerta
+        {%- elif _sev == 'amarillo' %}Precaución
+        {%- else %}Normal{% endif %}
+      </span>
     </span>
   </section>
 
@@ -64,7 +72,7 @@
       </div>
       <div class="kpi-lab">Recorrido GPS</div>
       <div class="map-ph">
-        <canvas id="live-map-canvas" aria-label="Mapa de recorrido en vivo" role="img"></canvas>
+        <div id="live-map" role="img" aria-label="Mapa de recorrido en vivo GPS"></div>
         <span class="map-tag mono">NEO-7M · en vivo</span>
       </div>
     </article>
@@ -76,31 +84,38 @@
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-alert-triangle"></use></svg>
       <h3>Alertas activas</h3>
     </div>
-    <div class="sem-list" id="live-alerts-list" aria-live="polite" aria-atomic="true">
+    <ul class="alerts-list" id="live-alerts-list" aria-live="polite" aria-atomic="true">
       {% if alertas %}
         {% for a in alertas %}
-        <div class="sem-row">
-          <span class="semaphore {{ a.severidad }}">
-            <span class="s-dot"></span>
-            {{ a.severidad|title }}
+        <li class="alert-item alert-item--{{ a.severidad }}">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none"
+               stroke="{% if a.severidad == 'rojo' %}#FF7285{% elif a.severidad == 'amarillo' %}#FFC861{% else %}#2FD69E{% endif %}"
+               stroke-width="2" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span class="alert-item__text">
+            <span class="alert-item__tipo">{{ a.tipo.replace('_', ' ') }}</span><br>
+            {{ a.mensaje }}
           </span>
-          <p class="muted t-sm">
-            <strong>{{ a.tipo.replace('_', ' ') }}</strong> — {{ a.mensaje }}
-          </p>
-        </div>
+        </li>
         {% endfor %}
       {% else %}
-        <div class="sem-row">
-          <span class="semaphore verde"><span class="s-dot"></span> Normal</span>
-          <p class="muted t-sm">Sin alertas activas.</p>
-        </div>
+        <li class="alert-item alert-item--verde">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="#2FD69E" stroke-width="2" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span class="alert-item__text">Sin alertas activas.</span>
+        </li>
       {% endif %}
-    </div>
+    </ul>
   </section>
 
 </div>
 {% endblock %}
 
 {% block page_js %}
+<script src="{{ url_for('static', filename='js/vendor/leaflet.min.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/tiempo_real.js') }}" defer></script>
 {% endblock %}

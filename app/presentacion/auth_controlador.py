@@ -291,7 +291,7 @@ def activar_2fa():
                 id_usuario, codigo, fernet_key, request.remote_addr
             )
             flash("Autenticación en dos pasos activada.", "success")
-            return redirect(_destino_post_login())
+            return redirect(url_for("usuario.perfil"))
         except (AutenticacionError, ValidacionError) as exc:
             flash(str(exc), "error")
             # Regresa al GET para regenerar QR con el mismo secreto pendiente

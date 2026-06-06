@@ -1,0 +1,79 @@
+/* ============================================================
+   PhysioScan — Base: reset, tipografía, layout, scrollbar, foco
+   ============================================================ */
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+html,body{height:100%;}
+
+body{
+  background:var(--bg-base);
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:var(--t-theme);
+  min-height:100%;
+}
+
+/* halo de fondo deep-space (sutil, no intrusivo) */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 78% -8%, color-mix(in srgb,var(--accent) 12%,transparent), transparent 60%),
+    radial-gradient(900px 600px at 0% 110%, color-mix(in srgb,var(--accent) 8%,transparent), transparent 55%);
+  opacity:.9;transition:opacity .3s ease;
+}
+
+/* ---------- tipografía ---------- */
+h1,h2,h3,h4{font-family:var(--font-title);font-weight:600;line-height:1.18;letter-spacing:.01em;color:var(--text-primary);text-wrap:balance;}
+h1{font-size:clamp(26px,3.4vw,40px);}
+h2{font-size:clamp(20px,2.4vw,28px);}
+h3{font-size:clamp(16px,1.7vw,20px);}
+p{text-wrap:pretty;}
+a{color:inherit;text-decoration:none;}
+.mono{font-family:var(--font-data);letter-spacing:.01em;}
+.muted{color:var(--text-secondary);}
+.eyebrow{font-family:var(--font-data);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);}
+
+/* ---------- layout helpers ---------- */
+.container{width:100%;max-width:1280px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px);}
+.stack{display:flex;flex-direction:column;}
+.row{display:flex;align-items:center;}
+.between{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);}
+.grid{display:grid;}
+.gap-1{gap:var(--s-1);}.gap-2{gap:var(--s-2);}.gap-3{gap:var(--s-3);}
+.hidden{display:none !important;}
+
+/* ---------- scrollbar personalizado ---------- */
+*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--accent) 45%,transparent) transparent;}
+*::-webkit-scrollbar{width:6px;height:6px;}
+*::-webkit-scrollbar-track{background:transparent;}
+*::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--accent) 45%,transparent);border-radius:999px;}
+*::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+
+/* ---------- foco accesible ---------- */
+:focus-visible{outline:none;box-shadow:var(--ring);border-radius:6px;}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{box-shadow:var(--ring);}
+
+/* clickeables */
+button,a,label[role="button"],.clickable,summary{cursor:pointer;}
+button{font:inherit;color:inherit;background:none;border:none;}
+
+/* selección */
+::selection{background:color-mix(in srgb,var(--accent) 40%,transparent);color:var(--text-primary);}
+
+/* utilidades de texto */
+.t-data{font-family:var(--font-data);}
+.t-sm{font-size:13px;}
+.t-xs{font-size:11px;}
+.upper{text-transform:uppercase;letter-spacing:.14em;}
+
+/* svg por defecto hereda color (íconos stroke) */
+svg:not([hidden]){display:block;}
+[hidden]{display:none !important;}
+.icon{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.icon-sm{width:18px;height:18px;}
+.icon-lg{width:32px;height:32px;}

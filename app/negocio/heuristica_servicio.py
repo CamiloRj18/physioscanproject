@@ -81,7 +81,7 @@ def evaluar_lote(id_sesion: int, id_deportista: int | None,
     umbrales = _obtener_umbrales(id_deportista)
     fc_max = _fcmax(id_deportista)
     alertas: list[dict] = []
-    ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    ts = datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
     # ── ECG: electrodo suelto y %FCmáx ────────────────────────────────────────
     electrodo_revisado = False
