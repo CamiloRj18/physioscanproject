@@ -112,6 +112,7 @@ def _autorizar_sesion(sesion: dict, usuario) -> bool:
 
 
 @bp_api_ingesta.get("/sesiones/<int:id_sesion>/tiempo-real")
+@limiter.limit("120/minute")
 def tiempo_real(id_sesion: int):
     """Datos en vivo de una sesión para el navegador (requiere login + autorización)."""
     from flask_login import current_user
@@ -132,7 +133,7 @@ def tiempo_real(id_sesion: int):
         ultima_ecg = lr.ultima_lectura_ecg(id_sesion)
         ultima_imu = lr.ultima_lectura_imu(id_sesion)
         recorrido  = lr.recorrido_gps_reciente(id_sesion, 50)
-        alertas    = ar.listar_recientes(id_sesion, 10)
+        alertas    = ar.listar_ultimos_segundos(id_sesion, segundos=60, limite=5)
 
         adc = ultima_ecg["valor_adc"] if ultima_ecg else None
         bpm_raw = ultima_ecg.get("bpm") if ultima_ecg else None
@@ -156,6 +157,7 @@ def tiempo_real(id_sesion: int):
 # ── GET /api/v1/sesiones/<id>/datos-graficas ─────────────────────────────────
 
 @bp_api_ingesta.get("/sesiones/<int:id_sesion>/datos-graficas")
+@limiter.limit("60/minute")
 def datos_graficas(id_sesion: int):
     """Series temporales para las gráficas del detalle de sesión (requiere login)."""
     from flask_login import current_user

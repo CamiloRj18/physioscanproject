@@ -43,6 +43,22 @@ def listar_recientes(id_sesion: int, limite: int = 20) -> list[dict[str, Any]]:
     )
 
 
+def listar_ultimos_segundos(id_sesion: int, segundos: int = 60,
+                            limite: int = 5) -> list[dict[str, Any]]:
+    """Alertas de los últimos N segundos para el panel en vivo (evita acumulación histórica)."""
+    return muchos(
+        """
+        SELECT tipo, severidad, mensaje, capturado_en
+        FROM alerta
+        WHERE id_sesion = %s
+          AND capturado_en >= NOW() - INTERVAL %s SECOND
+        ORDER BY capturado_en DESC
+        LIMIT %s
+        """,
+        (id_sesion, segundos, limite),
+    )
+
+
 def ultima_alerta_por_tipo(id_sesion: int, tipo: str) -> dict[str, Any] | None:
     """Última alerta del tipo dado en la sesión (para control de idempotencia)."""
     return uno(
