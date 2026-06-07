@@ -11,8 +11,12 @@ Rutas (todas protegidas con @rol_requerido("administrador")):
     POST     /admin/asignaciones/crear            → asignar entrenador ↔ deportista
     POST     /admin/asignaciones/<id>/eliminar    → eliminar asignación
     GET      /admin/auditoria                     → bitácora paginada con filtros
+    POST     /admin/usuarios/<id>/resetear-password → genera password temporal y la envía
 """
 from __future__ import annotations
+
+import secrets
+import string
 
 from flask import (
     Blueprint,
@@ -43,6 +47,39 @@ from app.negocio.seguridad.auditoria_servicio import registrar as audit
 from app.negocio.seguridad.contrasena_servicio import hash_nueva, validar_politica
 
 bp_admin = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+def _generar_password_temporal() -> str:
+    mayus = string.ascii_uppercase
+    minus = string.ascii_lowercase
+    digitos = string.digits
+    especiales = "!@#$%&*"
+    alfab = mayus + minus + digitos + especiales
+    chars = [
+        secrets.choice(mayus),
+        secrets.choice(minus),
+        secrets.choice(digitos),
+        secrets.choice(especiales),
+    ] + [secrets.choice(alfab) for _ in range(8)]
+    rand = secrets.SystemRandom()
+    rand.shuffle(chars)
+    return "".join(chars)
+
+
+def _enviar_password_temporal(email: str, nombre: str, password_temp: str) -> None:
+    msg = Message(
+        subject="PhysioScan — Contraseña temporal restablecida",
+        recipients=[email],
+    )
+    msg.body = (
+        f"Hola {nombre},\n\n"
+        "El administrador de PhysioScan restableció tu contraseña.\n\n"
+        f"Tu contraseña temporal es:\n\n    {password_temp}\n\n"
+        "Deberás cambiarla la próxima vez que inicies sesión.\n"
+        "No compartas esta contraseña con nadie.\n\n"
+        "— Equipo PhysioScan · UniEspinal"
+    )
+    mail.send(msg)
 
 
 def _enviar_codigos_pdf(
@@ -360,6 +397,40 @@ def reemitir_recuperacion(id: int):
         usuario=usuario,
         lote_actual=lote_actual,
     )
+
+
+# ── Restablecer contraseña de usuario ────────────────────────────────────────
+
+@bp_admin.post("/usuarios/<int:id>/resetear-password")
+@rol_requerido("administrador")
+def resetear_password(id: int):
+    usuario = ur.buscar_por_id(id)
+    if not usuario:
+        abort(404)
+
+    password_temp = _generar_password_temporal()
+    nuevo_hash    = hash_nueva(password_temp)
+
+    sr.actualizar_credencial(id, nuevo_hash)
+    sr.agregar_historial_contrasena(id, nuevo_hash)
+    sr.marcar_requiere_cambio(id)
+    sr.revocar_todas_sesiones(id)
+
+    audit(
+        "ADMIN_PASSWORD_RESETEADO",
+        int(current_user.get_id()),
+        request.remote_addr,
+        detalle={"id_objetivo": id},
+    )
+
+    try:
+        _enviar_password_temporal(usuario["email"], usuario["primer_nombre"], password_temp)
+        flash("Contraseña restablecida y enviada al correo del usuario.", "success")
+    except Exception as exc:
+        current_app.logger.error("No se pudo enviar correo de contraseña temporal: %s", exc)
+        flash("Contraseña restablecida pero no se pudo enviar el correo. Verifica la config de correo.", "warning")
+
+    return redirect(url_for("admin.usuario_detalle", id=id))
 
 
 # ── Asignaciones entrenador ↔ deportista ──────────────────────────────────────

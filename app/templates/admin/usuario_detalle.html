@@ -217,6 +217,23 @@
       </div>
       {% endif %}
 
+      <div class="card reveal">
+        <div class="section-title">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-lock"></use></svg>
+          <h3>Contraseña</h3>
+        </div>
+        <p class="muted t-sm">Genera una contraseña temporal y envíala al correo del usuario. El usuario deberá cambiarla en su próximo inicio de sesión.</p>
+        <div class="form-actions">
+          <form method="post" action="{{ url_for('admin.resetear_password', id=usuario.id_usuario) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary btn--sm">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-refresh"></use></svg>
+              Restablecer contraseña
+            </button>
+          </form>
+        </div>
+      </div>
+
       <div class="row gap-1">
         <a href="{{ url_for('admin.auditoria', usuario=usuario.id_usuario) }}" class="btn btn-ghost btn--sm">
           <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-log"></use></svg>

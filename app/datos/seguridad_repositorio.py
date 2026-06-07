@@ -21,6 +21,20 @@ def actualizar_credencial(id_usuario: int, hash_contrasena: str) -> None:
     )
 
 
+def marcar_requiere_cambio(id_usuario: int) -> None:
+    ejecutar(
+        "UPDATE credencial SET requiere_cambio = TRUE WHERE id_usuario = %s",
+        (id_usuario,),
+    )
+
+
+def limpiar_requiere_cambio(id_usuario: int) -> None:
+    ejecutar(
+        "UPDATE credencial SET requiere_cambio = FALSE WHERE id_usuario = %s",
+        (id_usuario,),
+    )
+
+
 # ── Historial de contraseñas ─────────────────────────────────────────────────
 
 def agregar_historial_contrasena(id_usuario: int, hash_contrasena: str) -> None:

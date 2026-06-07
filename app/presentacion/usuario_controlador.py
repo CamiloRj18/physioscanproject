@@ -12,6 +12,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -19,9 +20,11 @@ from flask_login import current_user, login_required
 from app.comun.decoradores import doble_factor_verificado
 from app.comun.errores import ConflictoError, ValidacionError
 from app.datos import deportista_repositorio as dr
+from app.datos import seguridad_repositorio as sr
 from app.negocio import deportista_servicio as ds
 from app.negocio.seguridad import recuperacion_archivo_servicio as ras
 from app.negocio.seguridad.auditoria_servicio import registrar as audit
+from app.negocio.seguridad.contrasena_servicio import en_historial, hash_nueva, validar_politica
 
 bp_usuario = Blueprint("usuario", __name__, url_prefix="/usuario")
 
@@ -51,6 +54,53 @@ def perfil():
     # Refresca deportista tras posible cambio
     deportista = dr.buscar_por_id_usuario(id_usuario)
     return render_template("usuario/perfil.html", deportista=deportista)
+
+
+@bp_usuario.route("/cambiar-password-obligatorio", methods=["GET", "POST"])
+@login_required
+def cambiar_password_obligatorio():
+    if not session.get("debe_cambiar_password"):
+        return redirect(url_for("usuario.perfil"))
+
+    if request.method == "POST":
+        nueva    = request.form.get("nueva_password", "")
+        confirmar = request.form.get("confirmar_password", "")
+
+        if nueva != confirmar:
+            flash("Las contraseñas no coinciden.", "error")
+            return render_template("usuario/cambiar_password_obligatorio.html")
+
+        try:
+            validar_politica(nueva)
+        except ValidacionError as exc:
+            flash(str(exc), "error")
+            return render_template("usuario/cambiar_password_obligatorio.html")
+
+        id_usuario = int(current_user.get_id())
+        historial  = sr.obtener_historial_contrasena(id_usuario, limite=5)
+        if en_historial(nueva, historial):
+            flash("No puedes usar una contraseña que ya utilizaste recientemente.", "error")
+            return render_template("usuario/cambiar_password_obligatorio.html")
+
+        nuevo_hash = hash_nueva(nueva)
+        sr.actualizar_credencial(id_usuario, nuevo_hash)
+        sr.agregar_historial_contrasena(id_usuario, nuevo_hash)
+        sr.limpiar_requiere_cambio(id_usuario)
+        session.pop("debe_cambiar_password", None)
+
+        audit("PASSWORD_OBLIGATORIO_CAMBIADO", id_usuario, request.remote_addr)
+        flash("Contraseña actualizada. ¡Bienvenido!", "success")
+
+        rol = getattr(current_user, "nombre_rol", None)
+        if rol == "administrador":
+            return redirect(url_for("admin.panel"))
+        if rol == "entrenador":
+            return redirect(url_for("entrenador.deportistas"))
+        if rol == "deportista":
+            return redirect(url_for("deportista.sesiones"))
+        return redirect(url_for("usuario.perfil"))
+
+    return render_template("usuario/cambiar_password_obligatorio.html")
 
 
 @bp_usuario.post("/codigos/regenerar")

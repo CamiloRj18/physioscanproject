@@ -190,6 +190,9 @@ def login():
             usuario["id_usuario"], request.remote_addr, request.user_agent.string
         )
         session["_sesion_srv"] = token_srv
+        cred = sr.obtener_credencial(usuario["id_usuario"])
+        if cred and cred.get("requiere_cambio"):
+            session["debe_cambiar_password"] = True
         return redirect(_destino_post_login())
 
     return render_template("auth/login.html", form={})
@@ -239,6 +242,9 @@ def verificar_2fa():
             id_usuario, request.remote_addr, request.user_agent.string
         )
         session["_sesion_srv"] = token_srv
+        cred = sr.obtener_credencial(id_usuario)
+        if cred and cred.get("requiere_cambio"):
+            session["debe_cambiar_password"] = True
         return redirect(_destino_post_login())
 
     return render_template("auth/verificar_2fa.html", metodo=metodo)
@@ -299,6 +305,8 @@ def activar_2fa():
 # ── Helpers privados ─────────────────────────────────────────────────────────
 
 def _destino_post_login() -> str:
+    if session.get("debe_cambiar_password"):
+        return url_for("usuario.cambiar_password_obligatorio")
     destino = request.args.get("next", "")
     if destino and destino.startswith("/") and not destino.startswith("//"):
         return destino

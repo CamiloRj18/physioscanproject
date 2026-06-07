@@ -31,6 +31,8 @@ def rol_requerido(*roles: str):
             nombre_rol = getattr(current_user, "nombre_rol", None)
             if nombre_rol not in roles:
                 abort(403)
+            if session.get("debe_cambiar_password"):
+                return redirect(url_for("usuario.cambiar_password_obligatorio"))
             return f(*args, **kwargs)
         return decorated
     return decorator
@@ -47,5 +49,7 @@ def doble_factor_verificado(f):
     def decorated(*args, **kwargs):
         if not session.get("2fa_verificado"):
             return redirect(url_for("auth.verificar_2fa"))
+        if session.get("debe_cambiar_password"):
+            return redirect(url_for("usuario.cambiar_password_obligatorio"))
         return f(*args, **kwargs)
     return decorated
