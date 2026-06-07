@@ -64,7 +64,7 @@ def autenticar_dispositivo(
 # ── Sesión ────────────────────────────────────────────────────────────────────
 
 def iniciar_sesion(codigo_dispositivo: str) -> dict[str, Any]:
-    """Crea una sesión de entrenamiento para el deportista asignado al dispositivo."""
+    """Devuelve la sesión en_curso del deportista o crea una nueva."""
     dispositivo = dr.buscar_por_codigo(codigo_dispositivo)
     if not dispositivo:
         raise ValidacionError("Dispositivo no encontrado.")
@@ -72,6 +72,13 @@ def iniciar_sesion(codigo_dispositivo: str) -> dict[str, Any]:
     id_deportista = dispositivo.get("id_deportista") or dispositivo.get("dep_id")
     if not id_deportista:
         raise ValidacionError("El dispositivo no tiene un deportista asignado.")
+
+    sesion_activa = sr.sesion_en_curso(id_deportista)
+    if sesion_activa:
+        return {
+            "id_sesion": sesion_activa["id_sesion"],
+            "inicio": sesion_activa["inicio"].isoformat() if isinstance(sesion_activa["inicio"], datetime) else str(sesion_activa["inicio"]),
+        }
 
     fila = sr.crear_sesion(id_deportista, dispositivo["id_dispositivo"])
     return {

@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 *.recovery
 firmware/physioscan_chaleco/config.h
+firmware/config.h
 physioscan/
 devicon-master/
 .agents/

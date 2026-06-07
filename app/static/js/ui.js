@@ -175,6 +175,17 @@
     }, 1100);
   }
 
+  /* ---------- prevenir doble envío ---------- */
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn && !btn.disabled) {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    }
+  });
+
   /* ---------- flash dismiss ---------- */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-dismiss]');

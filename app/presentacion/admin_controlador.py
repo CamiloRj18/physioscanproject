@@ -437,6 +437,10 @@ def crear_dispositivo():
             flash("El nombre del dispositivo es obligatorio.", "error")
             return render_template("admin/crear_dispositivo.html", deportistas=deportistas)
 
+        if mac and dispr.buscar_por_mac(mac):
+            flash(f"Ya existe un dispositivo registrado con la MAC {mac}.", "error")
+            return render_template("admin/crear_dispositivo.html", deportistas=deportistas)
+
         # Genera API key en claro — se muestra UNA sola vez
         api_key = generar_token_url(32)
         api_key_hash = hash_password(api_key)
@@ -526,6 +530,14 @@ def crear_sesion():
 
         if not id_deportista:
             flash("Selecciona un deportista.", "error")
+            return render_template(
+                "admin/crear_sesion.html",
+                deportistas=deportistas,
+                dispositivos=dispositivos,
+            )
+
+        if sesionr.sesion_en_curso(id_deportista):
+            flash("El deportista ya tiene una sesión en curso. Finalizala antes de crear una nueva.", "error")
             return render_template(
                 "admin/crear_sesion.html",
                 deportistas=deportistas,

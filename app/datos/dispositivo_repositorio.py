@@ -124,6 +124,13 @@ def buscar_por_id_deportista(id_deportista: int) -> dict[str, Any] | None:
     )
 
 
+def buscar_por_mac(mac: str) -> dict[str, Any] | None:
+    return uno(
+        "SELECT id_dispositivo, codigo_dispositivo, nombre FROM dispositivo WHERE mac = %s",
+        (mac,),
+    )
+
+
 def actualizar_estado(id_dispositivo: int, estado: str) -> None:
     ejecutar(
         "UPDATE dispositivo SET estado = %s WHERE id_dispositivo = %s",

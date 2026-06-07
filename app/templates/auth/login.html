@@ -51,7 +51,7 @@
 
         <div class="field">
           <input id="l-email" type="email" name="email" placeholder=" "
-            value="{{ email or '' }}" autocomplete="email" required>
+            value="{{ form.get('email', '') }}" autocomplete="email" required>
           <label for="l-email">Correo electrónico</label>
           <svg class="icon field-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-user"></use></svg>
         </div>

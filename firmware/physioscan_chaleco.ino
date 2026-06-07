@@ -17,7 +17,6 @@
 #include <HardwareSerial.h>
 #include <TinyGPSPlus.h>
 #include <WiFi.h>
-#include <WiFiManager.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <mbedtls/md.h>
@@ -65,8 +64,7 @@ void reconectarWiFi() {
   if (WiFi.status() == WL_CONNECTED) return;
 
   Serial.print("[WiFi] Reconectando");
-  WiFi.disconnect();
-  WiFi.reconnect();
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
 
   unsigned long inicio = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - inicio < 10000) {
@@ -122,6 +120,7 @@ void iniciarSesion() {
   String firma      = calcularHMAC(xTimestamp, body);
 
   HTTPClient http;
+  http.setTimeout(20000);
   http.begin(String(SERVER_URL) + "/api/v1/sesiones/iniciar");
   http.addHeader("Content-Type",  "application/json");
   http.addHeader("X-Device-Code", DEVICE_CODE);
@@ -170,31 +169,21 @@ void setup() {
   pinMode(LO_MINUS, INPUT);
   Serial.println("[ECG] AD8232 configurado (OUTPUT=34, LO+=32, LO-=33)");
 
-  // WiFi — limpiar credenciales nativas para que WiFiManager tome control
-  WiFi.disconnect(true, true);
-  delay(1000);
-
-  // WiFi — reset por GPIO0 (BOOT): mantener presionado 3 s al arrancar borra credenciales
-  WiFiManager wifiManager;
-  pinMode(0, INPUT_PULLUP);
-  delay(100);
-  if (digitalRead(0) == LOW) {
-    Serial.println("[WiFi] Reset de credenciales WiFi...");
-    wifiManager.resetSettings();
+  // WiFi — conexión directa con credenciales de config.h
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  Serial.print("[WiFi] Conectando a " + String(WIFI_SSID));
+  unsigned long t0 = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 30000) {
+    delay(500);
+    Serial.print(".");
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println(" FALLO — reiniciando en 5 s");
+    delay(5000);
     ESP.restart();
   }
-
-  wifiManager.setConfigPortalTimeout(180);
-  wifiManager.setAPCallback([](WiFiManager* wm) {
-    Serial.println("[WiFi] Sin credenciales guardadas.");
-    Serial.println("[WiFi] Conéctate a 'PhysioScan-Setup' (pass: physioscan123)");
-    Serial.println("[WiFi] Luego abre 192.168.4.1 en tu navegador");
-  });
-  if (!wifiManager.autoConnect("PhysioScan-Setup", "physioscan123")) {
-    Serial.println("[WiFi] Timeout — reiniciando...");
-    ESP.restart();
-  }
-  Serial.println("[WiFi] Conectado! IP: " + WiFi.localIP().toString());
+  Serial.println(" OK — IP: " + WiFi.localIP().toString());
 
   // Sincronizar hora via NTP (UTC)
   configTime(0, 0, "pool.ntp.org", "time.nist.gov");
@@ -302,6 +291,7 @@ void loop() {
     String url = String(SERVER_URL) + "/api/v1/sesiones/"
                  + String(idSesionActual) + "/lecturas";
     HTTPClient http;
+    http.setTimeout(20000);
     http.begin(url);
     http.addHeader("Content-Type",  "application/json");
     http.addHeader("X-Device-Code", DEVICE_CODE);

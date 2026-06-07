@@ -227,24 +227,25 @@ def _generar_pdf(codigos: list[str], codigo_usuario: str, nombre_usuario: str) -
     elements = []
 
     titulo_style = ParagraphStyle(
-        "titulo", fontSize=26, fontName="Helvetica-Bold",
-        textColor=colors.HexColor("#0077B6"), spaceAfter=4, alignment=TA_CENTER,
+        "titulo", fontSize=24, fontName="Helvetica-Bold",
+        textColor=colors.HexColor("#0077B6"), alignment=TA_CENTER,
     )
     elements.append(Paragraph("PhysioScan", titulo_style))
+    elements.append(Spacer(1, 14))
 
     subtitulo_style = ParagraphStyle(
-        "sub", fontSize=13, fontName="Helvetica",
-        textColor=colors.HexColor("#2D5A8E"), spaceAfter=4, alignment=TA_CENTER,
+        "sub", fontSize=14, fontName="Helvetica",
+        textColor=colors.HexColor("#6B7280"), alignment=TA_CENTER,
     )
     elements.append(Paragraph("Archivo de Códigos de Recuperación", subtitulo_style))
-    elements.append(Spacer(1, 0.2 * cm))
+    elements.append(Spacer(1, 12))
 
     linea = Table([[""]], colWidths=[17 * cm])
     linea.setStyle(TableStyle([
         ("LINEBELOW", (0, 0), (-1, -1), 1, colors.HexColor("#0077B6")),
     ]))
     elements.append(linea)
-    elements.append(Spacer(1, 0.3 * cm))
+    elements.append(Spacer(1, 16))
 
     info_style = ParagraphStyle(
         "info", fontSize=10, fontName="Helvetica",

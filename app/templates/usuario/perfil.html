@@ -230,11 +230,28 @@
             Usar código de archivo
           </a>
         </div>
-        <div class="recovery-note">
+      </div>
+
+      <div class="card form-card reveal-in">
+        <div class="section-title">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-lock"></use></svg>
+          <h3>Códigos de recuperación</h3>
+        </div>
+        <p class="muted t-sm">Si pierdes acceso a tu cuenta, estos códigos te permiten recuperarla
+          sin necesidad de correo electrónico.</p>
+        <div class="recovery-note recovery-note--warn">
           <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-info-circle"></use></svg>
-          <p class="t-sm muted">Guarda tus códigos de recuperación en un lugar seguro.
-            Se muestran una sola vez al crear la cuenta.
-            Si los agotaste, solicita reemisión al administrador.</p>
+          <p class="t-sm">Cada vez que descargues se generan <strong>12 códigos nuevos</strong>
+            y los anteriores quedan <strong>inválidos</strong>. Guarda el PDF en un lugar seguro.</p>
+        </div>
+        <div class="form-actions">
+          <form method="post" action="{{ url_for('usuario.codigos_regenerar') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn--sm">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-refresh"></use></svg>
+              Descargar mis códigos (PDF)
+            </button>
+          </form>
         </div>
       </div>
     </section>

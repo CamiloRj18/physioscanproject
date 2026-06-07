@@ -8,6 +8,7 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <Wire.h>
 #include <MPU6050.h>
 #include <HardwareSerial.h>
@@ -75,8 +76,11 @@ void agregarCabeceras(HTTPClient& http, const String& body) {
 
 // ─── POST genérico ────────────────────────────────────────────────────────────
 int httpPost(const String& url, const String& body) {
+  WiFiClientSecure secureClient;
+  secureClient.setInsecure();
   HTTPClient http;
-  http.begin(url);
+  http.setTimeout(20000);
+  http.begin(secureClient, url);
   agregarCabeceras(http, body);
   int code = http.POST(body);
   if (code > 0) Serial.printf("[HTTP] POST %s → %d\n", url.c_str(), code);
@@ -89,8 +93,11 @@ int httpPost(const String& url, const String& body) {
 long iniciarSesion() {
   String body = "{\"codigo_dispositivo\":\"" + String(DEVICE_CODE) + "\"}";
   String url  = String(SERVER_URL) + "/api/v1/sesiones/iniciar";
+  WiFiClientSecure secureClient;
+  secureClient.setInsecure();
   HTTPClient http;
-  http.begin(url);
+  http.setTimeout(20000);
+  http.begin(secureClient, url);
   agregarCabeceras(http, body);
   int code = http.POST(body);
   long id  = -1;

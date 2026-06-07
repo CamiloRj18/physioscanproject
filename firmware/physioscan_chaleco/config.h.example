@@ -27,8 +27,10 @@
 
 #pragma once
 
-// ─── Servidor Flask (IP LAN — nunca 127.0.0.1) ───────────────────────────────
-#define SERVER_URL   "http://192.168.1.XX:5000"
+// ─── Servidor (producción) o IP LAN para desarrollo ──────────────────────────
+// Producción:  #define SERVER_URL "https://physioscanproject.vercel.app"
+// Desarrollo:  #define SERVER_URL "http://192.168.1.XX:5000"
+#define SERVER_URL   "https://physioscanproject.vercel.app"
 
 // ─── Credenciales del dispositivo (panel Admin → Dispositivos → Crear) ───────
 #define DEVICE_CODE  "CHAL0001"

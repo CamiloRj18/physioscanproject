@@ -8,6 +8,7 @@ from __future__ import annotations
 from flask import (
     Blueprint,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
@@ -19,6 +20,8 @@ from app.comun.decoradores import doble_factor_verificado
 from app.comun.errores import ConflictoError, ValidacionError
 from app.datos import deportista_repositorio as dr
 from app.negocio import deportista_servicio as ds
+from app.negocio.seguridad import recuperacion_archivo_servicio as ras
+from app.negocio.seguridad.auditoria_servicio import registrar as audit
 
 bp_usuario = Blueprint("usuario", __name__, url_prefix="/usuario")
 
@@ -48,6 +51,24 @@ def perfil():
     # Refresca deportista tras posible cambio
     deportista = dr.buscar_por_id_usuario(id_usuario)
     return render_template("usuario/perfil.html", deportista=deportista)
+
+
+@bp_usuario.post("/codigos/regenerar")
+@login_required
+@doble_factor_verificado
+def codigos_regenerar():
+    id_usuario = int(current_user.get_id())
+    try:
+        _, _, _, pdf_bytes = ras.generar_lote(id_usuario)
+        audit("CODIGOS_DESCARGADOS", id_usuario, request.remote_addr)
+        resp = make_response(pdf_bytes)
+        resp.headers["Content-Type"] = "application/pdf"
+        resp.headers["Content-Disposition"] = 'attachment; filename="codigos-physioscan.pdf"'
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+    except Exception as exc:
+        flash(f"No se pudo generar el PDF de códigos: {exc}", "error")
+        return redirect(url_for("usuario.perfil"))
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

@@ -16,7 +16,6 @@ import io
 
 import qrcode
 
-from app.negocio.seguridad.recuperacion_archivo_servicio import _generar_pdf
 from flask import (
     Blueprint,
     current_app,
@@ -103,17 +102,7 @@ def registro():
                 if fila else form["primer_nombre"] + " " + form["primer_apellido"]
             )
 
-            try:
-                pdf_bytes = _generar_pdf(codigos, codigo_usuario, nombre_usuario)
-                _enviar_codigos_pdf(form["email"], form["primer_nombre"], codigo_usuario, pdf_bytes)
-            except Exception as exc:
-                current_app.logger.warning("PDF códigos no enviado: %s", exc)
-
-            flash(
-                "Cuenta creada. Te enviamos el archivo de códigos de recuperación "
-                "a tu correo. Revisa también la carpeta de spam.",
-                "success",
-            )
+            flash("Cuenta creada. Verifica tu correo para activar tu cuenta.", "success")
             return redirect(url_for("auth.login"))
 
     return render_template("auth/registro.html", form=form)
@@ -176,7 +165,7 @@ def login():
             )
         except (AutenticacionError, BloqueadoError) as exc:
             flash(str(exc), "error")
-            return render_template("auth/login.html", email=email)
+            return render_template("auth/login.html", form=request.form)
 
         from app.extensions import UsuarioProxy
         proxy = UsuarioProxy(usuario)
@@ -203,7 +192,7 @@ def login():
         session["_sesion_srv"] = token_srv
         return redirect(_destino_post_login())
 
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", form={})
 
 
 # ── Verificar 2FA ───────────────────────────────────────────────────────────
@@ -326,30 +315,6 @@ def _destino_post_login() -> str:
     except BuildError:
         pass
     return url_for("publico.home")
-
-
-def _enviar_codigos_pdf(
-    email: str, nombre: str, codigo_usuario: str, pdf_bytes: bytes
-) -> None:
-    msg = Message(
-        subject="PhysioScan — Tu archivo de códigos de recuperación",
-        recipients=[email],
-    )
-    msg.body = (
-        f"Hola {nombre},\n\n"
-        "Bienvenido/a a PhysioScan.\n\n"
-        "Adjunto encontrarás tu archivo de 12 códigos de recuperación de contraseña.\n"
-        "Cada código solo puede usarse UNA VEZ.\n"
-        "Guarda este archivo en un lugar seguro.\n\n"
-        "Si no solicitaste esta cuenta, ignora este correo.\n\n"
-        "— Equipo PhysioScan · UniEspinal"
-    )
-    msg.attach(
-        filename=f"physioscan_codigos_{codigo_usuario}.pdf",
-        content_type="application/pdf",
-        data=pdf_bytes,
-    )
-    mail.send(msg)
 
 
 def _enviar_email_verificacion(email: str, nombre: str, token: str) -> None:
