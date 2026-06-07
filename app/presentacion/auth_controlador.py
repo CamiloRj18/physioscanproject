@@ -31,6 +31,7 @@ from flask_mail import Message
 from werkzeug.routing.exceptions import BuildError
 
 from app.comun.errores import AutenticacionError, BloqueadoError, ConflictoError, ValidacionError
+from app.comun.seguridad_utils import descifrar_secreto
 from app.comun.validadores import validar_contrasena, validar_email
 from app.datos import seguridad_repositorio as sr
 from app.datos import usuario_repositorio as ur
@@ -289,11 +290,17 @@ def activar_2fa():
             return redirect(url_for("usuario.perfil"))
         except (AutenticacionError, ValidacionError) as exc:
             flash(str(exc), "error")
-            # Regresa al GET para regenerar QR con el mismo secreto pendiente
+            return redirect(url_for("auth.activar_2fa"))
 
-    secreto_claro, secreto_cifrado = doble_factor_servicio.generar_secreto_totp(fernet_key)
+    registro_2fa = sr.obtener_2fa(id_usuario)
+    if registro_2fa and registro_2fa.get("secreto_totp") and not registro_2fa.get("confirmado"):
+        secreto_cifrado = registro_2fa["secreto_totp"]
+        secreto_claro   = descifrar_secreto(secreto_cifrado, fernet_key)
+    else:
+        secreto_claro, secreto_cifrado = doble_factor_servicio.generar_secreto_totp(fernet_key)
+        doble_factor_servicio.activar_totp(id_usuario, secreto_cifrado)
+
     uri = doble_factor_servicio.uri_totp(current_user.email, secreto_claro)
-    doble_factor_servicio.activar_totp(id_usuario, secreto_cifrado)
 
     return render_template(
         "auth/activar_2fa.html",
